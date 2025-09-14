@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ProductoRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -40,6 +42,44 @@ class Producto
 
     #[ORM\Column]
     private ?\DateTime $fecha_actualizacion = null;
+
+    #[ORM\ManyToOne(inversedBy: 'productos')]
+    private ?Categoria $categoria = null;
+
+    #[ORM\ManyToOne(inversedBy: 'productos')]
+    private ?Proveedor $proveedor = null;
+
+    /**
+     * @var Collection<int, DetalleCompra>
+     */
+    #[ORM\OneToMany(targetEntity: DetalleCompra::class, mappedBy: 'producto')]
+    private Collection $detalleCompras;
+
+    /**
+     * @var Collection<int, DetalleVenta>
+     */
+    #[ORM\OneToMany(targetEntity: DetalleVenta::class, mappedBy: 'producto')]
+    private Collection $detalleVentas;
+
+    /**
+     * @var Collection<int, HistorialPrecios>
+     */
+    #[ORM\OneToMany(targetEntity: HistorialPrecios::class, mappedBy: 'producto')]
+    private Collection $historialPrecios;
+
+    /**
+     * @var Collection<int, AjusteInventario>
+     */
+    #[ORM\OneToMany(targetEntity: AjusteInventario::class, mappedBy: 'producto')]
+    private Collection $ajusteInventarios;
+
+    public function __construct()
+    {
+        $this->detalleCompras = new ArrayCollection();
+        $this->detalleVentas = new ArrayCollection();
+        $this->historialPrecios = new ArrayCollection();
+        $this->ajusteInventarios = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -150,6 +190,150 @@ class Producto
     public function setFechaActualizacion(\DateTime $fecha_actualizacion): static
     {
         $this->fecha_actualizacion = $fecha_actualizacion;
+
+        return $this;
+    }
+
+    public function getCategoria(): ?Categoria
+    {
+        return $this->categoria;
+    }
+
+    public function setCategoria(?Categoria $categoria): static
+    {
+        $this->categoria = $categoria;
+
+        return $this;
+    }
+
+    public function getProveedor(): ?Proveedor
+    {
+        return $this->proveedor;
+    }
+
+    public function setProveedor(?Proveedor $proveedor): static
+    {
+        $this->proveedor = $proveedor;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DetalleCompra>
+     */
+    public function getDetalleCompras(): Collection
+    {
+        return $this->detalleCompras;
+    }
+
+    public function addDetalleCompra(DetalleCompra $detalleCompra): static
+    {
+        if (!$this->detalleCompras->contains($detalleCompra)) {
+            $this->detalleCompras->add($detalleCompra);
+            $detalleCompra->setProducto($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDetalleCompra(DetalleCompra $detalleCompra): static
+    {
+        if ($this->detalleCompras->removeElement($detalleCompra)) {
+            // set the owning side to null (unless already changed)
+            if ($detalleCompra->getProducto() === $this) {
+                $detalleCompra->setProducto(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DetalleVenta>
+     */
+    public function getDetalleVentas(): Collection
+    {
+        return $this->detalleVentas;
+    }
+
+    public function addDetalleVenta(DetalleVenta $detalleVenta): static
+    {
+        if (!$this->detalleVentas->contains($detalleVenta)) {
+            $this->detalleVentas->add($detalleVenta);
+            $detalleVenta->setProducto($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDetalleVenta(DetalleVenta $detalleVenta): static
+    {
+        if ($this->detalleVentas->removeElement($detalleVenta)) {
+            // set the owning side to null (unless already changed)
+            if ($detalleVenta->getProducto() === $this) {
+                $detalleVenta->setProducto(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, HistorialPrecios>
+     */
+    public function getHistorialPrecios(): Collection
+    {
+        return $this->historialPrecios;
+    }
+
+    public function addHistorialPrecio(HistorialPrecios $historialPrecio): static
+    {
+        if (!$this->historialPrecios->contains($historialPrecio)) {
+            $this->historialPrecios->add($historialPrecio);
+            $historialPrecio->setProducto($this);
+        }
+
+        return $this;
+    }
+
+    public function removeHistorialPrecio(HistorialPrecios $historialPrecio): static
+    {
+        if ($this->historialPrecios->removeElement($historialPrecio)) {
+            // set the owning side to null (unless already changed)
+            if ($historialPrecio->getProducto() === $this) {
+                $historialPrecio->setProducto(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AjusteInventario>
+     */
+    public function getAjusteInventarios(): Collection
+    {
+        return $this->ajusteInventarios;
+    }
+
+    public function addAjusteInventario(AjusteInventario $ajusteInventario): static
+    {
+        if (!$this->ajusteInventarios->contains($ajusteInventario)) {
+            $this->ajusteInventarios->add($ajusteInventario);
+            $ajusteInventario->setProducto($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAjusteInventario(AjusteInventario $ajusteInventario): static
+    {
+        if ($this->ajusteInventarios->removeElement($ajusteInventario)) {
+            // set the owning side to null (unless already changed)
+            if ($ajusteInventario->getProducto() === $this) {
+                $ajusteInventario->setProducto(null);
+            }
+        }
 
         return $this;
     }

@@ -29,6 +29,9 @@ class HistorialPrecios
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $motivo = null;
 
+    #[ORM\ManyToOne(inversedBy: 'historialPrecios')]
+    private ?Producto $producto = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -90,6 +93,18 @@ class HistorialPrecios
     public function setMotivo(?string $motivo): static
     {
         $this->motivo = $motivo;
+
+        return $this;
+    }
+
+    public function getProducto(): ?Producto
+    {
+        return $this->producto;
+    }
+
+    public function setProducto(?Producto $producto): static
+    {
+        $this->producto = $producto;
 
         return $this;
     }

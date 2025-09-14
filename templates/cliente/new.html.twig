@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Cliente{% endblock %}
+
+{% block body %}
+    <h1>Create new Cliente</h1>
+
+    {{ include('cliente/_form.html.twig') }}
+
+    <a href="{{ path('app_cliente_index') }}">back to list</a>
+{% endblock %}

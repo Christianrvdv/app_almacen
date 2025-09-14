@@ -28,6 +28,9 @@ class AjusteInventario
     #[ORM\Column(length: 255)]
     private ?string $usuario = null;
 
+    #[ORM\ManyToOne(inversedBy: 'ajusteInventarios')]
+    private ?Producto $producto = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -89,6 +92,18 @@ class AjusteInventario
     public function setUsuario(string $usuario): static
     {
         $this->usuario = $usuario;
+
+        return $this;
+    }
+
+    public function getProducto(): ?Producto
+    {
+        return $this->producto;
+    }
+
+    public function setProducto(?Producto $producto): static
+    {
+        $this->producto = $producto;
 
         return $this;
     }

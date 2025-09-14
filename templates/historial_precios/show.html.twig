@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}HistorialPrecios{% endblock %}
+
+{% block body %}
+    <h1>HistorialPrecios</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ historial_precio.id }}</td>
+            </tr>
+            <tr>
+                <th>Tipo</th>
+                <td>{{ historial_precio.tipo }}</td>
+            </tr>
+            <tr>
+                <th>Precio_anterior</th>
+                <td>{{ historial_precio.precioAnterior }}</td>
+            </tr>
+            <tr>
+                <th>Precio_nuevo</th>
+                <td>{{ historial_precio.precioNuevo }}</td>
+            </tr>
+            <tr>
+                <th>Fecha_cambio</th>
+                <td>{{ historial_precio.fechaCambio ? historial_precio.fechaCambio|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Motivo</th>
+                <td>{{ historial_precio.motivo }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_historial_precios_index') }}">back to list</a>
+
+    <a href="{{ path('app_historial_precios_edit', {'id': historial_precio.id}) }}">edit</a>
+
+    {{ include('historial_precios/_delete_form.html.twig') }}
+{% endblock %}

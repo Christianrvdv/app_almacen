@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New HistorialPrecios{% endblock %}
+
+{% block body %}
+    <h1>Create new HistorialPrecios</h1>
+
+    {{ include('historial_precios/_form.html.twig') }}
+
+    <a href="{{ path('app_historial_precios_index') }}">back to list</a>
+{% endblock %}

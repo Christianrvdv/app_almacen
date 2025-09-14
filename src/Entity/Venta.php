@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\VentaRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -22,6 +24,20 @@ class Venta
 
     #[ORM\Column(length: 255)]
     private ?string $tipo_veenta = null;
+
+    #[ORM\ManyToOne(inversedBy: 'ventas')]
+    private ?Cliente $cliente = null;
+
+    /**
+     * @var Collection<int, DetalleVenta>
+     */
+    #[ORM\OneToMany(targetEntity: DetalleVenta::class, mappedBy: 'venta')]
+    private Collection $detalleVentas;
+
+    public function __construct()
+    {
+        $this->detalleVentas = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -60,6 +76,48 @@ class Venta
     public function setTipoVeenta(string $tipo_veenta): static
     {
         $this->tipo_veenta = $tipo_veenta;
+
+        return $this;
+    }
+
+    public function getCliente(): ?Cliente
+    {
+        return $this->cliente;
+    }
+
+    public function setCliente(?Cliente $cliente): static
+    {
+        $this->cliente = $cliente;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DetalleVenta>
+     */
+    public function getDetalleVentas(): Collection
+    {
+        return $this->detalleVentas;
+    }
+
+    public function addDetalleVenta(DetalleVenta $detalleVenta): static
+    {
+        if (!$this->detalleVentas->contains($detalleVenta)) {
+            $this->detalleVentas->add($detalleVenta);
+            $detalleVenta->setVenta($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDetalleVenta(DetalleVenta $detalleVenta): static
+    {
+        if ($this->detalleVentas->removeElement($detalleVenta)) {
+            // set the owning side to null (unless already changed)
+            if ($detalleVenta->getVenta() === $this) {
+                $detalleVenta->setVenta(null);
+            }
+        }
 
         return $this;
     }

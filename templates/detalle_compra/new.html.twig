@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New DetalleCompra{% endblock %}
+
+{% block body %}
+    <h1>Create new DetalleCompra</h1>
+
+    {{ include('detalle_compra/_form.html.twig') }}
+
+    <a href="{{ path('app_detalle_compra_index') }}">back to list</a>
+{% endblock %}

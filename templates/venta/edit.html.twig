@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Venta{% endblock %}
+
+{% block body %}
+    <h1>Edit Venta</h1>
+
+    {{ include('venta/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_venta_index') }}">back to list</a>
+
+    {{ include('venta/_delete_form.html.twig') }}
+{% endblock %}

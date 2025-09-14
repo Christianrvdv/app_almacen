@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Compra index{% endblock %}
+
+{% block body %}
+    <h1>Compra index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Fecha</th>
+                <th>Numero_factura</th>
+                <th>Total</th>
+                <th>Estado</th>
+                <th>Observaciones</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for compra in compras %}
+            <tr>
+                <td>{{ compra.id }}</td>
+                <td>{{ compra.fecha ? compra.fecha|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ compra.numeroFactura }}</td>
+                <td>{{ compra.total }}</td>
+                <td>{{ compra.estado }}</td>
+                <td>{{ compra.observaciones }}</td>
+                <td>
+                    <a href="{{ path('app_compra_show', {'id': compra.id}) }}">show</a>
+                    <a href="{{ path('app_compra_edit', {'id': compra.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_compra_new') }}">Create new</a>
+{% endblock %}

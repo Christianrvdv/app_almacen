@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Venta{% endblock %}
+
+{% block body %}
+    <h1>Create new Venta</h1>
+
+    {{ include('venta/_form.html.twig') }}
+
+    <a href="{{ path('app_venta_index') }}">back to list</a>
+{% endblock %}

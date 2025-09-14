@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}DetalleCompra index{% endblock %}
+
+{% block body %}
+    <h1>DetalleCompra index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Cantidad</th>
+                <th>Precio_unitario</th>
+                <th>Subtotal</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for detalle_compra in detalle_compras %}
+            <tr>
+                <td>{{ detalle_compra.id }}</td>
+                <td>{{ detalle_compra.cantidad }}</td>
+                <td>{{ detalle_compra.precioUnitario }}</td>
+                <td>{{ detalle_compra.subtotal }}</td>
+                <td>
+                    <a href="{{ path('app_detalle_compra_show', {'id': detalle_compra.id}) }}">show</a>
+                    <a href="{{ path('app_detalle_compra_edit', {'id': detalle_compra.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="5">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_detalle_compra_new') }}">Create new</a>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit HistorialPrecios{% endblock %}
+
+{% block body %}
+    <h1>Edit HistorialPrecios</h1>
+
+    {{ include('historial_precios/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_historial_precios_index') }}">back to list</a>
+
+    {{ include('historial_precios/_delete_form.html.twig') }}
+{% endblock %}

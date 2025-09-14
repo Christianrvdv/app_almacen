@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Venta{% endblock %}
+
+{% block body %}
+    <h1>Venta</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ ventum.id }}</td>
+            </tr>
+            <tr>
+                <th>Fecha</th>
+                <td>{{ ventum.fecha ? ventum.fecha|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Total</th>
+                <td>{{ ventum.total }}</td>
+            </tr>
+            <tr>
+                <th>Tipo_veenta</th>
+                <td>{{ ventum.tipoVeenta }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_venta_index') }}">back to list</a>
+
+    <a href="{{ path('app_venta_edit', {'id': ventum.id}) }}">edit</a>
+
+    {{ include('venta/_delete_form.html.twig') }}
+{% endblock %}

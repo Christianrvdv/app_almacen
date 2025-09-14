@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}AjusteInventario index{% endblock %}
+
+{% block body %}
+    <h1>AjusteInventario index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Tipo</th>
+                <th>Cantidad</th>
+                <th>Fecha</th>
+                <th>Motivo</th>
+                <th>Usuario</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for ajuste_inventario in ajuste_inventarios %}
+            <tr>
+                <td>{{ ajuste_inventario.id }}</td>
+                <td>{{ ajuste_inventario.tipo }}</td>
+                <td>{{ ajuste_inventario.cantidad }}</td>
+                <td>{{ ajuste_inventario.fecha ? ajuste_inventario.fecha|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ ajuste_inventario.motivo }}</td>
+                <td>{{ ajuste_inventario.usuario }}</td>
+                <td>
+                    <a href="{{ path('app_ajuste_inventario_show', {'id': ajuste_inventario.id}) }}">show</a>
+                    <a href="{{ path('app_ajuste_inventario_edit', {'id': ajuste_inventario.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_ajuste_inventario_new') }}">Create new</a>
+{% endblock %}

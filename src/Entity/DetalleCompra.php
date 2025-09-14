@@ -23,6 +23,12 @@ class DetalleCompra
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     private ?string $subtotal = null;
 
+    #[ORM\ManyToOne(inversedBy: 'detalleCompras')]
+    private ?Compra $compra = null;
+
+    #[ORM\ManyToOne(inversedBy: 'detalleCompras')]
+    private ?Producto $producto = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -60,6 +66,30 @@ class DetalleCompra
     public function setSubtotal(string $subtotal): static
     {
         $this->subtotal = $subtotal;
+
+        return $this;
+    }
+
+    public function getCompra(): ?Compra
+    {
+        return $this->compra;
+    }
+
+    public function setCompra(?Compra $compra): static
+    {
+        $this->compra = $compra;
+
+        return $this;
+    }
+
+    public function getProducto(): ?Producto
+    {
+        return $this->producto;
+    }
+
+    public function setProducto(?Producto $producto): static
+    {
+        $this->producto = $producto;
 
         return $this;
     }

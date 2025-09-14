@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit AjusteInventario{% endblock %}
+
+{% block body %}
+    <h1>Edit AjusteInventario</h1>
+
+    {{ include('ajuste_inventario/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_ajuste_inventario_index') }}">back to list</a>
+
+    {{ include('ajuste_inventario/_delete_form.html.twig') }}
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}DetalleVenta{% endblock %}
+
+{% block body %}
+    <h1>DetalleVenta</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ detalle_ventum.id }}</td>
+            </tr>
+            <tr>
+                <th>Cantidad</th>
+                <td>{{ detalle_ventum.cantidad }}</td>
+            </tr>
+            <tr>
+                <th>Precio_unitario</th>
+                <td>{{ detalle_ventum.precioUnitario }}</td>
+            </tr>
+            <tr>
+                <th>Precio_costo</th>
+                <td>{{ detalle_ventum.precioCosto }}</td>
+            </tr>
+            <tr>
+                <th>Subtotal</th>
+                <td>{{ detalle_ventum.subtotal }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_detalle_venta_index') }}">back to list</a>
+
+    <a href="{{ path('app_detalle_venta_edit', {'id': detalle_ventum.id}) }}">edit</a>
+
+    {{ include('detalle_venta/_delete_form.html.twig') }}
+{% endblock %}

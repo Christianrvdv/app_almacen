@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New AjusteInventario{% endblock %}
+
+{% block body %}
+    <h1>Create new AjusteInventario</h1>
+
+    {{ include('ajuste_inventario/_form.html.twig') }}
+
+    <a href="{{ path('app_ajuste_inventario_index') }}">back to list</a>
+{% endblock %}

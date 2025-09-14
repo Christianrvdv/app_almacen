@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Compra{% endblock %}
+
+{% block body %}
+    <h1>Compra</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ compra.id }}</td>
+            </tr>
+            <tr>
+                <th>Fecha</th>
+                <td>{{ compra.fecha ? compra.fecha|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+            <tr>
+                <th>Numero_factura</th>
+                <td>{{ compra.numeroFactura }}</td>
+            </tr>
+            <tr>
+                <th>Total</th>
+                <td>{{ compra.total }}</td>
+            </tr>
+            <tr>
+                <th>Estado</th>
+                <td>{{ compra.estado }}</td>
+            </tr>
+            <tr>
+                <th>Observaciones</th>
+                <td>{{ compra.observaciones }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_compra_index') }}">back to list</a>
+
+    <a href="{{ path('app_compra_edit', {'id': compra.id}) }}">edit</a>
+
+    {{ include('compra/_delete_form.html.twig') }}
+{% endblock %}
