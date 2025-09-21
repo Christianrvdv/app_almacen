@@ -1,41 +1,66 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Proveedor index{% endblock %}
+{% block title %}Listado de Proveedores{% endblock %}
 
 {% block body %}
-    <h1>Proveedor index</h1>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold text-primary">Proveedores</h1>
+            <a href="{{ path('app_proveedor_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-2"></i>Nuevo Proveedor
+            </a>
+        </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Nombre</th>
-                <th>Telefono</th>
-                <th>Email</th>
-                <th>Direccion</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for proveedor in proveedors %}
-            <tr>
-                <td>{{ proveedor.id }}</td>
-                <td>{{ proveedor.nombre }}</td>
-                <td>{{ proveedor.telefono }}</td>
-                <td>{{ proveedor.email }}</td>
-                <td>{{ proveedor.direccion }}</td>
-                <td>
-                    <a href="{{ path('app_proveedor_show', {'id': proveedor.id}) }}">show</a>
-                    <a href="{{ path('app_proveedor_edit', {'id': proveedor.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="6">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_proveedor_new') }}">Create new</a>
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Nombre</th>
+                            <th>Teléfono</th>
+                            <th>Email</th>
+                            <th>Dirección</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for proveedor in proveedors %}
+                            <tr>
+                                <td>{{ proveedor.id }}</td>
+                                <td><strong>{{ proveedor.nombre }}</strong></td>
+                                <td>
+                                    <a href="tel:{{ proveedor.telefono }}" class="text-decoration-none">
+                                        <i class="fas fa-phone-alt me-1 text-success"></i>{{ proveedor.telefono }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="mailto:{{ proveedor.email }}" class="text-decoration-none">
+                                        <i class="fas fa-envelope me-1 text-primary"></i>{{ proveedor.email }}
+                                    </a>
+                                </td>
+                                <td title="{{ proveedor.direccion }}">
+                                    {{ proveedor.direccion|slice(0, 30) }}{{ proveedor.direccion|length > 30 ? '...' : '' }}
+                                </td>
+                                <td class="text-center">
+                                    <a href="{{ path('app_proveedor_show', {'id': proveedor.id}) }}" class="btn btn-sm btn-outline-info me-1" title="Ver">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ path('app_proveedor_edit', {'id': proveedor.id}) }}" class="btn btn-sm btn-outline-warning" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No se encontraron proveedores.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

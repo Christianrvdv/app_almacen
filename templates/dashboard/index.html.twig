@@ -1,0 +1,80 @@
+﻿{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard - Mi Aplicación{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="text-center mb-5">
+            <h1 class="display-5 fw-bold text-primary">Panel de Control</h1>
+            <p class="lead text-muted">Bienvenido a tu aplicación de gestión</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Tarjeta de Productos -->
+            <div class="col-md-4">
+                <a href="{{ path('app_producto_index') }}" class="text-decoration-none">
+                    <div class="card shadow-sm h-100 border-0 hover-card">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-box fa-3x text-primary"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Productos</h5>
+                            <p class="card-text text-muted">Gestiona tu inventario de productos</p>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 text-end">
+                            <span class="text-primary fw-semibold">Ver productos</span>
+                            <i class="fas fa-arrow-right ms-2 text-primary"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Tarjeta de Compras -->
+            <div class="col-md-4">
+                <a href="{{ path('app_compra_index') }}" class="text-decoration-none">
+                    <div class="card shadow-sm h-100 border-0 hover-card">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-shopping-cart fa-3x text-success"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Compras</h5>
+                            <p class="card-text text-muted">Administra tus compras y proveedores</p>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 text-end">
+                            <span class="text-success fw-semibold">Ver compras</span>
+                            <i class="fas fa-arrow-right ms-2 text-success"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Tarjeta de Ventas -->
+            <div class="col-md-4">
+                <a href="{{ path('app_venta_index') }}" class="text-decoration-none">
+                    <div class="card shadow-sm h-100 border-0 hover-card">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-chart-line fa-3x text-warning"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Ventas</h5>
+                            <p class="card-text text-muted">Controla tus ventas y clientes</p>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 text-end">
+                            <span class="text-warning fw-semibold">Ver ventas</span>
+                            <i class="fas fa-arrow-right ms-2 text-warning"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estilo opcional para hover -->
+    <style>
+        .hover-card:hover {
+            transform: translateY(-5px);
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
+        }
+    </style>
+{% endblock %}

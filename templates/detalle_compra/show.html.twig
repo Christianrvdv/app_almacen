@@ -1,34 +1,38 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}DetalleCompra{% endblock %}
+{% block title %}Detalle de Compra #{{ detalle_compra.id }}{% endblock %}
 
 {% block body %}
-    <h1>DetalleCompra</h1>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold text-primary">Detalle de Compra #{{ detalle_compra.id }}</h1>
+            <a href="{{ path('app_detalle_compra_index') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
+            </a>
+        </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ detalle_compra.id }}</td>
-            </tr>
-            <tr>
-                <th>Cantidad</th>
-                <td>{{ detalle_compra.cantidad }}</td>
-            </tr>
-            <tr>
-                <th>Precio_unitario</th>
-                <td>{{ detalle_compra.precioUnitario }}</td>
-            </tr>
-            <tr>
-                <th>Subtotal</th>
-                <td>{{ detalle_compra.subtotal }}</td>
-            </tr>
-        </tbody>
-    </table>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Cantidad</div>
+                    <div class="col-sm-9">{{ detalle_compra.cantidad }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Precio unitario</div>
+                    <div class="col-sm-9">$ {{ detalle_compra.precioUnitario|number_format(2, ',', '.') }}</div>
+                </div>
+                <div class="row mb-0">
+                    <div class="col-sm-3 fw-bold text-muted">Subtotal</div>
+                    <div class="col-sm-9 h5 mb-0 text-success">$ {{ detalle_compra.subtotal|number_format(2, ',', '.') }}</div>
+                </div>
+            </div>
+        </div>
 
-    <a href="{{ path('app_detalle_compra_index') }}">back to list</a>
-
-    <a href="{{ path('app_detalle_compra_edit', {'id': detalle_compra.id}) }}">edit</a>
-
-    {{ include('detalle_compra/_delete_form.html.twig') }}
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{{ path('app_detalle_compra_edit', {'id': detalle_compra.id}) }}" class="btn btn-warning btn-sm">
+                <i class="fas fa-edit me-1"></i>Editar
+            </a>
+            {{ include('detalle_compra/_delete_form.html.twig') }}
+        </div>
+    </div>
 {% endblock %}

@@ -1,41 +1,56 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}DetalleVenta index{% endblock %}
+{% block title %}Listado de Detalles de Venta{% endblock %}
 
 {% block body %}
-    <h1>DetalleVenta index</h1>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold text-primary">Detalles de Venta</h1>
+            <a href="{{ path('app_detalle_venta_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-2"></i>Nuevo Detalle
+            </a>
+        </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Cantidad</th>
-                <th>Precio_unitario</th>
-                <th>Precio_costo</th>
-                <th>Subtotal</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for detalle_ventum in detalle_ventas %}
-            <tr>
-                <td>{{ detalle_ventum.id }}</td>
-                <td>{{ detalle_ventum.cantidad }}</td>
-                <td>{{ detalle_ventum.precioUnitario }}</td>
-                <td>{{ detalle_ventum.precioCosto }}</td>
-                <td>{{ detalle_ventum.subtotal }}</td>
-                <td>
-                    <a href="{{ path('app_detalle_venta_show', {'id': detalle_ventum.id}) }}">show</a>
-                    <a href="{{ path('app_detalle_venta_edit', {'id': detalle_ventum.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="6">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_detalle_venta_new') }}">Create new</a>
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Precio Costo</th>
+                            <th>Subtotal</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for detalle in detalle_ventas %}
+                            <tr>
+                                <td>{{ detalle.id }}</td>
+                                <td>{{ detalle.cantidad }}</td>
+                                <td>$ {{ detalle.precioUnitario|number_format(2, ',', '.') }}</td>
+                                <td>$ {{ detalle.precioCosto|number_format(2, ',', '.') }}</td>
+                                <td><strong>$ {{ detalle.subtotal|number_format(2, ',', '.') }}</strong></td>
+                                <td class="text-center">
+                                    <a href="{{ path('app_detalle_venta_show', {'id': detalle.id}) }}" class="btn btn-sm btn-outline-info me-1" title="Ver">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ path('app_detalle_venta_edit', {'id': detalle.id}) }}" class="btn btn-sm btn-outline-warning" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No se encontraron detalles de venta.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

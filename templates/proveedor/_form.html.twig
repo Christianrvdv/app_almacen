@@ -1,4 +1,22 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+{# templates/proveedor/_form.html.twig #}
+{{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+<div class="row g-3">
+    {% for field in form %}
+        {% if field.vars.name != '_token' %}
+            <div class="col-md-6">
+                {{ form_label(field, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(field, {'attr': {'class': 'form-control' ~ (field.vars.errors|length > 0 ? ' is-invalid' : '')}}) }}
+                <div class="invalid-feedback">
+                    {{ form_errors(field) }}
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    <div class="col-12 text-end">
+        <button type="submit" class="btn btn-primary px-4">
+            <i class="fas fa-save me-2"></i>{{ button_label|default('Guardar') }}
+        </button>
+    </div>
+</div>
 {{ form_end(form) }}

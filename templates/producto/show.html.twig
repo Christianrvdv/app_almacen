@@ -1,58 +1,68 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Producto{% endblock %}
+{% block title %}Producto #{{ producto.id }}{% endblock %}
 
 {% block body %}
-    <h1>Producto</h1>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold text-primary">Producto #{{ producto.id }}</h1>
+            <a href="{{ path('app_producto_index') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
+            </a>
+        </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ producto.id }}</td>
-            </tr>
-            <tr>
-                <th>Nombre</th>
-                <td>{{ producto.nombre }}</td>
-            </tr>
-            <tr>
-                <th>Descipcion</th>
-                <td>{{ producto.descipcion }}</td>
-            </tr>
-            <tr>
-                <th>Codigo_barras</th>
-                <td>{{ producto.codigoBarras }}</td>
-            </tr>
-            <tr>
-                <th>Precio_compra</th>
-                <td>{{ producto.precioCompra }}</td>
-            </tr>
-            <tr>
-                <th>Precio_venta_actual</th>
-                <td>{{ producto.precioVentaActual }}</td>
-            </tr>
-            <tr>
-                <th>Stock_minimo</th>
-                <td>{{ producto.stockMinimo }}</td>
-            </tr>
-            <tr>
-                <th>Activo</th>
-                <td>{{ producto.activo ? 'Yes' : 'No' }}</td>
-            </tr>
-            <tr>
-                <th>Fecha_creaccion</th>
-                <td>{{ producto.fechaCreaccion ? producto.fechaCreaccion|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Fecha_actualizacion</th>
-                <td>{{ producto.fechaActualizacion ? producto.fechaActualizacion|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-        </tbody>
-    </table>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Nombre</div>
+                    <div class="col-sm-9">{{ producto.nombre }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Descripción</div>
+                    <div class="col-sm-9">{{ producto.descipcion }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Código de barras</div>
+                    <div class="col-sm-9"><code>{{ producto.codigoBarras }}</code></div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Precio compra</div>
+                    <div class="col-sm-9">$ {{ producto.precioCompra|number_format(2, ',', '.') }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Precio venta actual</div>
+                    <div class="col-sm-9 h5 mb-0 text-success">$ {{ producto.precioVentaActual|number_format(2, ',', '.') }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Stock mínimo</div>
+                    <div class="col-sm-9">{{ producto.stockMinimo }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Activo</div>
+                    <div class="col-sm-9">
+                        {% if producto.activo %}
+                            <span class="badge bg-success">Sí</span>
+                        {% else %}
+                            <span class="badge bg-secondary">No</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Fecha creación</div>
+                    <div class="col-sm-9">{{ producto.fechaCreaccion ? producto.fechaCreaccion|date('d/m/Y H:i') : '-' }}</div>
+                </div>
+                <div class="row mb-0">
+                    <div class="col-sm-3 fw-bold text-muted">Fecha actualización</div>
+                    <div class="col-sm-9">{{ producto.fechaActualizacion ? producto.fechaActualizacion|date('d/m/Y H:i') : '-' }}</div>
+                </div>
+            </div>
+        </div>
 
-    <a href="{{ path('app_producto_index') }}">back to list</a>
-
-    <a href="{{ path('app_producto_edit', {'id': producto.id}) }}">edit</a>
-
-    {{ include('producto/_delete_form.html.twig') }}
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{{ path('app_producto_edit', {'id': producto.id}) }}" class="btn btn-warning btn-sm">
+                <i class="fas fa-edit me-1"></i>Editar
+            </a>
+            {{ include('producto/_delete_form.html.twig') }}
+        </div>
+    </div>
 {% endblock %}

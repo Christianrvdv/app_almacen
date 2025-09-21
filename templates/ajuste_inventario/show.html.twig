@@ -1,42 +1,55 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}AjusteInventario{% endblock %}
+{% block title %}Ajuste de Inventario #{{ ajuste_inventario.id }}{% endblock %}
 
 {% block body %}
-    <h1>AjusteInventario</h1>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold text-primary">Ajuste de Inventario #{{ ajuste_inventario.id }}</h1>
+            <a href="{{ path('app_ajuste_inventario_index') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
+            </a>
+        </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ ajuste_inventario.id }}</td>
-            </tr>
-            <tr>
-                <th>Tipo</th>
-                <td>{{ ajuste_inventario.tipo }}</td>
-            </tr>
-            <tr>
-                <th>Cantidad</th>
-                <td>{{ ajuste_inventario.cantidad }}</td>
-            </tr>
-            <tr>
-                <th>Fecha</th>
-                <td>{{ ajuste_inventario.fecha ? ajuste_inventario.fecha|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Motivo</th>
-                <td>{{ ajuste_inventario.motivo }}</td>
-            </tr>
-            <tr>
-                <th>Usuario</th>
-                <td>{{ ajuste_inventario.usuario }}</td>
-            </tr>
-        </tbody>
-    </table>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Tipo</div>
+                    <div class="col-sm-9">
+                        {% set tipo = ajuste_inventario.tipo|lower %}
+                        {% if tipo == 'entrada' %}
+                            <span class="badge bg-success">Entrada</span>
+                        {% elseif tipo == 'salida' %}
+                            <span class="badge bg-danger">Salida</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ ajuste_inventario.tipo|capitalize }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Cantidad</div>
+                    <div class="col-sm-9">{{ ajuste_inventario.cantidad }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Fecha</div>
+                    <div class="col-sm-9">{{ ajuste_inventario.fecha ? ajuste_inventario.fecha|date('d/m/Y H:i') : '-' }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Motivo</div>
+                    <div class="col-sm-9">{{ ajuste_inventario.motivo }}</div>
+                </div>
+                <div class="row mb-0">
+                    <div class="col-sm-3 fw-bold text-muted">Usuario</div>
+                    <div class="col-sm-9">{{ ajuste_inventario.usuario }}</div>
+                </div>
+            </div>
+        </div>
 
-    <a href="{{ path('app_ajuste_inventario_index') }}">back to list</a>
-
-    <a href="{{ path('app_ajuste_inventario_edit', {'id': ajuste_inventario.id}) }}">edit</a>
-
-    {{ include('ajuste_inventario/_delete_form.html.twig') }}
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{{ path('app_ajuste_inventario_edit', {'id': ajuste_inventario.id}) }}" class="btn btn-warning btn-sm">
+                <i class="fas fa-edit me-1"></i>Editar
+            </a>
+            {{ include('ajuste_inventario/_delete_form.html.twig') }}
+        </div>
+    </div>
 {% endblock %}

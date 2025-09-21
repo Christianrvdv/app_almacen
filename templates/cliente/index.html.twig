@@ -1,45 +1,70 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Cliente index{% endblock %}
+{% block title %}Listado de Clientes{% endblock %}
 
 {% block body %}
-    <h1>Cliente index</h1>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold text-primary">Clientes</h1>
+            <a href="{{ path('app_cliente_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-2"></i>Nuevo Cliente
+            </a>
+        </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Nombre</th>
-                <th>Telefono</th>
-                <th>Email</th>
-                <th>Direccion</th>
-                <th>Fecha_registro</th>
-                <th>Compra_totales</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for cliente in clientes %}
-            <tr>
-                <td>{{ cliente.id }}</td>
-                <td>{{ cliente.nombre }}</td>
-                <td>{{ cliente.telefono }}</td>
-                <td>{{ cliente.email }}</td>
-                <td>{{ cliente.direccion }}</td>
-                <td>{{ cliente.fechaRegistro ? cliente.fechaRegistro|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ cliente.compraTotales }}</td>
-                <td>
-                    <a href="{{ path('app_cliente_show', {'id': cliente.id}) }}">show</a>
-                    <a href="{{ path('app_cliente_edit', {'id': cliente.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="8">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <a href="{{ path('app_cliente_new') }}">Create new</a>
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Nombre</th>
+                            <th>Teléfono</th>
+                            <th>Email</th>
+                            <th>Dirección</th>
+                            <th>Fecha Registro</th>
+                            <th>Compras Totales</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for cliente in clientes %}
+                            <tr>
+                                <td>{{ cliente.id }}</td>
+                                <td><strong>{{ cliente.nombre }}</strong></td>
+                                <td>
+                                    <a href="tel:{{ cliente.telefono }}" class="text-decoration-none">
+                                        <i class="fas fa-phone-alt me-1 text-success"></i>{{ cliente.telefono }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="mailto:{{ cliente.email }}" class="text-decoration-none" title="{{ cliente.email }}">
+                                        <i class="fas fa-envelope me-1 text-primary"></i>{{ cliente.email|slice(0, 25) }}{{ cliente.email|length > 25 ? '...' : '' }}
+                                    </a>
+                                </td>
+                                <td title="{{ cliente.direccion }}">
+                                    {{ cliente.direccion|slice(0, 30) }}{{ cliente.direccion|length > 30 ? '...' : '' }}
+                                </td>
+                                <td>{{ cliente.fechaRegistro ? cliente.fechaRegistro|date('d/m/Y H:i') : '-' }}</td>
+                                <td><strong>$ {{ cliente.compraTotales|number_format(2, ',', '.') }}</strong></td>
+                                <td class="text-center">
+                                    <a href="{{ path('app_cliente_show', {'id': cliente.id}) }}" class="btn btn-sm btn-outline-info me-1" title="Ver">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ path('app_cliente_edit', {'id': cliente.id}) }}" class="btn btn-sm btn-outline-warning" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">No se encontraron clientes.</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

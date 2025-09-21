@@ -1,46 +1,58 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Cliente{% endblock %}
+{% block title %}Cliente #{{ cliente.id }}{% endblock %}
 
 {% block body %}
-    <h1>Cliente</h1>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold text-primary">Cliente #{{ cliente.id }}</h1>
+            <a href="{{ path('app_cliente_index') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
+            </a>
+        </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ cliente.id }}</td>
-            </tr>
-            <tr>
-                <th>Nombre</th>
-                <td>{{ cliente.nombre }}</td>
-            </tr>
-            <tr>
-                <th>Telefono</th>
-                <td>{{ cliente.telefono }}</td>
-            </tr>
-            <tr>
-                <th>Email</th>
-                <td>{{ cliente.email }}</td>
-            </tr>
-            <tr>
-                <th>Direccion</th>
-                <td>{{ cliente.direccion }}</td>
-            </tr>
-            <tr>
-                <th>Fecha_registro</th>
-                <td>{{ cliente.fechaRegistro ? cliente.fechaRegistro|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Compra_totales</th>
-                <td>{{ cliente.compraTotales }}</td>
-            </tr>
-        </tbody>
-    </table>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Nombre</div>
+                    <div class="col-sm-9"><strong>{{ cliente.nombre }}</strong></div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Teléfono</div>
+                    <div class="col-sm-9">
+                        <a href="tel:{{ cliente.telefono }}" class="text-decoration-none">
+                            <i class="fas fa-phone-alt me-1 text-success"></i>{{ cliente.telefono }}
+                        </a>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Email</div>
+                    <div class="col-sm-9">
+                        <a href="mailto:{{ cliente.email }}" class="text-decoration-none">
+                            <i class="fas fa-envelope me-1 text-primary"></i>{{ cliente.email }}
+                        </a>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Dirección</div>
+                    <div class="col-sm-9">{{ cliente.direccion }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Fecha registro</div>
+                    <div class="col-sm-9">{{ cliente.fechaRegistro ? cliente.fechaRegistro|date('d/m/Y H:i') : '-' }}</div>
+                </div>
+                <div class="row mb-0">
+                    <div class="col-sm-3 fw-bold text-muted">Total compras</div>
+                    <div class="col-sm-9 h5 mb-0 text-success">$ {{ cliente.compraTotales|number_format(2, ',', '.') }}</div>
+                </div>
+            </div>
+        </div>
 
-    <a href="{{ path('app_cliente_index') }}">back to list</a>
-
-    <a href="{{ path('app_cliente_edit', {'id': cliente.id}) }}">edit</a>
-
-    {{ include('cliente/_delete_form.html.twig') }}
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{{ path('app_cliente_edit', {'id': cliente.id}) }}" class="btn btn-warning btn-sm">
+                <i class="fas fa-edit me-1"></i>Editar
+            </a>
+            {{ include('cliente/_delete_form.html.twig') }}
+        </div>
+    </div>
 {% endblock %}

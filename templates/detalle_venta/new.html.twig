@@ -1,11 +1,20 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}New DetalleVenta{% endblock %}
+{% block title %}Nuevo Detalle de Venta{% endblock %}
 
 {% block body %}
-    <h1>Create new DetalleVenta</h1>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold text-primary">Nuevo Detalle de Venta</h1>
+            <a href="{{ path('app_detalle_venta_index') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
+            </a>
+        </div>
 
-    {{ include('detalle_venta/_form.html.twig') }}
-
-    <a href="{{ path('app_detalle_venta_index') }}">back to list</a>
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                {{ include('detalle_venta/_form.html.twig', {'button_label': 'Guardar detalle'}) }}
+            </div>
+        </div>
+    </div>
 {% endblock %}

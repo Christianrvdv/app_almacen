@@ -43,7 +43,9 @@ class Producto
     #[ORM\Column]
     private ?\DateTime $fecha_actualizacion = null;
 
-    #[ORM\ManyToOne(inversedBy: 'productos')]
+    //#[ORM\ManyToOne(inversedBy: 'productos')]
+    #[ORM\ManyToOne(targetEntity: Categoria::class, inversedBy: 'productos')]
+    #[ORM\JoinColumn(name: 'categoria_id', referencedColumnName: 'id', onDelete: 'SET NULL')]
     private ?Categoria $categoria = null;
 
     #[ORM\ManyToOne(inversedBy: 'productos')]

@@ -1,34 +1,49 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Venta{% endblock %}
+{% block title %}Venta #{{ ventum.id }}{% endblock %}
 
 {% block body %}
-    <h1>Venta</h1>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="fw-bold text-primary">Venta #{{ ventum.id }}</h1>
+            <div>
+                <a href="{{ path('app_venta_index') }}" class="btn btn-outline-secondary btn-sm me-2">
+                    <i class="fas fa-arrow-left me-1"></i>Regresar
+                </a>
+                <a href="{{ path('app_venta_edit', {'id': ventum.id}) }}" class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit me-1"></i>Editar
+                </a>
+            </div>
+        </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ ventum.id }}</td>
-            </tr>
-            <tr>
-                <th>Fecha</th>
-                <td>{{ ventum.fecha ? ventum.fecha|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Total</th>
-                <td>{{ ventum.total }}</td>
-            </tr>
-            <tr>
-                <th>Tipo_veenta</th>
-                <td>{{ ventum.tipoVeenta }}</td>
-            </tr>
-        </tbody>
-    </table>
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Fecha</div>
+                    <div class="col-sm-9">{{ ventum.fecha ? ventum.fecha|date('d/m/Y H:i') : '-' }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Total</div>
+                    <div class="col-sm-9 h5 mb-0 text-success">$ {{ ventum.total|number_format(2, ',', '.') }}</div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Tipo de venta</div>
+                    <div class="col-sm-9">
+                        {% set tipo = ventum.tipoVeenta|lower %}
+                        {% if tipo == 'online' %}
+                            <span class="badge bg-info text-dark">Online</span>
+                        {% elseif tipo == 'tienda' %}
+                            <span class="badge bg-primary">Tienda</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ ventum.tipoVeenta|capitalize }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <a href="{{ path('app_venta_index') }}">back to list</a>
-
-    <a href="{{ path('app_venta_edit', {'id': ventum.id}) }}">edit</a>
-
-    {{ include('venta/_delete_form.html.twig') }}
+        <div class="mt-3">
+            {{ include('venta/_delete_form.html.twig') }}
+        </div>
+    </div>
 {% endblock %}
