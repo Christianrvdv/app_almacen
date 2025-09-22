@@ -26,11 +26,11 @@ class ProductoType extends AbstractType
             ->add('fecha_actualizacion')
             ->add('categoria', EntityType::class, [
                 'class' => Categoria::class,
-                'choice_label' => 'id',
+                'choice_label' => 'nombre',
             ])
             ->add('proveedor', EntityType::class, [
                 'class' => Proveedor::class,
-                'choice_label' => 'id',
+                'choice_label' => 'nombre',
             ])
         ;
     }

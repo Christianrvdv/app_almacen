@@ -6,8 +6,8 @@
     <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="fw-bold text-primary">Ventas</h1>
-            <a href="{{ path('app_venta_new') }}" class="btn btn-primary">
-                <i class="fas fa-plus-circle me-2"></i>Nueva Venta
+            <a href="{{ path('app_dashboard_index') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Regresar
             </a>
         </div>
 
@@ -58,6 +58,12 @@
                     </table>
                 </div>
             </div>
+        </div>
+
+        <div class="d-flex justify-content-end align-items-center mb-4">
+            <a href="{{ path('app_venta_new') }}" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-2"></i>Nueva Venta
+            </a>
         </div>
     </div>
 {% endblock %}

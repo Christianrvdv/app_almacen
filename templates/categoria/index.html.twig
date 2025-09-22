@@ -5,6 +5,9 @@
 {% block body %}
     <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="{{ path('app_producto_index') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Regresar
+            </a>
             <h1 class="fw-bold text-primary">Categorías</h1>
             <a href="{{ path('app_categoria_new') }}" class="btn btn-primary">
                 <i class="fas fa-plus-circle me-2"></i>Nueva Categoría

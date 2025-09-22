@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\DetalleCompra;
 use App\Entity\Producto;
+use App\Form\DetalleCompraType;
 use App\Form\ProductoType;
 use App\Repository\ProductoRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -71,7 +73,7 @@ final class ProductoController extends AbstractController
     #[Route('/{id}', name: 'app_producto_delete', methods: ['POST'])]
     public function delete(Request $request, Producto $producto, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$producto->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $producto->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($producto);
             $entityManager->flush();
         }

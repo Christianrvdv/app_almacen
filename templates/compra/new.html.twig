@@ -5,14 +5,20 @@
 {% block body %}
     <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fw-bold text-primary">Nueva Compra</h1>
+
             <a href="{{ path('app_compra_index') }}" class="btn btn-outline-secondary btn-sm">
                 <i class="fas fa-arrow-left me-1"></i>Regresar al listado
             </a>
+            <h1 class="fw-bold text-primary">Nueva Compra</h1>
+            <a href="{{ path('app_detalle_compra_index') }}" class="btn btn-outline-primary btn-sm">
+                <i class="fas align-bottom"></i>Detalles de la compra
+            </a>
         </div>
+
 
         <div class="card shadow-sm border-0">
             <div class="card-body">
+
                 {{ include('compra/_form.html.twig', {'button_label': 'Guardar compra'}) }}
             </div>
         </div>

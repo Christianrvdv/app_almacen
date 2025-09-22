@@ -24,7 +24,7 @@ class DetalleCompraType extends AbstractType
             ])
             ->add('producto', EntityType::class, [
                 'class' => Producto::class,
-                'choice_label' => 'id',
+                'choice_label' => 'nombre',
             ])
         ;
     }

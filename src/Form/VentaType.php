@@ -19,7 +19,7 @@ class VentaType extends AbstractType
             ->add('tipo_veenta')
             ->add('cliente', EntityType::class, [
                 'class' => Cliente::class,
-                'choice_label' => 'id',
+                'choice_label' => 'nombre',
             ])
         ;
     }

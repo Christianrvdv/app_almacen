@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="container mt-5">
-        <div class="text-center mb-5">
+        <div class="text-center mb-4">
             <h1 class="display-5 fw-bold text-primary">Panel de Control</h1>
             <p class="lead text-muted">Bienvenido a tu aplicación de gestión</p>
         </div>
@@ -62,6 +62,44 @@
                         <div class="card-footer bg-transparent border-0 text-end">
                             <span class="text-warning fw-semibold">Ver ventas</span>
                             <i class="fas fa-arrow-right ms-2 text-warning"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Tarjeta de proveedores -->
+            <div class="col-md-4">
+                <a href="{{ path('app_proveedor_index') }}" class="text-decoration-none">
+                    <div class="card shadow-sm h-100 border-0 hover-card">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-users fa-3x text-secondary"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Proveedor</h5>
+                            <p class="card-text text-muted">Gestiona tus proveedores</p>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 text-end">
+                            <span class="text-secondary fw-semibold">Ver proveedores</span>
+                            <i class="fas fa-arrow-right ms-2 text-secondary"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Tarjeta de estadisticas -->
+            <div class="col-md-4">
+                <a href="{{ path('app_estadisticas_index') }}" class="text-decoration-none">
+                    <div class="card shadow-sm h-100 border-0 hover-card">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-chart-bar fa-3x text-info"></i>
+                            </div>
+                            <h5 class="card-title fw-bold">Estadísticas</h5>
+                            <p class="card-text text-muted">Gestiona tus estadísticas</p>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 text-end">
+                            <span class="text-info fw-semibold">Ver estadísticas</span>
+                            <i class="fas fa-arrow-right ms-2 text-info"></i>
                         </div>
                     </div>
                 </a>
