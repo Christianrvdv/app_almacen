@@ -20,7 +20,6 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                         <tr>
-                            <th>#</th>
                             <th>Nombre</th>
                             <th>Descripción</th>
                             <th class="text-center">Acciones</th>
@@ -29,8 +28,7 @@
                         <tbody>
                         {% for categoria in categorias %}
                             <tr>
-                                <td>{{ categoria.id }}</td>
-                                <td><strong>{{ categoria.nombre }}</strong></td>
+                                <td>{{ categoria.nombre }}</td>
                                 <td title="{{ categoria.descripcion }}">
                                     {{ categoria.descripcion|slice(0, 40) }}{{ categoria.descripcion|length > 40 ? '...' : '' }}
                                 </td>

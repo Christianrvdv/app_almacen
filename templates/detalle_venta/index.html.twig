@@ -5,6 +5,9 @@
 {% block body %}
     <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
+            <a href="{{ path('app_venta_new') }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1"></i>Regresar
+            </a>
             <h1 class="fw-bold text-primary">Detalles de Venta</h1>
             <a href="{{ path('app_detalle_venta_new') }}" class="btn btn-primary">
                 <i class="fas fa-plus-circle me-2"></i>Nuevo Detalle
@@ -17,7 +20,6 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                         <tr>
-                            <th>#</th>
                             <th>Cantidad</th>
                             <th>Precio Unitario</th>
                             <th>Precio Costo</th>
@@ -28,7 +30,6 @@
                         <tbody>
                         {% for detalle in detalle_ventas %}
                             <tr>
-                                <td>{{ detalle.id }}</td>
                                 <td>{{ detalle.cantidad }}</td>
                                 <td>$ {{ detalle.precioUnitario|number_format(2, ',', '.') }}</td>
                                 <td>$ {{ detalle.precioCosto|number_format(2, ',', '.') }}</td>

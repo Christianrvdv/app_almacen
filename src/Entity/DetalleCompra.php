@@ -20,10 +20,11 @@ class DetalleCompra
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     private ?string $precio_unitario = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: false)]
     private ?string $subtotal = null;
 
     #[ORM\ManyToOne(inversedBy: 'detalleCompras')]
+    #[ORM\JoinColumn(onDelete: 'CASCADE')]
     private ?Compra $compra = null;
 
     #[ORM\ManyToOne(inversedBy: 'detalleCompras')]
@@ -58,16 +59,14 @@ class DetalleCompra
         return $this;
     }
 
-    public function getSubtotal(): ?string
+    public function getSubtotal(): ?float
     {
-        return $this->subtotal;
+        return (string) ($this->getCantidad() * $this->getPrecioUnitario());
     }
 
-    public function setSubtotal(string $subtotal): static
+    public function setSubtotal(?string $subtotal): void
     {
         $this->subtotal = $subtotal;
-
-        return $this;
     }
 
     public function getCompra(): ?Compra
@@ -93,4 +92,6 @@ class DetalleCompra
 
         return $this;
     }
+
+
 }

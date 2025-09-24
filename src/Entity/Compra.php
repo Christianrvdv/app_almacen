@@ -31,19 +31,14 @@ class Compra
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $observaciones = null;
 
-    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'compras')]
-    private ?self $proveedor = null;
+    #[ORM\ManyToOne(targetEntity: Proveedor::class, inversedBy: 'compras')]
+    private ?Proveedor $proveedor = null;
 
-    /**
-     * @var Collection<int, self>
-     */
-    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'proveedor')]
-    private Collection $compras;
 
     /**
      * @var Collection<int, DetalleCompra>
      */
-    #[ORM\OneToMany(targetEntity: DetalleCompra::class, mappedBy: 'compra')]
+    #[ORM\OneToMany(targetEntity: DetalleCompra::class, mappedBy: 'compra', cascade: ['persist', 'remove'])]
     private Collection $detalleCompras;
 
     public function __construct()
@@ -117,46 +112,14 @@ class Compra
         return $this;
     }
 
-    public function getProveedor(): ?self
+    public function getProveedor(): ?Proveedor
     {
         return $this->proveedor;
     }
 
-    public function setProveedor(?self $proveedor): static
+    public function setProveedor(?Proveedor $proveedor): void
     {
         $this->proveedor = $proveedor;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, self>
-     */
-    public function getCompras(): Collection
-    {
-        return $this->compras;
-    }
-
-    public function addCompra(self $compra): static
-    {
-        if (!$this->compras->contains($compra)) {
-            $this->compras->add($compra);
-            $compra->setProveedor($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCompra(self $compra): static
-    {
-        if ($this->compras->removeElement($compra)) {
-            // set the owning side to null (unless already changed)
-            if ($compra->getProveedor() === $this) {
-                $compra->setProveedor(null);
-            }
-        }
-
-        return $this;
     }
 
     /**

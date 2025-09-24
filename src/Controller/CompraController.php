@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Compra;
+use App\Entity\DetalleCompra;
 use App\Form\CompraType;
+use App\Form\DetalleCompraType;
 use App\Repository\CompraRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -30,28 +32,47 @@ final class CompraController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            foreach ($compra->getDetalleCompras() as $detalle) {
+                $detalle->setSubtotal(
+                    $detalle->getCantidad() * $detalle->getPrecioUnitario());
+                $entityManager->persist($detalle);
+            }
+
             $entityManager->persist($compra);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_compra_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute(
+                'app_compra_show',
+                ['id' => $compra->getId()],
+                Response::HTTP_SEE_OTHER);
         }
+
+        $detalleCompra = new DetalleCompra();
+        $formDetalle = $this->createForm(DetalleCompraType::class, $detalleCompra);
 
         return $this->render('compra/new.html.twig', [
             'compra' => $compra,
             'form' => $form,
+            'formDetalle' => $formDetalle,
         ]);
     }
 
     #[Route('/{id}', name: 'app_compra_show', methods: ['GET'])]
     public function show(Compra $compra): Response
     {
+        $detalle_compras = $compra->getDetalleCompras();
         return $this->render('compra/show.html.twig', [
             'compra' => $compra,
+            'detalle_compras' => $detalle_compras,
         ]);
     }
 
     #[Route('/{id}/edit', name: 'app_compra_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Compra $compra, EntityManagerInterface $entityManager): Response
+    public function edit(
+        Request                $request,
+        Compra                 $compra,
+        EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(CompraType::class, $compra);
         $form->handleRequest($request);
@@ -71,7 +92,7 @@ final class CompraController extends AbstractController
     #[Route('/{id}', name: 'app_compra_delete', methods: ['POST'])]
     public function delete(Request $request, Compra $compra, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$compra->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $compra->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($compra);
             $entityManager->flush();
         }

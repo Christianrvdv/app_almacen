@@ -26,17 +26,19 @@
                     <div class="col-sm-3 fw-bold text-muted">Total</div>
                     <div class="col-sm-9 h5 mb-0 text-success">$ {{ ventum.total|number_format(2, ',', '.') }}</div>
                 </div>
+
+                <div class="row mb-2">
+                    <div class="col-sm-3 fw-bold text-muted">Estado</div>
+                    <div class="col-sm-9">
+                        <div class="col-sm-9 h5 mb-0 text-success"> {{ ventum.estado|capitalize }}</div>
+                    </div>
+                </div>
+
                 <div class="row mb-2">
                     <div class="col-sm-3 fw-bold text-muted">Tipo de venta</div>
                     <div class="col-sm-9">
-                        {% set tipo = ventum.tipoVeenta|lower %}
-                        {% if tipo == 'online' %}
-                            <span class="badge bg-info text-dark">Online</span>
-                        {% elseif tipo == 'tienda' %}
-                            <span class="badge bg-primary">Tienda</span>
-                        {% else %}
-                            <span class="badge bg-secondary">{{ ventum.tipoVeenta|capitalize }}</span>
-                        {% endif %}
+
+                        <span class="badge bg-secondary">{{ ventum.tipoVeenta|capitalize }}</span>
                     </div>
                 </div>
             </div>

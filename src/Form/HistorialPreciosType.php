@@ -21,7 +21,8 @@ class HistorialPreciosType extends AbstractType
             ->add('motivo')
             ->add('producto', EntityType::class, [
                 'class' => Producto::class,
-                'choice_label' => 'id',
+                'choice_label' => 'nombre',
+                'placeholder' => 'Sin definir',
             ])
         ;
     }

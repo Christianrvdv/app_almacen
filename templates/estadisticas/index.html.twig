@@ -1,20 +1,98 @@
 ﻿{% extends 'base.html.twig' %}
 
-{% block title %}Estadisticas{% endblock %}
+{% block title %}Estadísticas Financieras{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="text-center mb-4">
-            <h1 class="display-5 fw-bold text-primary">Estadisticas</h1>
-            <p class="lead text-muted">Bienvenido a tus estadisticas</p>
+    <div class="container mt-4">
+        <h1>Estadísticas Financieras</h1>
+
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Ganancias Totales</h5>
+                        <p class="card-text">{{ gananciasBrutas }} $</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Gastos Totales</h5>
+                        <p class="card-text">{{ gastosBrutos }} $</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Faltante de Invesion</h5>
+                        <p class="card-text">{{ dineroActual }} $</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>Pendiente por Recibir</h5>
+                        <p class="card-text">{{ dineroPendiente }} $</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body">
+                        <canvas id="statsChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <style>
-        .hover-card:hover {
-            transform: translateY(-5px);
-            transition: all 0.3s ease-in-out;
-            box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15) !important;
-        }
-    </style>
+    <script>
+        const ctx = document.getElementById('statsChart').getContext('2d');
+        const ventasData = {{ ventasDiarias|json_encode()|raw }};
+        const comprasData = {{ comprasDiarias|json_encode()|raw }};
+
+        const ventasLabels = ventasData.map(item => item.dia);
+        const ventasValues = ventasData.map(item => item.total);
+
+        const comprasLabels = comprasData.map(item => item.dia);
+        const comprasValues = comprasData.map(item => item.total);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [...new Set([...ventasLabels, ...comprasLabels])].sort(),
+                datasets: [
+                    {
+                        label: 'Ventas Diarias',
+                        data: ventasValues,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    },
+                    {
+                        label: 'Compras Diarias',
+                        data: comprasValues,
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 {% endblock %}

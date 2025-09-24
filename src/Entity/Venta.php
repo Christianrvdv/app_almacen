@@ -34,6 +34,9 @@ class Venta
     #[ORM\OneToMany(targetEntity: DetalleVenta::class, mappedBy: 'venta')]
     private Collection $detalleVentas;
 
+    #[ORM\Column(length: 255)]
+    private ?string $estado = null;
+
     public function __construct()
     {
         $this->detalleVentas = new ArrayCollection();
@@ -118,6 +121,18 @@ class Venta
                 $detalleVenta->setVenta(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getEstado(): ?string
+    {
+        return $this->estado;
+    }
+
+    public function setEstado(string $estado): static
+    {
+        $this->estado = $estado;
 
         return $this;
     }

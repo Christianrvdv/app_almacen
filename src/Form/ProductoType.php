@@ -27,10 +27,12 @@ class ProductoType extends AbstractType
             ->add('categoria', EntityType::class, [
                 'class' => Categoria::class,
                 'choice_label' => 'nombre',
+                'placeholder' => 'Sin definir',
             ])
             ->add('proveedor', EntityType::class, [
                 'class' => Proveedor::class,
                 'choice_label' => 'nombre',
+                'placeholder' => 'Sin definir',
             ])
         ;
     }

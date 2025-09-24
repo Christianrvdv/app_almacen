@@ -17,9 +17,11 @@ class VentaType extends AbstractType
             ->add('fecha')
             ->add('total')
             ->add('tipo_veenta')
+            ->add('estado')
             ->add('cliente', EntityType::class, [
                 'class' => Cliente::class,
                 'choice_label' => 'nombre',
+                'placeholder' => 'Sin definir',
             ])
         ;
     }

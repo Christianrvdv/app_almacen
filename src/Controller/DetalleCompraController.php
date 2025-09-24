@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+
 #[Route('/detalle/compra')]
 final class DetalleCompraController extends AbstractController
 {
@@ -48,6 +49,16 @@ final class DetalleCompraController extends AbstractController
         return $this->render('detalle_compra/show.html.twig', [
             'detalle_compra' => $detalleCompra,
         ]);
+    }
+
+    #[Route('/by/{id}', name: 'app_detalle_compra_show_by_id', methods: ['GET'])]
+    public function getDetalleByCompra($id, DetalleCompraRepository $detalleCompraRepository): Response
+    {
+        $detalleCompras = $detalleCompraRepository->findBy(['compra' => $id]);
+        return $this->render('detalle_compra/index.html.twig', [
+            'detalle_compras' => $detalleCompras,
+        ]);
+
     }
 
     #[Route('/{id}/edit', name: 'app_detalle_compra_edit', methods: ['GET', 'POST'])]
