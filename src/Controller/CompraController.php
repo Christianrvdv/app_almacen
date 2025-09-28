@@ -7,6 +7,7 @@ use App\Entity\DetalleCompra;
 use App\Form\CompraType;
 use App\Form\DetalleCompraType;
 use App\Repository\CompraRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,7 +28,9 @@ final class CompraController extends AbstractController
     #[Route('/new', name: 'app_compra_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        $fecha_actual = new \DateTime('now',new \DateTimeZone('America/Toronto'));
         $compra = new Compra();
+        $compra->setFecha($fecha_actual);
         $form = $this->createForm(CompraType::class, $compra);
         $form->handleRequest($request);
 
@@ -62,6 +65,7 @@ final class CompraController extends AbstractController
     public function show(Compra $compra): Response
     {
         $detalle_compras = $compra->getDetalleCompras();
+
         return $this->render('compra/show.html.twig', [
             'compra' => $compra,
             'detalle_compras' => $detalle_compras,
@@ -69,25 +73,63 @@ final class CompraController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_compra_edit', methods: ['GET', 'POST'])]
-    public function edit(
-        Request                $request,
-        Compra                 $compra,
-        EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Compra $compra, EntityManagerInterface $entityManager): Response
     {
+        // Guardar detalles originales antes del handleRequest
+        $originalDetalles = new ArrayCollection();
+        foreach ($compra->getDetalleCompras() as $detalle) {
+            $originalDetalles->add($detalle);
+        }
+
         $form = $this->createForm(CompraType::class, $compra);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            try {
+                $totalCompra = 0;
 
-            return $this->redirectToRoute('app_compra_index', [], Response::HTTP_SEE_OTHER);
+                // Manejar nuevos detalles y calcular subtotales
+                foreach ($compra->getDetalleCompras() as $detalle) {
+                    // Calcular subtotal para cada detalle
+                    $subtotal = $detalle->getCantidad() * $detalle->getPrecioUnitario();
+                    $detalle->setSubtotal($subtotal);
+
+                    $totalCompra += $subtotal; // Acumular al total
+
+                    // Si es un detalle nuevo, persistirlo y establecer la relación
+                    if (!$originalDetalles->contains($detalle)) {
+                        $detalle->setCompra($compra);
+                        $entityManager->persist($detalle);
+                    }
+                }
+
+                // Actualizar el total de la compra
+                $compra->setTotal($totalCompra);
+
+                // Manejar detalles eliminados
+                foreach ($originalDetalles as $detalle) {
+                    if (!$compra->getDetalleCompras()->contains($detalle)) {
+                        $entityManager->remove($detalle);
+                    }
+                }
+
+                $entityManager->flush();
+
+                $this->addFlash('success', 'Compra actualizada correctamente');
+                return $this->redirectToRoute('app_compra_index', [], Response::HTTP_SEE_OTHER);
+
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al actualizar la compra: ' . $e->getMessage());
+            }
         }
 
         return $this->render('compra/edit.html.twig', [
             'compra' => $compra,
             'form' => $form,
+            'detalle_compras' => $compra->getDetalleCompras(),
         ]);
     }
+
 
     #[Route('/{id}', name: 'app_compra_delete', methods: ['POST'])]
     public function delete(Request $request, Compra $compra, EntityManagerInterface $entityManager): Response

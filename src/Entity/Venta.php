@@ -31,7 +31,8 @@ class Venta
     /**
      * @var Collection<int, DetalleVenta>
      */
-    #[ORM\OneToMany(targetEntity: DetalleVenta::class, mappedBy: 'venta')]
+    //#[ORM\OneToMany(targetEntity: DetalleVenta::class, mappedBy: 'venta')]
+    #[ORM\OneToMany(targetEntity: DetalleVenta::class, mappedBy: 'venta', cascade: ["persist"])]
     private Collection $detalleVentas;
 
     #[ORM\Column(length: 255)]

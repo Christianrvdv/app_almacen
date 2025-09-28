@@ -2,9 +2,7 @@
 
 namespace App\Controller;
 
-use App\Entity\DetalleCompra;
 use App\Entity\Producto;
-use App\Form\DetalleCompraType;
 use App\Form\ProductoType;
 use App\Repository\ProductoRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,7 +25,10 @@ final class ProductoController extends AbstractController
     #[Route('/new', name: 'app_producto_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        $fecha_actual = new \DateTime('now', new \DateTimeZone('America/Toronto'));
         $producto = new Producto();
+        $producto->setFechaCreaccion($fecha_actual);
+        $producto->setFechaActualizacion($fecha_actual);
         $form = $this->createForm(ProductoType::class, $producto);
         $form->handleRequest($request);
 
@@ -55,6 +56,8 @@ final class ProductoController extends AbstractController
     #[Route('/{id}/edit', name: 'app_producto_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Producto $producto, EntityManagerInterface $entityManager): Response
     {
+        $fecha_actual = new \DateTime('now', new \DateTimeZone('America/Toronto'));
+        $producto->setFechaActualizacion($fecha_actual);
         $form = $this->createForm(ProductoType::class, $producto);
         $form->handleRequest($request);
 

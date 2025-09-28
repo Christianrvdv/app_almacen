@@ -4,7 +4,7 @@ namespace App\Form;
 
 use App\Entity\Compra;
 use App\Entity\Proveedor;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -16,15 +16,17 @@ class CompraType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('fecha', DateType::class, [
-                'required' => true,
-                'widget' => 'single_text',
-                'label' => 'Fecha',
-                'data' => new \DateTime('today'),
-            ])
+            ->add('fecha')
             ->add('numero_factura')
             ->add('total')
-            ->add('estado')
+            ->add('estado', ChoiceType::class, [
+                'choices' => [
+                    'Pagado' => 'Pagado',
+                    'Pendiente' => 'Pendiente',
+                ],
+                'required' => true,
+                'placeholder' => 'Selecciona un estado',
+            ])
             ->add('observaciones')
             ->add('proveedor', EntityType::class, [
                 'class' => Proveedor::class,

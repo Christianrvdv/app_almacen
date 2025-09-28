@@ -1,24 +1,243 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Editar Compra{% endblock %}
+{% block title %}Editar Compra #{{ compra.id }}{% endblock %}
 
 {% block body %}
     <div class="container mt-5">
+        <!-- Mensajes Flash -->
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fw-bold text-primary">Editar Compra</h1>
             <a href="{{ path('app_compra_index') }}" class="btn btn-outline-secondary btn-sm">
                 <i class="fas fa-arrow-left me-1"></i>Regresar al listado
             </a>
+            <h1 class="fw-bold text-primary">Editar Compra #{{ compra.id }}</h1>
+            <form method="post" action="{{ path('app_compra_delete', {'id': compra.id}) }}"
+                  onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta compra?');"
+                  style="display: inline-block;" class="me-2">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ compra.id) }}">
+                <button type="submit" class="btn btn-danger btn-sm">
+                    <i class="fas fa-trash me-1"></i>Eliminar Compra
+                </button>
+            </form>
         </div>
 
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body">
-                {{ include('compra/_form.html.twig', {'button_label': 'Actualizar compra'}) }}
+                {{ form_start(form) }}
+
+                <!-- Información Principal de la Compra -->
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            {{ form_label(form.fecha, 'Fecha') }}
+                            {{ form_widget(form.fecha, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.fecha) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            {{ form_label(form.numero_factura, 'Número de Factura') }}
+                            {{ form_widget(form.numero_factura, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.numero_factura) }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            {{ form_label(form.total, 'Total') }}
+                            {{ form_widget(form.total, {'attr': {'class': 'form-control', 'readonly': 'readonly'}}) }}
+                            {{ form_errors(form.total) }}
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            {{ form_label(form.estado, 'Estado') }}
+                            {{ form_widget(form.estado, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.estado) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información del Proveedor y Observaciones -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="form-group mb-3">
+                            {{ form_label(form.observaciones, 'Observaciones') }}
+                            {{ form_widget(form.observaciones, {'attr': {'class': 'form-control', 'rows': 3}}) }}
+                            {{ form_errors(form.observaciones) }}
+                        </div>
+                        <div class="form-group mb-3">
+                            {{ form_label(form.proveedor, 'Proveedor') }}
+                            {{ form_widget(form.proveedor, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.proveedor) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalles de la Compra -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-primary mb-0">Detalles de la compra</h5>
+                        <button type="button" id="add-detalle" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-plus me-1"></i>Agregar Detalle
+                        </button>
+                    </div>
+
+                    <div id="detalle-compras"
+                         data-prototype="{{ form_widget(form.detalleCompras.vars.prototype)|e('html_attr') }}">
+                        {% for detalle in form.detalleCompras %}
+                            <div class="card bg-light mb-3 detalle-item" style="border-radius: 8px; padding: 15px;">
+                                <div class="row align-items-end">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-group">
+                                            {{ form_label(detalle.cantidad, 'Cantidad') }}
+                                            {{ form_widget(detalle.cantidad, {'attr': {'class': 'form-control cantidad', 'min': '1'}}) }}
+                                            {{ form_errors(detalle.cantidad) }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-group">
+                                            {{ form_label(detalle.precioUnitario, 'Precio Unitario') }}
+                                            {{ form_widget(detalle.precioUnitario, {'attr': {'class': 'form-control precio-unitario', 'step': '0.01', 'min': '0'}}) }}
+                                            {{ form_errors(detalle.precioUnitario) }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="form-group">
+                                            {{ form_label(detalle.producto, 'Producto') }}
+                                            {{ form_widget(detalle.producto, {'attr': {'class': 'form-control'}}) }}
+                                            {{ form_errors(detalle.producto) }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-danger eliminar-detalle btn-block mt-2">
+                                    <i class="fas fa-trash me-1"></i>Eliminar
+                                </button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <button type="button" id="add-detalle-bottom" class="btn btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i>Agregar Detalle
+                        </button>
+                    </div>
+                    <div>
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-save me-1"></i>Actualizar compra
+                        </button>
+                        <a href="{{ path('app_compra_index') }}" class="btn btn-outline-secondary">
+                            Cancelar
+                        </a>
+                    </div>
+                </div>
+                {{ form_end(form) }}
             </div>
         </div>
-
-        <div class="text-end">
-            {{ include('compra/_delete_form.html.twig') }}
-        </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const addButton = document.getElementById('add-detalle');
+            const addButtonBottom = document.getElementById('add-detalle-bottom');
+            const detalleCompras = document.getElementById('detalle-compras');
+            const prototype = detalleCompras.getAttribute('data-prototype');
+
+            function addDetalle() {
+                const index = detalleCompras.children.length;
+
+                const newForm = prototype.replace(/__name__/g, index);
+
+                const newRow = document.createElement('div');
+                newRow.setAttribute('class', 'card bg-light mb-3 detalle-item');
+                newRow.setAttribute('style', 'border-radius: 8px; padding: 15px;');
+                newRow.innerHTML = newForm;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.setAttribute('type', 'button');
+                deleteButton.setAttribute('class', 'btn btn-sm btn-danger eliminar-detalle btn-block mt-2');
+                deleteButton.innerHTML = '<i class="fas fa-trash me-1"></i>Eliminar';
+                newRow.appendChild(deleteButton);
+                detalleCompras.appendChild(newRow);
+                addCalculationListeners(newRow);
+            }
+
+            function updateTotal() {
+                let total = 0;
+                document.querySelectorAll('.detalle-item').forEach(row => {
+                    const cantidadInput = row.querySelector('.cantidad');
+                    const precioInput = row.querySelector('.precio-unitario');
+
+                    if (cantidadInput && precioInput) {
+                        const cantidad = parseFloat(cantidadInput.value) || 0;
+                        const precio = parseFloat(precioInput.value) || 0;
+                        total += cantidad * precio;
+                    }
+                });
+
+                const totalInput = document.querySelector('#compra_total');
+                if (totalInput) {
+                    totalInput.value = total.toFixed(2);
+                }
+            }
+
+            function addCalculationListeners(row) {
+                const cantidadInput = row.querySelector('.cantidad');
+                const precioInput = row.querySelector('.precio-unitario');
+
+                if (cantidadInput) {
+                    cantidadInput.addEventListener('input', updateTotal);
+                }
+
+                if (precioInput) {
+                    precioInput.addEventListener('input', updateTotal);
+                }
+            }
+
+            if (addButton) {
+                addButton.addEventListener('click', addDetalle);
+            }
+
+            if (addButtonBottom) {
+                addButtonBottom.addEventListener('click', addDetalle);
+            }
+
+            detalleCompras.addEventListener('click', function (e) {
+                if (e.target.classList.contains('eliminar-detalle') ||
+                    e.target.closest('.eliminar-detalle')) {
+                    const button = e.target.classList.contains('eliminar-detalle') ?
+                        e.target : e.target.closest('.eliminar-detalle');
+                    const item = button.closest('.detalle-item');
+                    if (item) {
+                        item.remove();
+                        updateTotal();
+                    }
+                }
+            });
+
+            document.querySelectorAll('.detalle-item').forEach(row => {
+                addCalculationListeners(row);
+            });
+        });
+    </script>
 {% endblock %}

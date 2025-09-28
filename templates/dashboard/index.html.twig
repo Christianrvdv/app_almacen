@@ -18,7 +18,7 @@
                             <div class="mb-3">
                                 <i class="fas fa-box fa-3x text-primary"></i>
                             </div>
-                            <h5 class="card-title fw-bold">Productos</h5>
+                            <h5 class="card-title fw-bold text-primary">Productos</h5>
                             <p class="card-text text-muted">Gestiona tu inventario de productos</p>
                         </div>
                         <div class="card-footer bg-transparent border-0 text-end">
@@ -37,7 +37,7 @@
                             <div class="mb-3">
                                 <i class="fas fa-shopping-cart fa-3x text-success"></i>
                             </div>
-                            <h5 class="card-title fw-bold">Compras</h5>
+                            <h5 class="card-title fw-bold text-success">Compras</h5>
                             <p class="card-text text-muted">Administra tus compras y proveedores</p>
                         </div>
                         <div class="card-footer bg-transparent border-0 text-end">
@@ -56,7 +56,7 @@
                             <div class="mb-3">
                                 <i class="fas fa-chart-line fa-3x text-warning"></i>
                             </div>
-                            <h5 class="card-title fw-bold">Ventas</h5>
+                            <h5 class="card-title fw-bold text-warning">Ventas</h5>
                             <p class="card-text text-muted">Controla tus ventas y clientes</p>
                         </div>
                         <div class="card-footer bg-transparent border-0 text-end">
@@ -73,14 +73,14 @@
                     <div class="card shadow-sm h-100 border-0 hover-card">
                         <div class="card-body text-center">
                             <div class="mb-3">
-                                <i class="fas fa-users fa-3x text-secondary"></i>
+                                <i class="fas fa-users fa-3x text-muted"></i>
                             </div>
-                            <h5 class="card-title fw-bold">Proveedor</h5>
+                            <h5 class="card-title fw-bold text-muted">Proveedor</h5>
                             <p class="card-text text-muted">Gestiona tus proveedores</p>
                         </div>
                         <div class="card-footer bg-transparent border-0 text-end">
-                            <span class="text-secondary fw-semibold">Ver proveedores</span>
-                            <i class="fas fa-arrow-right ms-2 text-secondary"></i>
+                            <span class="text-muted fw-semibold">Ver proveedores</span>
+                            <i class="fas fa-arrow-right ms-2 text-muted"></i>
                         </div>
                     </div>
                 </a>
@@ -94,7 +94,7 @@
                             <div class="mb-3">
                                 <i class="fas fa-history fa-3x text-info"></i>
                             </div>
-                            <h5 class="card-title fw-bold">Historial de precios</h5>
+                            <h5 class="card-title fw-bold text-info">Historial de precios</h5>
                             <p class="card-text text-muted">Consulta y administra el historial de precios</p>
                         </div>
                         <div class="card-footer bg-transparent border-0 text-end">
@@ -111,20 +111,37 @@
                     <div class="card shadow-sm h-100 border-0 hover-card">
                         <div class="card-body text-center">
                             <div class="mb-3">
-                                <i class="fas fa-chart-bar fa-3x text-info"></i>
+                                <i class="fas fa-chart-bar fa-3x text-primary"></i>
                             </div>
-                            <h5 class="card-title fw-bold">Estadísticas</h5>
+                            <h5 class="card-title fw-bold text-primary">Estadísticas</h5>
                             <p class="card-text text-muted">Gestiona tus estadísticas</p>
                         </div>
                         <div class="card-footer bg-transparent border-0 text-end">
-                            <span class="text-info fw-semibold">Ver estadísticas</span>
-                            <i class="fas fa-arrow-right ms-2 text-info"></i>
+                            <span class="text-primary fw-semibold">Ver estadísticas</span>
+                            <i class="fas fa-arrow-right ms-2 text-primary"></i>
                         </div>
                     </div>
                 </a>
             </div>
 
-
+            <!-- Tarjeta de clientes -->
+            <div class="col-md-4">
+                <a href="{{ path('app_cliente_index') }}" class="text-decoration-none">
+                    <div class="card shadow-sm h-100 border-0 hover-card">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-user-friends fa-3x text-warning"></i>
+                            </div>
+                            <h5 class="card-title fw-bold text-warning">Clientes</h5>
+                            <p class="card-text text-muted">Registra y gestiona tus clientes</p>
+                        </div>
+                        <div class="card-footer bg-transparent border-0 text-end">
+                            <span class="text-warning fw-semibold">Ver clientes</span>
+                            <i class="fas fa-arrow-right ms-2 text-warning"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
         </div>
     </div>
 

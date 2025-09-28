@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Producto;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Venta;
@@ -13,7 +14,7 @@ class EstadisticasController extends AbstractController
     #[Route('/estadisticas', name: 'app_estadisticas_index')]
     public function index(EntityManagerInterface $entityManager)
     {
-        // Calcular ganancias totales
+        // calcular ganancias totales
         $ventas = $entityManager->getRepository(Venta::class)->findAll();
         $gananciasBrutas = 0;
         $dineroPendiente = 0;
@@ -24,22 +25,25 @@ class EstadisticasController extends AbstractController
             }
         }
 
-        // Calcular gastos totales
+        // calcular gastos totales
         $compras = $entityManager->getRepository(Compra::class)->findAll();
         $gastosBrutos = 0;
         foreach ($compras as $compra) {
             $gastosBrutos += $compra->getTotal();
         }
 
-        // Calcular dinero actual
+        // calcular dinero actual
         $dineroActual = $gananciasBrutas - $gastosBrutos;
 
-        // In StatisticsController.php
+        // estadisticas controller.php
         $sqlVentas = "SELECT DATE(v.fecha) as dia, SUM(v.total) as total FROM venta v GROUP BY dia";
         $ventasDiarias = $entityManager->getConnection()->executeQuery($sqlVentas)->fetchAllAssociative();
 
         $sqlCompras = "SELECT DATE(c.fecha) as dia, SUM(c.total) as total FROM compra c GROUP BY dia";
         $comprasDiarias = $entityManager->getConnection()->executeQuery($sqlCompras)->fetchAllAssociative();
+
+        // calcular la cantidad de productos agotados
+        $productosAgotados = $entityManager->getRepository(Producto::class)->count(['stock_minimo' => 0]);
 
 
         return $this->render('estadisticas/index.html.twig', [
@@ -48,7 +52,8 @@ class EstadisticasController extends AbstractController
             'dineroActual' => $dineroActual,
             'dineroPendiente' => $dineroPendiente,
             'ventasDiarias' => $ventasDiarias,
-            'comprasDiarias' => $comprasDiarias
+            'comprasDiarias' => $comprasDiarias,
+            'productosAgotados' => $productosAgotados
         ]);
     }
 }

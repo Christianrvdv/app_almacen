@@ -5,41 +5,78 @@
 {% block stylesheets %}
     {{ parent() }}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .card-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        .text-danger {
+            color: #dc3545 !important;
+        }
+        .card-link {
+            text-decoration: none;
+        }
+        .card-link:hover {
+            text-decoration: none;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
-    <div class="container mt-4">
-        <h1>Estadísticas Financieras</h1>
+    <div class="container mt-5">
+        <div class="d-flex align-items-center mb-4">
+            <a href="{{ path('app_dashboard_index') }}" class="btn btn-outline-secondary btn-sm me-2">
+                <i class="fas fa-arrow-left me-1"></i>Regresar
+            </a>
+
+            <div class="d-flex justify-content-center flex-grow-1">
+                <h1 class="fw-bold text-primary">Estadísticas Financieras</h1>
+            </div>
+        </div>
 
         <div class="row mt-4">
             <div class="col-md-3">
-                <div class="card">
+                <a href="{{ path('app_producto_index') }}" class="card-link">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header fw-bold">Productos Agotados</div>
+                        <div class="card-body">
+                            <p class="card-text text-danger">{{ productosAgotados }} unidades</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header fw-bold">Ganancias Totales</div>
                     <div class="card-body">
-                        <h5>Ganancias Totales</h5>
                         <p class="card-text">{{ gananciasBrutas }} $</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header fw-bold">Gastos Totales</div>
                     <div class="card-body">
-                        <h5>Gastos Totales</h5>
                         <p class="card-text">{{ gastosBrutos }} $</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header fw-bold">Faltante de Inversión</div>
                     <div class="card-body">
-                        <h5>Faltante de Invesion</h5>
                         <p class="card-text">{{ dineroActual }} $</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header fw-bold">Pendiente por Recibir</div>
                     <div class="card-body">
-                        <h5>Pendiente por Recibir</h5>
                         <p class="card-text">{{ dineroPendiente }} $</p>
                     </div>
                 </div>
@@ -48,7 +85,7 @@
 
         <div class="row mt-4">
             <div class="col-md-12">
-                <div class="card">
+                <div class="card shadow-sm border-0">
                     <div class="card-body">
                         <canvas id="statsChart"></canvas>
                     </div>
@@ -89,7 +126,22 @@
                 responsive: true,
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Cantidad ($)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Días'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
                     }
                 }
             }

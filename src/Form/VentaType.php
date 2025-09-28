@@ -6,6 +6,8 @@ use App\Entity\Cliente;
 use App\Entity\Venta;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -17,11 +19,28 @@ class VentaType extends AbstractType
             ->add('fecha')
             ->add('total')
             ->add('tipo_veenta')
-            ->add('estado')
+            ->add('estado', ChoiceType::class, [
+                'choices' => [
+                    'Pagado' => 'Pagado',
+                    'Pendiente' => 'Pendiente',
+                ],
+                'required' => true,
+                'placeholder' => 'Selecciona un estado',
+            ])
             ->add('cliente', EntityType::class, [
                 'class' => Cliente::class,
                 'choice_label' => 'nombre',
                 'placeholder' => 'Sin definir',
+            ])
+            ->add('detalleVentas', CollectionType::class, [
+                'entry_type' => DetalleVentaType::class,
+                'entry_options' => ['label' => false],
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+                'prototype' => true,
+                'required' => false,
+                'label' => false,
             ])
         ;
     }

@@ -37,7 +37,7 @@ final class DetalleVentaController extends AbstractController
         }
 
         return $this->render('detalle_venta/new.html.twig', [
-            'detalle_ventum' => $detalleVentum,
+            'detalle_ventas' => $detalleVentum,
             'form' => $form,
         ]);
     }
@@ -46,7 +46,7 @@ final class DetalleVentaController extends AbstractController
     public function show(DetalleVenta $detalleVentum): Response
     {
         return $this->render('detalle_venta/show.html.twig', [
-            'detalle_ventum' => $detalleVentum,
+            'detalle_ventas' => $detalleVentum,
         ]);
     }
 
@@ -63,7 +63,7 @@ final class DetalleVentaController extends AbstractController
         }
 
         return $this->render('detalle_venta/edit.html.twig', [
-            'detalle_ventum' => $detalleVentum,
+            'detalle_ventas' => $detalleVentum,
             'form' => $form,
         ]);
     }

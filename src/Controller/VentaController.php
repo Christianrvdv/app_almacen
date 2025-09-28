@@ -2,9 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\DetalleVenta;
 use App\Entity\Venta;
+use App\Form\DetalleVentaType;
+use App\Form\VentaEditType;
 use App\Form\VentaType;
 use App\Repository\VentaRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,54 +29,105 @@ final class VentaController extends AbstractController
     #[Route('/new', name: 'app_venta_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $ventum = new Venta();
-        $form = $this->createForm(VentaType::class, $ventum);
+        $fecha_actual = new \DateTime('now',new \DateTimeZone('America/Toronto'));
+        $venta = new Venta();
+        $venta -> setFecha($fecha_actual);
+        $form = $this->createForm(VentaType::class, $venta);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($ventum);
+
+            foreach ($venta ->getDetalleVentas() as $detalleVenta) {
+                $detalleVenta->setSubtotal(
+                    $detalleVenta->getCantidad()*$detalleVenta->getPrecioUnitario());
+                $entityManager->persist($detalleVenta);
+            }
+            $entityManager->persist($venta);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_venta_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute(
+                'app_venta_index',
+                ['id' => $venta->getId()],
+                Response::HTTP_SEE_OTHER);
         }
 
+        $detalleVenta = new DetalleVenta();
+        $formDetalle = $this->createForm(DetalleVentaType::class, $detalleVenta);
+
         return $this->render('venta/new.html.twig', [
-            'ventum' => $ventum,
+            'venta' => $venta,
             'form' => $form,
+            'formDetalle' => $formDetalle,
         ]);
     }
 
     #[Route('/{id}', name: 'app_venta_show', methods: ['GET'])]
-    public function show(Venta $ventum): Response
+    public function show(Venta $venta): Response
     {
+        $detalle_venta = $venta->getDetalleVentas();
+
         return $this->render('venta/show.html.twig', [
-            'ventum' => $ventum,
+            'venta' => $venta,
+            'detalle_venta' => $detalle_venta,
+
         ]);
     }
 
     #[Route('/{id}/edit', name: 'app_venta_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Venta $ventum, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Venta $venta, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(VentaType::class, $ventum);
+        $originalDetalles = new ArrayCollection();
+        foreach ($venta->getDetalleVentas() as $detalle) {
+            $originalDetalles->add($detalle);
+        }
+
+        $form = $this->createForm(VentaType::class, $venta);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            try {
+                $totalVenta = 0;
+                foreach ($venta->getDetalleVentas() as $detalle) {
+                    // Calcular el subtotal para cada detalle
+                    $subtotal = $detalle->getCantidad() * $detalle->getPrecioUnitario();
+                    $detalle->setSubtotal($subtotal);
+                    $totalVenta += $subtotal;
 
-            return $this->redirectToRoute('app_venta_index', [], Response::HTTP_SEE_OTHER);
+                    if (!$originalDetalles->contains($detalle)) {
+                        $detalle->setVenta($venta);
+                        $entityManager->persist($detalle);
+                    }
+                }
+                $venta->setTotal($totalVenta);
+                foreach ($originalDetalles as $detalle) {
+                    if (!$venta->getDetalleVentas()->contains($detalle)) {
+                        $entityManager->remove($detalle);
+                    }
+                }
+                $entityManager->flush();
+                return $this->redirectToRoute('app_venta_index', [], Response::HTTP_SEE_OTHER);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al guardar la venta: ' . $e->getMessage());
+            }
+        } elseif ($form->isSubmitted()) {
+            $errors = $form->getErrors(true);
+            foreach ($errors as $error) {
+                $this->addFlash('error', $error->getMessage());
+            }
         }
 
         return $this->render('venta/edit.html.twig', [
-            'ventum' => $ventum,
+            'venta' => $venta,
             'form' => $form,
+            'detalle_venta' => $venta->getDetalleVentas(),
         ]);
     }
 
     #[Route('/{id}', name: 'app_venta_delete', methods: ['POST'])]
-    public function delete(Request $request, Venta $ventum, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Venta $venta, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$ventum->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($ventum);
+        if ($this->isCsrfTokenValid('delete'.$venta->getId(), $request->getPayload()->getString('_token'))) {
+            $entityManager->remove($venta);
             $entityManager->flush();
         }
 

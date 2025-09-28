@@ -18,11 +18,6 @@ class DetalleVentaType extends AbstractType
             ->add('cantidad')
             ->add('precio_unitario')
             ->add('precio_costo')
-            ->add('subtotal')
-            ->add('venta', EntityType::class, [
-                'class' => Venta::class,
-                'choice_label' => 'id',
-            ])
             ->add('producto', EntityType::class, [
                 'class' => Producto::class,
                 'choice_label' => 'nombre',
