@@ -1,24 +1,285 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Editar Categoría{% endblock %}
+{% block title %}Editar Categoría #{{ categoria.id }} - Sistema de Inventario{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fw-bold text-primary">Editar Categoría</h1>
-            <a href="{{ path('app_categoria_index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
-            </a>
-        </div>
-
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                {{ include('categoria/_form.html.twig', {'button_label': 'Actualizar categoría'}) }}
+<div class="container-fluid py-4">
+    <!-- Header Mejorado -->
+    <div class="page-header">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <a href="{{ path('app_categoria_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                        <i class="fas fa-arrow-left me-2"></i>Volver al Listado
+                    </a>
+                </div>
+                <div class="text-center text-white">
+                    <h1 class="fw-bold mb-1">✏️ Editar Categoría</h1>
+                    <p class="mb-0 opacity-75">Actualiza la información de la categoría #{{ categoria.id }}</p>
+                </div>
+                <div style="width: 130px;"></div> <!-- Espaciador para alinear -->
             </div>
         </div>
+    </div>
 
-        <div class="text-end">
-            {{ include('categoria/_delete_form.html.twig') }}
+    <div class="container">
+        <!-- Mensajes Flash Mejorados -->
+        {% for message in app.flashes('success') %}
+            <div class="alert-modern alert alert-success alert-dismissible fade show" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-check-circle fa-2x me-3"></i>
+                    <div>
+                        <h5 class="alert-heading mb-1">¡Éxito!</h5>
+                        {{ message }}
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert-modern alert alert-danger alert-dismissible fade show" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                    <div>
+                        <h5 class="alert-heading mb-1">Error</h5>
+                        {{ message }}
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+        <!-- Formulario Principal -->
+        <div class="stats-card">
+            <div class="card-header-modern">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <i class="fas fa-edit me-2"></i>Editando Categoría: {{ categoria.nombre }}
+                    </div>
+                    <form method="post" action="{{ path('app_categoria_delete', {'id': categoria.id}) }}"
+                          onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta categoría?');"
+                          class="delete-form">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ categoria.id) }}">
+                        <button type="submit" class="btn btn-danger-modern btn-modern btn-sm">
+                            <i class="fas fa-trash me-1"></i>Eliminar Categoría
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+
+                <!-- Estadísticas de la Categoría -->
+                {% if categoria.productos|length > 0 %}
+
+                <div class="card-body p-4">
+                    <div class="stats-grid" id="stats-container">
+                        <div class="stat-item loading">
+                            <div class="stat-number text-primary">{{ categoria.productos|length }}</div>
+                            <div class="stat-label">Productos Totales</div>
+                        </div>
+                        <div class="stat-item loading">
+                            <div
+                                class="stat-number text-success">{{ categoria.productos|filter(p => p.activo)|length }}</div>
+                            <div class="stat-label">Productos Activos</div>
+                        </div>
+                        <div class="stat-item loading">
+                            <div
+                                class="stat-number text-warning">{{ categoria.productos|filter(p => not p.activo)|length }}</div>
+                            <div class="stat-label">Productos Inactivos</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Información Básica -->
+                    <h3 class="section-title">
+                        <i class="fas fa-info-circle me-2"></i>Información Básica de la Categoría
+                    </h3>
+                    <div class="form-section">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.nombre, 'Nombre de la Categoría', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.nombre, {'attr': {
+                                        'class': 'form-control form-control-modern',
+                                        'placeholder': 'Ej: Electrónicos, Ropa, Hogar',
+                                        'required': 'required'
+                                    }}) }}
+                                    {{ form_errors(form.nombre) }}
+                                    <div class="form-help-text">Nombre único y descriptivo para la categoría</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.descripcion, 'Descripción', {'label_attr': {'class': 'form-label-modern'}}) }}
+                                    {{ form_widget(form.descripcion, {'attr': {
+                                        'class': 'form-control form-control-modern',
+                                        'placeholder': 'Describe el propósito de esta categoría...',
+                                        'rows': 3
+                                    }}) }}
+                                    {{ form_errors(form.descripcion) }}
+                                    <div class="form-help-text">Información adicional sobre la categoría (opcional)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vista Previa de Productos -->
+                    <h3 class="section-title">
+                        <i class="fas fa-cubes me-2"></i>Productos en esta Categoría ({{ categoria.productos|length }})
+                    </h3>
+
+                    {% if categoria.productos|length > 0 %}
+                            <div class="table-modern">
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Descripción</th>
+                                            <th class="text-center">Estado</th>
+                                            <th class="text-center">Actualizado</th>
+                                            <th class="text-center">Acciones</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for producto in  categoria.productos %}
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="bg-light rounded p-2 me-3">
+                                                            <i class="fas fa-cube text-primary"></i>
+                                                        </div>
+                                                        <div>
+                                                            <div class="product-name">{{ producto.nombre }}</div>
+                                                            <small class="text-muted">
+                                                                {% if producto.codigoBarras %}
+                                                                    📋 {{ producto.codigoBarras }}
+                                                                {% else %}
+                                                                    📋 Sin código
+                                                                {% endif %}
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                        <span class="text-muted">
+                                            {{ producto.descipcion ? (producto.descipcion|slice(0, 40) ~ (producto.descipcion|length > 40 ? '...' : '')) : 'Sin descripción' }}
+                                        </span>
+                                                </td>
+                                                <td class="text-center">
+                                                    {% if producto.activo %}
+                                                        <span class="badge-modern text-success">
+                                                <i class="fas fa-check me-1"></i>Activo
+                                            </span>
+                                                    {% else %}
+                                                        <span class="badge-modern text-secondary">
+                                                <i class="fas fa-times me-1"></i>Inactivo
+                                            </span>
+                                                    {% endif %}
+                                                </td>
+                                                <td class="text-center text-muted">
+                                                    <small>{{ producto.fechaActualizacion ? producto.fechaActualizacion|date('d/m/Y') : 'N/A' }}</small>
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="action-buttons">
+                                                        <a href="{{ path('app_producto_show', {'id': producto.id}) }}"
+                                                           class="btn btn-modern btn-outline-modern"
+                                                           title="Ver detalles">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <a href="{{ path('app_producto_edit', {'id': producto.id}) }}"
+                                                           class="btn btn-modern btn-primary-modern" title="Editar">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="7" class="empty-state">
+                                                    <i class="fas fa-inbox"></i>
+                                                    <h4 class="mt-3">No se encontraron productos</h4>
+                                                    <p class="text-muted mb-3">Comienza agregando tu primer producto al
+                                                        catálogo</p>
+                                                    <a href="{{ path('app_producto_new') }}"
+                                                       class="btn btn-primary-modern btn-modern">
+                                                        <i class="fas fa-plus-circle me-2"></i>Crear Primer Producto
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                    {% endif %}
+
+
+                    <!-- Botones de Acción -->
+                    <div class="form-section">
+                        <div class="action-buttons">
+                            <a href="{{ path('app_categoria_index') }}" class="btn btn-modern btn-outline-modern">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-modern btn-primary-modern">
+                                <i class="fas fa-save me-2"></i>Actualizar Categoría
+                            </button>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
         </div>
     </div>
-{% endblock %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Validación de formulario
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            });
+
+            // Animación suave para las secciones
+            const sections = document.querySelectorAll('.form-section');
+            sections.forEach((section, index) => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    section.style.transition = 'all 0.6s ease';
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // Efecto de realce en el campo de nombre
+            const nombreInput = document.getElementById('{{ form.nombre.vars.id }}');
+            if (nombreInput) {
+                nombreInput.addEventListener('focus', function () {
+                    this.parentElement.style.transform = 'scale(1.02)';
+                    this.parentElement.style.transition = 'transform 0.3s ease';
+                });
+
+                nombreInput.addEventListener('blur', function () {
+                    this.parentElement.style.transform = 'scale(1)';
+                });
+            }
+        });
+    </script>
+    {% endblock %}

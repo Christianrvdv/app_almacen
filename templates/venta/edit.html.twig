@@ -1,97 +1,236 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Editar Venta{% endblock %}
+{% block title %}Editar Venta - Sistema de Inventario{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <a href="{{ path('app_venta_index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
-            </a>
-            <h1 class="fw-bold text-primary">Editar Venta #{{ venta.id }}</h1>
-            <form method="post" action="{{ path('app_venta_delete', {'id': venta.id}) }}"
-                  onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta venta?');"
-                  style="display: inline-block;">
-                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ venta.id) }}">
-                <button type="submit" class="btn btn-danger btn-sm ms-2">
-                    <i class="fas fa-trash me-1"></i>Eliminar Venta
-                </button>
-            </form>
+    <div class="container-fluid py-4">
+        <!-- Header Mejorado -->
+        <div class="page-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="{{ path('app_venta_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Listado
+                        </a>
+                    </div>
+                    <div class="text-center text-white">
+                        <h1 class="fw-bold mb-1">✏️ Editar Venta #{{ venta.id }}</h1>
+                        <p class="mb-0 opacity-75">Actualiza la información de la venta</p>
+                    </div>
+                    <div>
+                        <form method="post" action="{{ path('app_venta_delete', {'id': venta.id}) }}"
+                              onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta venta?');"
+                              style="display: inline-block;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ venta.id) }}">
+                            <button type="submit" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                                <i class="fas fa-trash me-2"></i>Eliminar Venta
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                {{ form_start(form) }}
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="form-group">
-                            {{ form_row(form.fecha, {'attr': {'class': 'form-control'}}) }}
-                        </div>
-                        <div class="form-group">
-                            {{ form_row(form.total, {'attr': {'class': 'form-control'}}) }}
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="form-group">
-                            {{ form_row(form.tipo_veenta, {'attr': {'class': 'form-control'}}) }}
-                        </div>
-                        <div class="form-group">
-                            {{ form_row(form.estado, {'attr': {'class': 'form-control'}}) }}
+        <div class="container">
+            <!-- Mensajes Flash Mejorados -->
+            {% for message in app.flashes('success') %}
+                <div class="alert-modern alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">¡Éxito!</h5>
+                            {{ message }}
                         </div>
                     </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
+            {% endfor %}
 
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="form-group mb-3">
-                            {{ form_row(form.cliente, {'attr': {'class': 'form-control'}}) }}
+            {% for message in app.flashes('error') %}
+                <div class="alert-modern alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Error</h5>
+                            {{ message }}
                         </div>
                     </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
+            {% endfor %}
 
-                <div class="mb-4">
-                    <h5 class="mt-4 fw-bold text-primary">Detalles de la venta</h5>
-                    <div id="detalle-ventas" data-prototype="{{ form_widget(form.detalleVentas.vars.prototype)|e('html_attr') }}">
-                        {% for detalle in form.detalleVentas %}
-                            <div class="card bg-light mb-3" style="border-radius: 8px; padding: 15px;">
-                                <div class="row align-items-center">
-                                    <div class="col-md-3 mb-3">
-                                        <div class="form-group">
-                                            {{ form_row(detalle.cantidad, {'attr': {'class': 'form-control'}}) }}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 mb-3">
-                                        <div class="form-group">
-                                            {{ form_row(detalle.precio_unitario, {'attr': {'class': 'form-control'}}) }}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <div class="form-group">
-                                            {{ form_row(detalle.producto, {'attr': {'class': 'form-control'}}) }}
-                                        </div>
-                                    </div>
+            <!-- Formulario Principal -->
+            <div class="stats-card">
+                <div class="card-header-modern">
+                    <i class="fas fa-edit me-2"></i>Editar Información de la Venta
+                </div>
+                <div class="card-body p-4">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
 
-                                    <div class="col-md-6 mb-3">
-                                        <div class="form-group">
-                                            {{ form_row(detalle.precio_costo, {'attr': {'class': 'form-control'}}) }}
-                                        </div>
-                                    </div>
+                    <!-- Información General de la Venta -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-info-circle me-2"></i>Información General
+                        </h3>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.fecha, 'Fecha de Venta', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.fecha, {'attr': {
+                                        'class': 'form-control form-control-modern',
+                                        'required': 'required'
+                                    }}) }}
+                                    {{ form_errors(form.fecha) }}
+                                    <div class="form-help-text">Fecha en que se realiza la venta</div>
                                 </div>
-                                <button type="button" class="btn btn-sm btn-danger eliminar-detalle btn-block">
-                                    Eliminar
-                                </button>
                             </div>
-                        {% endfor %}
-                    </div>
-                </div>
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.cliente, 'Cliente', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.cliente, {'attr': {
+                                        'class': 'form-control form-control-modern',
+                                        'required': 'required'
+                                    }}) }}
+                                    {{ form_errors(form.cliente) }}
+                                    <div class="form-help-text">Selecciona el cliente</div>
+                                </div>
+                            </div>
 
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <button type="button" id="add-detalle" class="btn btn-outline-primary">
-                        <i class="fas fa-plus me-1"></i>Agregar Detalle
-                    </button>
-                    <button type="submit" class="btn btn-primary">Actualizar venta</button>
+                            <div class="col-md-4">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.tipo_veenta, 'Tipo de Venta', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.tipo_veenta, {'attr': {
+                                        'class': 'form-control form-control-modern',
+                                        'required': 'required'
+                                    }}) }}
+                                    {{ form_errors(form.tipo_veenta) }}
+                                    <div class="form-help-text">Tipo de transacción</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.estado, 'Estado', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.estado, {'attr': {
+                                        'class': 'form-control form-control-modern',
+                                        'required': 'required'
+                                    }}) }}
+                                    {{ form_errors(form.estado) }}
+                                    <div class="form-help-text">Estado actual de la venta</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.total, 'Total de Venta', {'label_attr': {'class': 'form-label-modern'}}) }}
+                                    <div class="input-group input-group-modern">
+                                        <span class="input-group-text input-group-text-modern">$</span>
+                                        {{ form_widget(form.total, {'attr': {
+                                            'class': 'form-control form-control-modern',
+                                            'readonly': 'readonly'
+                                        }}) }}
+                                    </div>
+                                    {{ form_errors(form.total) }}
+                                    <div class="form-help-text">Total calculado automáticamente</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detalles de la Venta -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-list-alt me-2"></i>Detalles de la Venta
+                        </h3>
+
+                        <div id="detalle-ventas" data-prototype="{{ form_widget(form.detalleVentas.vars.prototype)|e('html_attr') }}">
+                            {% for detalle in form.detalleVentas %}
+                                <div class="detalle-card">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-4 mb-3">
+                                            <div class="form-group-modern">
+                                                {{ form_label(detalle.producto, 'Producto', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                                {{ form_widget(detalle.producto, {'attr': {
+                                                    'class': 'form-control form-control-modern',
+                                                    'required': 'required'
+                                                }}) }}
+                                                {{ form_errors(detalle.producto) }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-2 mb-3">
+                                            <div class="form-group-modern">
+                                                {{ form_label(detalle.cantidad, 'Cantidad', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                                {{ form_widget(detalle.cantidad, {'attr': {
+                                                    'class': 'form-control form-control-modern',
+                                                    'min': '1',
+                                                    'required': 'required'
+                                                }}) }}
+                                                {{ form_errors(detalle.cantidad) }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-group-modern">
+                                                {{ form_label(detalle.precio_unitario, 'Precio Unitario', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                                <div class="input-group input-group-modern">
+                                                    <span class="input-group-text input-group-text-modern">$</span>
+                                                    {{ form_widget(detalle.precio_unitario, {'attr': {
+                                                        'class': 'form-control form-control-modern',
+                                                        'step': '0.01',
+                                                        'min': '0',
+                                                        'required': 'required'
+                                                    }}) }}
+                                                </div>
+                                                {{ form_errors(detalle.precio_unitario) }}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="form-group-modern">
+                                                <label class="form-label-modern">Subtotal</label>
+                                                <div class="input-group input-group-modern">
+                                                    <span class="input-group-text input-group-text-modern">$</span>
+                                                    <input type="text" class="form-control form-control-modern subtotal-input" readonly>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-modern btn-danger-modern eliminar-detalle">
+                                        <i class="fas fa-trash me-2"></i>Eliminar Detalle
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <button type="button" id="add-detalle" class="btn btn-modern btn-outline-modern mb-4">
+                            <i class="fas fa-plus me-2"></i>Agregar Detalle
+                        </button>
+
+                        <!-- Vista Previa del Total -->
+                        <div class="total-preview">
+                            <div class="total-preview-item">
+                                <span>Total de la Venta:</span>
+                                <span id="totalPreview" class="monto-total">${{ venta.total|number_format(2, '.', ',') }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="form-section">
+                        <div class="action-buttons">
+                            <a href="{{ path('app_venta_index') }}" class="btn btn-modern btn-outline-modern">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-modern btn-primary-modern">
+                                <i class="fas fa-save me-2"></i>Actualizar Venta
+                            </button>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
                 </div>
-                {{ form_end(form) }}
             </div>
         </div>
     </div>
@@ -103,27 +242,147 @@
             const addButton = document.getElementById('add-detalle');
             const detalleVentas = document.getElementById('detalle-ventas');
             const prototype = detalleVentas.getAttribute('data-prototype');
+            const totalPreview = document.getElementById('totalPreview');
+            const totalInput = document.getElementById('{{ form.total.vars.id }}');
 
+            // Función para calcular subtotales y total
+            function calcularTotales() {
+                let totalVenta = 0;
+
+                document.querySelectorAll('.detalle-card').forEach(card => {
+                    const cantidad = parseFloat(card.querySelector('[id$="_cantidad"]').value) || 0;
+                    const precio = parseFloat(card.querySelector('[id$="_precio_unitario"]').value) || 0;
+                    const subtotal = cantidad * precio;
+
+                    // Actualizar subtotal
+                    const subtotalInput = card.querySelector('.subtotal-input');
+                    if (subtotalInput) {
+                        subtotalInput.value = subtotal.toFixed(2);
+                    }
+
+                    totalVenta += subtotal;
+                });
+
+                // Actualizar total
+                totalPreview.textContent = `$${totalVenta.toFixed(2)}`;
+                totalInput.value = totalVenta.toFixed(2);
+            }
+
+            // Agregar nuevo detalle
             addButton.addEventListener('click', function() {
-                const newForm = prototype.replace(/__name__/g, Date.now());
+                const index = document.querySelectorAll('.detalle-card').length;
+                const newForm = prototype.replace(/__name__/g, index);
                 const newRow = document.createElement('div');
-                newRow.setAttribute('class', 'card bg-light mb-3');
-                newRow.setAttribute('style', 'border-radius: 8px; padding: 15px;');
+                newRow.setAttribute('class', 'detalle-card');
                 newRow.innerHTML = newForm;
 
+                // Añadir campos de subtotal
+                const subtotalField = `
+                    <div class="col-md-3 mb-3">
+                        <div class="form-group-modern">
+                            <label class="form-label-modern">Subtotal</label>
+                            <div class="input-group input-group-modern">
+                                <span class="input-group-text input-group-text-modern">$</span>
+                                <input type="text" class="form-control form-control-modern subtotal-input" readonly>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const rowContent = newRow.querySelector('.row');
+                if (rowContent) {
+                    rowContent.insertAdjacentHTML('beforeend', subtotalField);
+                }
+
+                // Añadir botón eliminar
                 const deleteButton = document.createElement('button');
                 deleteButton.setAttribute('type', 'button');
-                deleteButton.setAttribute('class', 'btn btn-sm btn-danger eliminar-detalle mt-2 btn-block');
-                deleteButton.innerHTML = 'Eliminar';
+                deleteButton.setAttribute('class', 'btn btn-modern btn-danger-modern eliminar-detalle');
+                deleteButton.innerHTML = '<i class="fas fa-trash me-2"></i>Eliminar Detalle';
                 newRow.appendChild(deleteButton);
 
                 detalleVentas.appendChild(newRow);
+
+                // Reasignar eventos a los nuevos campos
+                asignarEventosDetalle(newRow);
+
+                // Calcular totales
+                calcularTotales();
+
+                // Animación para el nuevo elemento
+                newRow.style.opacity = '0';
+                newRow.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    newRow.style.transition = 'all 0.6s ease';
+                    newRow.style.opacity = '1';
+                    newRow.style.transform = 'translateY(0)';
+                }, 100);
             });
 
+            // Eliminar detalle
             detalleVentas.addEventListener('click', function(e) {
-                if (e.target.classList.contains('eliminar-detalle')) {
-                    e.target.closest('.card').remove();
+                if (e.target.classList.contains('eliminar-detalle') ||
+                    e.target.closest('.eliminar-detalle')) {
+                    const button = e.target.classList.contains('eliminar-detalle') ?
+                        e.target : e.target.closest('.eliminar-detalle');
+                    const card = button.closest('.detalle-card');
+
+                    // Animación de salida
+                    card.style.transition = 'all 0.4s ease';
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateX(100px)';
+
+                    setTimeout(() => {
+                        card.remove();
+                        calcularTotales();
+                    }, 400);
                 }
+            });
+
+            // Función para asignar eventos a los campos de un detalle
+            function asignarEventosDetalle(detalleCard) {
+                const cantidadInput = detalleCard.querySelector('[id$="_cantidad"]');
+                const precioInput = detalleCard.querySelector('[id$="_precio_unitario"]');
+
+                if (cantidadInput) {
+                    cantidadInput.addEventListener('input', calcularTotales);
+                }
+
+                if (precioInput) {
+                    precioInput.addEventListener('input', calcularTotales);
+                }
+            }
+
+            // Asignar eventos a los detalles existentes
+            document.querySelectorAll('.detalle-card').forEach(card => {
+                asignarEventosDetalle(card);
+            });
+
+            // Calcular totales iniciales
+            calcularTotales();
+
+            // Animación suave para las secciones
+            const sections = document.querySelectorAll('.form-section');
+            sections.forEach((section, index) => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    section.style.transition = 'all 0.6s ease';
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // Validación de formulario
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
             });
         });
     </script>

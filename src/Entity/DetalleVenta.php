@@ -21,9 +21,6 @@ class DetalleVenta
     private ?string $precio_unitario = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $precio_costo = null;
-
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
     private ?string $subtotal = null;
 
     //#[ORM\ManyToOne(inversedBy: 'detalleVentas')]
@@ -76,18 +73,6 @@ class DetalleVenta
     public function setPrecioUnitario(string $precio_unitario): static
     {
         $this->precio_unitario = $precio_unitario;
-
-        return $this;
-    }
-
-    public function getPrecioCosto(): ?string
-    {
-        return $this->precio_costo;
-    }
-
-    public function setPrecioCosto(string $precio_costo): static
-    {
-        $this->precio_costo = $precio_costo;
 
         return $this;
     }

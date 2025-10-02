@@ -6,88 +6,636 @@
     {{ parent() }}
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            --primary-color: #4361ee;
+            --success-color: #06d6a0;
+            --danger-color: #ef476f;
+            --warning-color: #ffd166;
+            --info-color: #118ab2;
+            --dark-color: #2b2d42;
+            --light-color: #f8f9fa;
+        }
+
         .card-header {
-            background-color: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
+            background: linear-gradient(135deg, var(--primary-color), #3a56d4);
+            color: white;
+            border: none;
+            font-weight: 600;
         }
+
+        .stats-card {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background: white;
+            overflow: hidden;
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
         .card-text {
-            font-size: 1.5rem;
-            font-weight: bold;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
         }
-        .text-danger {
-            color: #dc3545 !important;
+
+        .metric-icon {
+            font-size: 2rem;
+            opacity: 0.8;
+            margin-bottom: 1rem;
         }
-        .card-link {
-            text-decoration: none;
+
+        .trend-indicator {
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
         }
-        .card-link:hover {
-            text-decoration: none;
+
+        .table-show {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .table-show thead th {
+            background: linear-gradient(135deg, var(--primary-color), #3a56d4);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 1rem;
+        }
+
+        .table-show tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .table-show tbody tr:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+
+        .section-title {
+            position: relative;
+            padding-left: 1rem;
+            margin: 2rem 0 1rem 0;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(135deg, var(--primary-color), #3a56d4);
+            border-radius: 2px;
+        }
+
+        .badge-modern {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+        }
+
+        .alert-modern {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1;
+            margin: 0.5rem 0;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .progress-thin {
+            height: 6px;
+            border-radius: 3px;
+            margin-top: 0.5rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metric-value {
+                font-size: 1.8rem;
+            }
+
+            .card-text {
+                font-size: 1.5rem;
+            }
         }
     </style>
 {% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="d-flex align-items-center mb-4">
-            <a href="{{ path('app_dashboard_index') }}" class="btn btn-outline-secondary btn-sm me-2">
-                <i class="fas fa-arrow-left me-1"></i>Regresar
-            </a>
-
-            <div class="d-flex justify-content-center flex-grow-1">
-                <h1 class="fw-bold text-primary">Estadísticas Financieras</h1>
+    <div class="container-fluid py-4">
+        <!-- Header Mejorado -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="{{ path('app_dashboard_index') }}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+                        </a>
+                    </div>
+                    <div class="text-center">
+                        <h1 class="fw-bold text-dark mb-1">📊 Dashboard Financiero</h1>
+                        <p class="text-muted mb-0">Resumen completo del rendimiento de tu negocio</p>
+                    </div>
+                    <div>
+                        <small class="text-muted">Actualizado: {{ "now"|date("d/m/Y H:i") }}</small>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="row mt-4">
-            <div class="col-md-3">
-                <a href="{{ path('app_producto_index') }}" class="card-link">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-header fw-bold">Productos Agotados</div>
-                        <div class="card-body">
-                            <p class="card-text text-danger">{{ productosAgotados }} unidades</p>
+        <!-- Alertas Mejoradas -->
+        {% if productosAgotados > 0 or productosStockBajo > 0 or metricasAdicionales.productos_problema_margen > 0 %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="alert-modern alert alert-warning">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-triangle fa-2x me-3 text-warning"></i>
+                            <div class="flex-grow-1">
+                                <h5 class="alert-heading mb-2">⚠️ Alertas del Sistema</h5>
+                                <div class="d-flex flex-wrap gap-2">
+                                    {% if productosAgotados > 0 %}
+                                        <span class="badge-modern bg-danger">
+                                            <i class="fas fa-times-circle me-1"></i>
+                                            {{ productosAgotados }} Productos Agotados
+                                        </span>
+                                    {% endif %}
+                                    {% if productosStockBajo > 0 %}
+                                        <span class="badge-modern bg-warning text-dark">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                            {{ productosStockBajo }} Stock Bajo
+                                        </span>
+                                    {% endif %}
+                                    {% if metricasAdicionales.productos_problema_margen > 0 %}
+                                        <span class="badge-modern bg-info text-white">
+                                            <i class="fas fa-chart-line me-1"></i>
+                                            {{ metricasAdicionales.productos_problema_margen }} Productos con Margen Problemático
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </a>
-            </div>
-            <div class="col-md-3">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header fw-bold">Ganancias Totales</div>
-                    <div class="card-body">
-                        <p class="card-text">{{ gananciasBrutas }} $</p>
-                    </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header fw-bold">Gastos Totales</div>
-                    <div class="card-body">
-                        <p class="card-text">{{ gastosBrutos }} $</p>
+        {% endif %}
+
+        <!-- Grid de Métricas Principales Mejorado -->
+        <div class="stats-grid">
+            <!-- Ganancias Totales -->
+            <div class="stats-card">
+                <div class="metric-card">
+                    <div class="metric-icon text-success">
+                        <i class="fas fa-chart-line"></i>
                     </div>
+                    <div class="metric-value text-success">
+                        ${{ gananciasBrutas|number_format(0) }}
+                    </div>
+                    <div class="metric-label">Ganancias Totales</div>
+                    <div class="progress progress-thin">
+                        <div class="progress-bar bg-success" style="width: 100%"></div>
+                    </div>
+                    <small class="text-muted">Ventas completadas</small>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header fw-bold">Faltante de Inversión</div>
-                    <div class="card-body">
-                        <p class="card-text">{{ dineroActual }} $</p>
+
+            <!-- Gastos Totales -->
+            <div class="stats-card">
+                <div class="metric-card">
+                    <div class="metric-icon text-danger">
+                        <i class="fas fa-receipt"></i>
                     </div>
+                    <div class="metric-value text-danger">
+                        ${{ gastosBrutos|number_format(0) }}
+                    </div>
+                    <div class="metric-label">Gastos Totales</div>
+                    <div class="progress progress-thin">
+                        <div class="progress-bar bg-danger" style="width: 100%"></div>
+                    </div>
+                    <small class="text-muted">Compras realizadas</small>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header fw-bold">Pendiente por Recibir</div>
-                    <div class="card-body">
-                        <p class="card-text">{{ dineroPendiente }} $</p>
+
+            <!-- Dinero Actual -->
+            <div class="stats-card">
+                <div class="metric-card">
+                    <div class="metric-icon text-primary">
+                        <i class="fas fa-wallet"></i>
+                    </div>
+                    <div class="metric-value text-primary">
+                        ${{ dineroActual|number_format(0) }}
+                    </div>
+                    <div class="metric-label">Dinero Actual</div>
+                    <div class="progress progress-thin">
+                        <div class="progress-bar bg-primary" style="width: 100%"></div>
+                    </div>
+                    <small class="text-muted">Ganancias - Gastos</small>
+                </div>
+            </div>
+
+            <!-- Margen Bruto -->
+            <div class="stats-card">
+                <div class="metric-card">
+                    <div class="metric-icon text-info">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="metric-value text-info">
+                        {{ margenBrutoPromedio|number_format(1) }}%
+                    </div>
+                    <div class="metric-label">Margen Bruto</div>
+                    <div class="progress progress-thin">
+                        <div class="progress-bar bg-info" style="width: {{ margenBrutoPromedio > 100 ? 100 : margenBrutoPromedio }}%"></div>
+                    </div>
+                    <small class="text-muted">
+                        {{ metricasAdicionales.productos_analizados_margen }} productos analizados
+                        {% if metricasAdicionales.productos_problema_margen > 0 %}
+                            <br><span class="text-warning">{{ metricasAdicionales.productos_problema_margen }} con problemas</span>
+                        {% endif %}
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Segunda Fila de Métricas -->
+        <div class="stats-grid">
+            <!-- Valor Inventario -->
+            <a href="{{ path('app_producto_index') }}" class="text-decoration-none">
+                <div class="stats-card">
+                    <div class="metric-card">
+                        <div class="metric-icon text-warning">
+                            <i class="fas fa-boxes"></i>
+                        </div>
+                        <div class="metric-value text-warning">
+                            ${{ valorInventario|number_format(0) }}
+                        </div>
+                        <div class="metric-label">Valor del Inventario</div>
+                        <div class="progress progress-thin">
+                            <div class="progress-bar bg-warning" style="width: 100%"></div>
+                        </div>
+                        <small class="text-muted">Stock actual valorizado</small>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Ticket Promedio -->
+            <div class="stats-card">
+                <div class="metric-card">
+                    <div class="metric-icon text-purple" style="color: #6f42c1;">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="metric-value" style="color: #6f42c1;">
+                        ${{ ticketPromedio|number_format(0) }}
+                    </div>
+                    <div class="metric-label">Ticket Promedio</div>
+                    <div class="progress progress-thin">
+                        <div class="progress-bar" style="background-color: #6f42c1; width: 100%"></div>
+                    </div>
+                    <small class="text-muted">Por venta completada</small>
+                </div>
+            </div>
+
+            <!-- Dinero Pendiente -->
+            <div class="stats-card">
+                <div class="metric-card">
+                    <div class="metric-icon text-orange" style="color: #fd7e14;">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="metric-value" style="color: #fd7e14;">
+                        ${{ dineroPendiente|number_format(0) }}
+                    </div>
+                    <div class="metric-label">Pendiente por Cobrar</div>
+                    <div class="progress progress-thin">
+                        <div class="progress-bar" style="background-color: #fd7e14; width: 100%"></div>
+                    </div>
+                    <small class="text-muted">Ventas pendientes de pago</small>
+                </div>
+            </div>
+
+            <!-- Alertas Stock -->
+            <a href="{{ path('app_producto_index') }}" class="text-decoration-none">
+                <div class="stats-card">
+                    <div class="metric-card">
+                        <div class="metric-icon text-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="d-flex justify-content-around text-center">
+                            <div>
+                                <div class="metric-value text-danger">{{ productosAgotados }}</div>
+                                <div class="metric-label">Agotados</div>
+                            </div>
+                            <div>
+                                <div class="metric-value text-warning">{{ productosStockBajo }}</div>
+                                <div class="metric-label">Stock Bajo</div>
+                            </div>
+                        </div>
+                        <div class="progress progress-thin mt-2">
+                            <div class="progress-bar bg-danger" style="width: 50%"></div>
+                            <div class="progress-bar bg-warning" style="width: 50%"></div>
+                        </div>
+                        <small class="text-muted">Estado del inventario</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Gráfico Corregido -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="chart-container">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="mb-0 fw-bold">📈 Evolución de Ventas vs Compras (Últimos 30 días)</h4>
+                        <div class="d-flex align-items-center">
+                            <span class="me-2 small text-muted">Barras</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="toggleChartType">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <span class="ms-2 small text-muted">Líneas</span>
+                        </div>
+                    </div>
+
+                    <!-- Contenedor del gráfico con loading -->
+                    <div class="chart-wrapper">
+                        <div id="chartLoading" class="loading-chart">
+                            <div class="spinner-chart"></div>
+                        </div>
+                        <canvas id="statsChart" style="display: none;"></canvas>
                     </div>
                 </div>
             </div>
         </div>
 
+        <!-- Sección de Rankings -->
+        <div class="row">
+            <!-- Top Productos Rentables -->
+            <div class="col-lg-6 mb-4">
+                <h4 class="section-title">🏆 Productos Más Rentables</h4>
+                <div class="table-modern">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th class="text-center">Margen</th>
+                            <th class="text-end">Precio Venta</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for producto in topProductosRentables %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded p-2 me-3">
+                                            <i class="fas fa-cube text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">{{ producto.nombre|length > 25 ? producto.nombre|slice(0, 25) ~ '...' : producto.nombre }}</div>
+                                            <small class="text-muted">Costo: ${{ producto.precio_compra|number_format(2) }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                        <span class="badge-modern bg-success">
+                                            {{ producto.margen_porcentual|number_format(1) }}%
+                                        </span>
+                                </td>
+                                <td class="text-end fw-bold text-primary">
+                                    ${{ producto.precio_venta_actual|number_format(2) }}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-4 text-muted">
+                                    <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                                    No hay datos disponibles
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Top Clientes -->
+            <div class="col-lg-6 mb-4">
+                <h4 class="section-title">👥 Mejores Clientes</h4>
+                <div class="table-modern">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th class="text-end">Total Gastado</th>
+                            <th class="text-center">Compras</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for cliente in topClientes %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded p-2 me-3">
+                                            <i class="fas fa-user text-info"></i>
+                                        </div>
+                                        <div class="fw-semibold">{{ cliente.nombre|length > 20 ? cliente.nombre|slice(0, 20) ~ '...' : cliente.nombre }}</div>
+                                    </div>
+                                </td>
+                                <td class="text-end fw-bold text-success">
+                                    ${{ cliente.total_gastado|number_format(2) }}
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge-modern bg-primary">{{ cliente.total_compras }}</span>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center py-4 text-muted">
+                                    <i class="fas fa-users fa-2x mb-2"></i><br>
+                                    No hay datos disponibles
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Proveedores -->
+        <div class="row">
+            <div class="col-12">
+                <h4 class="section-title">🏭 Proveedores Principales</h4>
+                <div class="table-modern">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                        <tr>
+                            <th>Proveedor</th>
+                            <th class="text-end">Total Comprado</th>
+                            <th class="text-center">Compras</th>
+                            <th class="text-end">Compra Promedio</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for proveedor in topProveedores %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded p-2 me-3">
+                                            <i class="fas fa-truck text-warning"></i>
+                                        </div>
+                                        <div class="fw-semibold">{{ proveedor.nombre|length > 30 ? proveedor.nombre|slice(0, 30) ~ '...' : proveedor.nombre }}</div>
+                                    </div>
+                                </td>
+                                <td class="text-end fw-bold text-danger">
+                                    ${{ proveedor.total_comprado|number_format(2) }}
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge-modern bg-info">{{ proveedor.total_compras }}</span>
+                                </td>
+                                <td class="text-end text-muted">
+                                    ${{ (proveedor.total_comprado / proveedor.total_compras)|number_format(2) }}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">
+                                    <i class="fas fa-warehouse fa-2x mb-2"></i><br>
+                                    No hay datos disponibles
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Métricas Adicionales -->
         <div class="row mt-4">
-            <div class="col-md-12">
-                <div class="card shadow-sm border-0">
-                    <div class="card-body">
-                        <canvas id="statsChart"></canvas>
+            <div class="col-12">
+                <h4 class="section-title">📊 Métricas Generales</h4>
+                <div class="stats-grid">
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-info">
+                                <i class="fas fa-cubes"></i>
+                            </div>
+                            <div class="metric-value text-info">{{ metricasAdicionales.total_productos }}</div>
+                            <div class="metric-label">Total Productos</div>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-success">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <div class="metric-value text-success">{{ metricasAdicionales.total_ventas }}</div>
+                            <div class="metric-label">Total Ventas</div>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-primary">
+                                <i class="fas fa-truck-loading"></i>
+                            </div>
+                            <div class="metric-value text-primary">{{ metricasAdicionales.total_compras }}</div>
+                            <div class="metric-label">Total Compras</div>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-warning">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="metric-value text-warning">{{ metricasAdicionales.total_clientes }}</div>
+                            <div class="metric-label">Total Clientes</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -95,56 +643,177 @@
     </div>
 
     <script>
-        const ctx = document.getElementById('statsChart').getContext('2d');
-        const ventasData = {{ ventasDiarias|json_encode()|raw }};
-        const comprasData = {{ comprasDiarias|json_encode()|raw }};
+        document.addEventListener('DOMContentLoaded', function() {
+            // Esperar a que todo el DOM esté listo
+            setTimeout(initializeChart, 100);
+        });
 
-        const ventasLabels = ventasData.map(item => item.dia);
-        const ventasValues = ventasData.map(item => item.total);
+        function initializeChart() {
+            const ctx = document.getElementById('statsChart').getContext('2d');
+            const chartLoading = document.getElementById('chartLoading');
+            const chartCanvas = document.getElementById('statsChart');
 
-        const comprasLabels = comprasData.map(item => item.dia);
-        const comprasValues = comprasData.map(item => item.total);
+            const ventasData = {{ ventasDiarias|json_encode()|raw }};
+            const comprasData = {{ comprasDiarias|json_encode()|raw }};
 
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: [...new Set([...ventasLabels, ...comprasLabels])].sort(),
-                datasets: [
-                    {
-                        label: 'Ventas Diarias',
-                        data: ventasValues,
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                    },
-                    {
-                        label: 'Compras Diarias',
-                        data: comprasValues,
-                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Cantidad ($)'
+            // Procesar datos para el gráfico
+            const allDates = [...new Set([
+                ...ventasData.map(item => item.dia),
+                ...comprasData.map(item => item.dia)
+            ])].sort();
+
+            const ventasMap = new Map(ventasData.map(item => [item.dia, parseFloat(item.total)]));
+            const comprasMap = new Map(comprasData.map(item => [item.dia, parseFloat(item.total)]));
+
+            const ventasValues = allDates.map(date => ventasMap.get(date) || 0);
+            const comprasValues = allDates.map(date => comprasMap.get(date) || 0);
+
+            // Formatear fechas para mejor legibilidad
+            const formattedDates = allDates.map(date => {
+                const d = new Date(date);
+                return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+            });
+
+            // Configuración optimizada del gráfico
+            const chartConfig = {
+                type: 'bar',
+                data: {
+                    labels: formattedDates,
+                    datasets: [
+                        {
+                            label: 'Ventas Diarias',
+                            data: ventasValues,
+                            backgroundColor: 'rgba(67, 97, 238, 0.8)',
+                            borderColor: 'rgba(67, 97, 238, 1)',
+                            borderWidth: 2,
+                            borderRadius: 6,
+                            borderSkipped: false,
+                        },
+                        {
+                            label: 'Compras Diarias',
+                            data: comprasValues,
+                            backgroundColor: 'rgba(239, 71, 111, 0.8)',
+                            borderColor: 'rgba(239, 71, 111, 1)',
+                            borderWidth: 2,
+                            borderRadius: 6,
+                            borderSkipped: false,
                         }
-                    },
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Días'
-                        }
-                    }
+                    ]
                 },
-                plugins: {
-                    legend: {
-                        position: 'top',
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 800,
+                        easing: 'easeOutQuart'
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: {
+                                    size: 12,
+                                    weight: '600'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                            titleColor: '#2b2d42',
+                            bodyColor: '#2b2d42',
+                            borderColor: '#e9ecef',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            padding: 12,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': $' + context.raw.toLocaleString('es-ES');
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString('es-ES');
+                                },
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxTicksLimit: 10,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
                     }
                 }
-            }
-        });
+            };
+
+            // Crear el gráfico después de un pequeño delay para asegurar que el contenedor tiene sus dimensiones
+            setTimeout(() => {
+                const chart = new Chart(ctx, chartConfig);
+
+                // Ocultar loading y mostrar gráfico
+                chartLoading.style.display = 'none';
+                chartCanvas.style.display = 'block';
+
+                // Toggle entre gráfico de barras y líneas
+                document.getElementById('toggleChartType').addEventListener('change', function(e) {
+                    // Destruir gráfico anterior
+                    chart.destroy();
+
+                    // Configuración para el nuevo tipo
+                    const newConfig = {
+                        ...chartConfig,
+                        type: e.target.checked ? 'line' : 'bar'
+                    };
+
+                    // Ajustar configuraciones específicas para líneas
+                    if (e.target.checked) {
+                        newConfig.data.datasets[0].backgroundColor = 'transparent';
+                        newConfig.data.datasets[0].pointBackgroundColor = 'rgba(67, 97, 238, 1)';
+                        newConfig.data.datasets[0].pointBorderColor = '#fff';
+                        newConfig.data.datasets[0].pointBorderWidth = 2;
+                        newConfig.data.datasets[0].pointRadius = 4;
+                        newConfig.data.datasets[0].pointHoverRadius = 6;
+                        newConfig.data.datasets[0].tension = 0.4;
+
+                        newConfig.data.datasets[1].backgroundColor = 'transparent';
+                        newConfig.data.datasets[1].pointBackgroundColor = 'rgba(239, 71, 111, 1)';
+                        newConfig.data.datasets[1].pointBorderColor = '#fff';
+                        newConfig.data.datasets[1].pointBorderWidth = 2;
+                        newConfig.data.datasets[1].pointRadius = 4;
+                        newConfig.data.datasets[1].pointHoverRadius = 6;
+                        newConfig.data.datasets[1].tension = 0.4;
+                    } else {
+                        // Restaurar configuraciones para barras
+                        newConfig.data.datasets[0].backgroundColor = 'rgba(67, 97, 238, 0.8)';
+                        newConfig.data.datasets[1].backgroundColor = 'rgba(239, 71, 111, 0.8)';
+                    }
+
+                    // Crear nuevo gráfico
+                    new Chart(ctx, newConfig);
+                });
+            }, 300);
+        }
     </script>
 {% endblock %}

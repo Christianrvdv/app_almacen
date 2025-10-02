@@ -1,20 +1,302 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Nuevo Producto{% endblock %}
+{% block title %}Nuevo Producto - Sistema de Inventario{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fw-bold text-primary">Nuevo Producto</h1>
-            <a href="{{ path('app_producto_index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
-            </a>
+    <div class="container-fluid py-4">
+        <!-- Header Mejorado -->
+        <div class="page-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="{{ path('app_producto_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Listado
+                        </a>
+                    </div>
+                    <div class="text-center text-white">
+                        <h1 class="fw-bold mb-1">✨ Nuevo Producto</h1>
+                        <p class="mb-0 opacity-75">Agrega un nuevo producto a tu inventario</p>
+                    </div>
+                    <div style="width: 130px;"></div> <!-- Espaciador para alinear -->
+                </div>
+            </div>
         </div>
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
-                {{ include('producto/_form.html.twig', {'button_label': 'Guardar producto'}) }}
+        <div class="container">
+            <!-- Mensajes Flash Mejorados -->
+            {% for message in app.flashes('success') %}
+                <div class="alert-modern alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">¡Éxito!</h5>
+                            {{ message }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('error') %}
+                <div class="alert-modern alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Error</h5>
+                            {{ message }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            <!-- Formulario Principal -->
+            <div class="stats-card">
+                <div class="card-header-modern">
+                    <i class="fas fa-plus-circle me-2"></i>Información del Nuevo Producto
+                </div>
+                <div class="card-body p-4">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+
+                    <!-- Información Básica -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-info-circle me-2"></i>Información Básica
+                        </h3>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.nombre, 'Nombre del Producto', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.nombre, {'attr': {
+                                        'class': 'form-control form-control-modern',
+                                        'placeholder': 'Ej: Mouse Inalámbrico Logitech',
+                                        'required': 'required'
+                                    }}) }}
+                                    {{ form_errors(form.nombre) }}
+                                    <div class="form-help-text">Nombre descriptivo del producto</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.codigo_barras, 'Código de Barras', {'label_attr': {'class': 'form-label-modern'}}) }}
+                                    {{ form_widget(form.codigo_barras, {'attr': {
+                                        'class': 'form-control form-control-modern',
+                                        'placeholder': 'Ej: 7501234567890'
+                                    }}) }}
+                                    {{ form_errors(form.codigo_barras) }}
+                                    <div class="form-help-text">Opcional - Código único de identificación</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.descipcion, 'Descripción del Producto', {'label_attr': {'class': 'form-label-modern'}}) }}
+                                    {{ form_widget(form.descipcion, {'attr': {
+                                        'class': 'form-control form-control-modern custom-textarea',
+                                        'rows': 4,
+                                        'placeholder': 'Describe las características principales del producto...'
+                                    }}) }}
+                                    {{ form_errors(form.descipcion) }}
+                                    <div class="form-help-text">Información detallada sobre el producto (opcional)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de Precios y Stock -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-dollar-sign me-2"></i>Información de Precios y Stock
+                        </h3>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.precio_compra, 'Precio de Compra', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    <div class="input-group input-group-modern">
+                                        <span class="input-group-text input-group-text-modern">$</span>
+                                        {{ form_widget(form.precio_compra, {'attr': {
+                                            'class': 'form-control form-control-modern',
+                                            'step': '0.01',
+                                            'min': '0',
+                                            'required': 'required'
+                                        }}) }}
+                                    </div>
+                                    {{ form_errors(form.precio_compra) }}
+                                    <div class="form-help-text">Costo de adquisición del producto</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.precio_venta_actual, 'Precio de Venta', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    <div class="input-group input-group-modern">
+                                        <span class="input-group-text input-group-text-modern">$</span>
+                                        {{ form_widget(form.precio_venta_actual, {'attr': {
+                                            'class': 'form-control form-control-modern',
+                                            'step': '0.01',
+                                            'min': '0',
+                                            'required': 'required'
+                                        }}) }}
+                                    </div>
+                                    {{ form_errors(form.precio_venta_actual) }}
+                                    <div class="form-help-text">Precio de venta al público</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.stock_minimo, 'Stock Mínimo', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.stock_minimo, {'attr': {
+                                        'class': 'form-control form-control-modern',
+                                        'min': '0',
+                                        'required': 'required'
+                                    }}) }}
+                                    {{ form_errors(form.stock_minimo) }}
+                                    <div class="form-help-text">Cantidad mínima antes de alertar</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vista Previa de Margen -->
+                        <div class="price-preview">
+                            <div class="price-preview-item">
+                                <span>Margen de Ganancia:</span>
+                                <span id="margenPreview" class="margen-ganancia text-profit">0.00%</span>
+                            </div>
+                            <div class="price-preview-item">
+                                <span>Ganancia por Unidad:</span>
+                                <span id="gananciaPreview" class="text-success">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Categorización y Estado -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-tags me-2"></i>Categorización y Estado
+                        </h3>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.categoria, 'Categoría', {'label_attr': {'class': 'form-label-modern'}}) }}
+                                    {{ form_widget(form.categoria, {'attr': {
+                                        'class': 'form-control form-control-modern'
+                                    }}) }}
+                                    {{ form_errors(form.categoria) }}
+                                    <div class="form-help-text">Organiza tus productos por categorías</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.proveedor, 'Proveedor', {'label_attr': {'class': 'form-label-modern'}}) }}
+                                    {{ form_widget(form.proveedor, {'attr': {
+                                        'class': 'form-control form-control-modern'
+                                    }}) }}
+                                    {{ form_errors(form.proveedor) }}
+                                    <div class="form-help-text">Selecciona el proveedor principal</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.activo, 'Estado del Producto', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.activo, {'attr': {
+                                        'class': 'form-control form-control-modern',
+                                        'required': 'required'
+                                    }}) }}
+                                    {{ form_errors(form.activo) }}
+                                    <div class="form-help-text">Producto activo para ventas</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="form-section">
+                        <div class="action-buttons">
+                            <a href="{{ path('app_producto_index') }}" class="btn btn-modern btn-outline-modern">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-modern btn-primary-modern">
+                                <i class="fas fa-save me-2"></i>Crear Producto
+                            </button>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const precioCompraInput = document.getElementById('{{ form.precio_compra.vars.id }}');
+            const precioVentaInput = document.getElementById('{{ form.precio_venta_actual.vars.id }}');
+            const margenPreview = document.getElementById('margenPreview');
+            const gananciaPreview = document.getElementById('gananciaPreview');
+
+            function calcularMargen() {
+                const precioCompra = parseFloat(precioCompraInput.value) || 0;
+                const precioVenta = parseFloat(precioVentaInput.value) || 0;
+
+                if (precioCompra > 0 && precioVenta > 0) {
+                    const ganancia = precioVenta - precioCompra;
+                    const margenPorcentaje = (ganancia / precioCompra) * 100;
+
+                    gananciaPreview.textContent = `$${ganancia.toFixed(2)}`;
+                    margenPreview.textContent = `${margenPorcentaje.toFixed(2)}%`;
+
+                    // Cambiar color según el margen
+                    if (margenPorcentaje > 0) {
+                        margenPreview.className = 'margen-ganancia text-profit';
+                        gananciaPreview.className = 'text-success';
+                    } else {
+                        margenPreview.className = 'margen-ganancia text-loss';
+                        gananciaPreview.className = 'text-danger';
+                    }
+                } else {
+                    gananciaPreview.textContent = '$0.00';
+                    margenPreview.textContent = '0.00%';
+                    margenPreview.className = 'margen-ganancia text-profit';
+                    gananciaPreview.className = 'text-success';
+                }
+            }
+
+            // Calcular margen cuando cambien los precios
+            precioCompraInput.addEventListener('input', calcularMargen);
+            precioVentaInput.addEventListener('input', calcularMargen);
+
+            // Calcular margen inicial
+            calcularMargen();
+
+            // Validación de formulario
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            });
+
+            // Animación suave para las secciones
+            const sections = document.querySelectorAll('.form-section');
+            sections.forEach((section, index) => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    section.style.transition = 'all 0.6s ease';
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+    </script>
 {% endblock %}

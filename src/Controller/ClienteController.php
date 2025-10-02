@@ -26,6 +26,11 @@ final class ClienteController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $cliente = new Cliente();
+
+        // Establecer valores por defecto
+        $cliente->setFechaRegistro(new \DateTime());
+        $cliente->setCompraTotales('0.00');
+
         $form = $this->createForm(ClienteType::class, $cliente);
         $form->handleRequest($request);
 
@@ -33,6 +38,7 @@ final class ClienteController extends AbstractController
             $entityManager->persist($cliente);
             $entityManager->flush();
 
+            $this->addFlash('success', 'Cliente creado exitosamente');
             return $this->redirectToRoute('app_cliente_index', [], Response::HTTP_SEE_OTHER);
         }
 

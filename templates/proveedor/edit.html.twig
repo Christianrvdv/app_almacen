@@ -1,24 +1,323 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Editar Proveedor{% endblock %}
+{% block title %}Editar Proveedor #{{ proveedor.id }} - Sistema de Inventario{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fw-bold text-primary">Editar Proveedor</h1>
-            <a href="{{ path('app_proveedor_index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
-            </a>
-        </div>
-
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                {{ include('proveedor/_form.html.twig', {'button_label': 'Actualizar proveedor'}) }}
+    <div class="container-fluid py-4">
+        <!-- Header Mejorado -->
+        <div class="page-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="{{ path('app_proveedor_index') }}"
+                           class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Listado
+                        </a>
+                    </div>
+                    <div class="text-center text-white">
+                        <h1 class="fw-bold mb-1">✏️ Editar Proveedor</h1>
+                        <p class="mb-0 opacity-75">Actualiza la información del proveedor #{{ proveedor.id }}</p>
+                    </div>
+                    <div style="width: 130px;"></div> <!-- Espaciador para alinear -->
+                </div>
             </div>
         </div>
 
-        <div class="text-end">
-            {{ include('proveedor/_delete_form.html.twig') }}
+        <div class="container">
+            <!-- Mensajes Flash Mejorados -->
+            {% for message in app.flashes('success') %}
+                <div class="alert-modern alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">¡Éxito!</h5>
+                            {{ message }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('error') %}
+                <div class="alert-modern alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Error</h5>
+                            {{ message }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            <!-- Formulario Principal -->
+            <div class="stats-card">
+                <div class="card-header-modern">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <i class="fas fa-edit me-2"></i>Editando Proveedor: {{ proveedor.nombre }}
+                        </div>
+                        <button type="button"
+                                class="btn btn-danger-modern btn-modern btn-sm"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal">
+                            <i class="fas fa-trash me-1"></i>Eliminar Proveedor
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+
+                    <!-- Información Básica -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-info-circle me-2"></i>Información Básica
+                        </h3>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.nombre, 'Nombre del Proveedor', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.nombre, {'attr': {
+                                        'class': 'form-control form-control-modern',
+                                        'placeholder': 'Ej: Distribuidora ABC S.A.',
+                                        'required': 'required'
+                                    }}) }}
+                                    {{ form_errors(form.nombre) }}
+                                    <div class="form-help-text">Nombre completo o razón social del proveedor</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de Contacto -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-address-book me-2"></i>Información de Contacto
+                        </h3>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.telefono, 'Teléfono', {'label_attr': {'class': 'form-label-modern'}}) }}
+                                    <div class="input-group input-group-modern">
+                                        <span class="input-group-text input-group-text-modern">
+                                            <i class="fas fa-phone"></i>
+                                        </span>
+                                        {{ form_widget(form.telefono, {'attr': {
+                                            'class': 'form-control form-control-modern',
+                                            'placeholder': 'Ej: +34 912 345 678'
+                                        }}) }}
+                                    </div>
+                                    {{ form_errors(form.telefono) }}
+                                    <div class="form-help-text">Número de contacto principal</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.email, 'Correo Electrónico', {'label_attr': {'class': 'form-label-modern'}}) }}
+                                    <div class="input-group input-group-modern">
+                                        <span class="input-group-text input-group-text-modern">
+                                            <i class="fas fa-envelope"></i>
+                                        </span>
+                                        {{ form_widget(form.email, {'attr': {
+                                            'class': 'form-control form-control-modern',
+                                            'placeholder': 'Ej: contacto@proveedor.com'
+                                        }}) }}
+                                    </div>
+                                    {{ form_errors(form.email) }}
+                                    <div class="form-help-text">Email de contacto para pedidos y consultas</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.direccion, 'Dirección', {'label_attr': {'class': 'form-label-modern'}}) }}
+                                    <div class="input-group input-group-modern">
+                                        <span class="input-group-text input-group-text-modern">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                        </span>
+                                        {{ form_widget(form.direccion, {'attr': {
+                                            'class': 'form-control form-control-modern',
+                                            'rows': 3,
+                                            'placeholder': 'Ej: Calle Principal #123, Ciudad, Código Postal, País...'
+                                        }}) }}
+                                    </div>
+                                    {{ form_errors(form.direccion) }}
+                                    <div class="form-help-text">Dirección completa para envíos y facturación</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de Productos Asociados -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-cubes me-2"></i>Productos Asociados
+                        </h3>
+
+                        <div class="price-preview">
+                            <div class="price-preview-item">
+                                <span><i class="fas fa-cube me-2 text-info"></i>Total de productos:</span>
+                                <span class="text-info">{{ proveedor.productos|length }} productos</span>
+                            </div>
+                            <div class="price-preview-item">
+                                <span><i class="fas fa-check-circle me-2 text-success"></i>Productos activos:</span>
+                                <span class="text-success">{{ proveedor.productos|filter(p => p.activo)|length }} activos</span>
+                            </div>
+                            {% if proveedor.productos|length > 0 %}
+                                <div class="price-preview-item">
+                                    <span><i class="fas fa-exclamation-triangle me-2 text-warning"></i>Nota:</span>
+                                    <span class="text-warning">Los cambios afectarán a todos los productos asociados</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="form-section">
+                        <div class="action-buttons">
+                            <a href="{{ path('app_proveedor_index') }}" class="btn btn-modern btn-outline-modern">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-modern btn-primary-modern">
+                                <i class="fas fa-save me-2"></i>Actualizar Proveedor
+                            </button>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Modal de Confirmación para Eliminar -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar el proveedor <strong>"{{ proveedor.nombre }}"</strong>?</p>
+
+                    {% if proveedor.productos|length > 0 %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Advertencia:</strong> Este proveedor tiene {{ proveedor.productos|length }} producto(s) asociado(s).
+                            Al eliminar el proveedor, estos productos quedarán sin proveedor asignado.
+                        </div>
+                    {% endif %}
+
+                    <p class="text-danger small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Esta acción no se puede deshacer.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    {{ include('proveedor/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Validación de formulario
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            });
+
+            // Animación suave para las secciones
+            const sections = document.querySelectorAll('.form-section');
+            sections.forEach((section, index) => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    section.style.transition = 'all 0.6s ease';
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // Efectos de realce en campos con foco
+            const inputs = document.querySelectorAll('.form-control-modern');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.parentElement.classList.add('focused');
+                });
+
+                input.addEventListener('blur', function() {
+                    this.parentElement.parentElement.classList.remove('focused');
+                });
+            });
+
+            // Validación de email
+            const emailInput = document.getElementById('{{ form.email.vars.id }}');
+            if (emailInput) {
+                emailInput.addEventListener('blur', function() {
+                    const email = this.value;
+                    if (email && !isValidEmail(email)) {
+                        this.classList.add('is-invalid');
+                        // Crear o mostrar mensaje de error
+                        let errorElement = this.parentElement.querySelector('.email-error');
+                        if (!errorElement) {
+                            errorElement = document.createElement('div');
+                            errorElement.className = 'invalid-feedback email-error';
+                            this.parentElement.appendChild(errorElement);
+                        }
+                        errorElement.textContent = 'Por favor ingresa un email válido';
+                    } else {
+                        this.classList.remove('is-invalid');
+                    }
+                });
+            }
+
+            function isValidEmail(email) {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
+        });
+    </script>
+
+    <style>
+        .custom-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .input-group.focused {
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+
+        .form-group-modern.focused .form-label-modern {
+            color: var(--primary-color);
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+
+        .is-invalid {
+            border-color: var(--danger-color) !important;
+        }
+    </style>
 {% endblock %}

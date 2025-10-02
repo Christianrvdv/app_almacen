@@ -1,11 +1,11 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Detalle de Venta #{{ detalle_ventum.id }}{% endblock %}
+{% block title %}Detalle de Venta #{{ detalle_ventas.id }}{% endblock %}
 
 {% block body %}
     <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fw-bold text-primary">Detalle de Venta #{{ detalle_ventum.id }}</h1>
+            <h1 class="fw-bold text-primary">Detalle de Venta #{{ detalle_ventas.id }}</h1>
             <a href="{{ path('app_detalle_venta_index') }}" class="btn btn-outline-secondary btn-sm">
                 <i class="fas fa-arrow-left me-1"></i>Regresar al listado
             </a>
@@ -15,25 +15,25 @@
             <div class="card-body">
                 <div class="row mb-2">
                     <div class="col-sm-3 fw-bold text-muted">Cantidad</div>
-                    <div class="col-sm-9">{{ detalle_ventum.cantidad }}</div>
+                    <div class="col-sm-9">{{ detalle_ventas.cantidad }}</div>
                 </div>
                 <div class="row mb-2">
                     <div class="col-sm-3 fw-bold text-muted">Precio unitario</div>
-                    <div class="col-sm-9">$ {{ detalle_ventum.precioUnitario|number_format(2, ',', '.') }}</div>
+                    <div class="col-sm-9">$ {{ detalle_ventas.precioUnitario|number_format(2, ',', '.') }}</div>
                 </div>
                 <div class="row mb-2">
                     <div class="col-sm-3 fw-bold text-muted">Precio costo</div>
-                    <div class="col-sm-9">$ {{ detalle_ventum.precioCosto|number_format(2, ',', '.') }}</div>
+                    <div class="col-sm-9">$ {{ detalle_ventas.precioCosto|number_format(2, ',', '.') }}</div>
                 </div>
                 <div class="row mb-0">
                     <div class="col-sm-3 fw-bold text-muted">Subtotal</div>
-                    <div class="col-sm-9 h5 mb-0 text-success">$ {{ detalle_ventum.subtotal|number_format(2, ',', '.') }}</div>
+                    <div class="col-sm-9 h5 mb-0 text-success">$ {{ detalle_ventas.subtotal|number_format(2, ',', '.') }}</div>
                 </div>
             </div>
         </div>
 
         <div class="d-flex justify-content-between align-items-center">
-            <a href="{{ path('app_detalle_venta_edit', {'id': detalle_ventum.id}) }}" class="btn btn-warning btn-sm">
+            <a href="{{ path('app_detalle_venta_edit', {'id': detalle_ventas.id}) }}" class="btn btn-warning btn-sm">
                 <i class="fas fa-edit me-1"></i>Editar
             </a>
             {{ include('detalle_venta/_delete_form.html.twig') }}

@@ -1,34 +1,327 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Categoría #{{ categorium.id }}{% endblock %}
+{% block title %}{{ categoria.nombre }} - Detalles de la Categoría{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fw-bold text-primary">Categoría #{{ categorium.id }}</h1>
-            <a href="{{ path('app_categoria_index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
-            </a>
-        </div>
-
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Nombre</div>
-                    <div class="col-sm-9"><strong>{{ categorium.nombre }}</strong></div>
-                </div>
-                <div class="row mb-0">
-                    <div class="col-sm-3 fw-bold text-muted">Descripción</div>
-                    <div class="col-sm-9">{{ categorium.descripcion|default('-') }}</div>
+    <div class="container-fluid py-4">
+        <div class="page-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="{{ path('app_categoria_index') }}"
+                           class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Listado
+                        </a>
+                    </div>
+                    <div class="text-center text-white">
+                        <h1 class="fw-bold mb-1">🏷️ {{ categoria.nombre }}</h1>
+                        <p class="mb-0 opacity-75">Detalles completos de la categoría</p>
+                    </div>
+                    <div>
+                        <span class="badge-modern">
+                            <i class="fas fa-tag me-1"></i>Categoría
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center">
-            <a href="{{ path('app_categoria_edit', {'id': categorium.id}) }}" class="btn btn-warning btn-sm">
-                <i class="fas fa-edit me-1"></i>Editar
-            </a>
-            {{ include('categoria/_delete_form.html.twig') }}
+        <div class="container">
+            <!-- Información Principal -->
+            <div class="info-grid">
+                <!-- Información Básica -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-info-circle me-2"></i>Información Básica
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="category-icon">
+                            <i class="fas fa-tags"></i>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-label">Nombre de la Categoría</div>
+                            <div class="info-value">{{ categoria.nombre }}</div>
+                        </div>
+
+                        <div class="info-item">
+                            <div class="info-label">Descripción</div>
+                            <div class="info-value">
+                                {% if categoria.descripcion %}
+                                    {{ categoria.descripcion }}
+                                {% else %}
+                                    <span class="text-muted">Sin descripción</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas de la Categoría -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-chart-bar me-2"></i>Estadísticas
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="stats-grid" id="stats-container">
+                            <div class="stat-item loading" id="stat-productos">
+                                <div class="stat-number text-primary">...</div>
+                                <div class="stat-label">Productos Asociados</div>
+                            </div>
+                            <div class="stat-item loading" id="stat-activos">
+                                <div class="stat-number text-success">...</div>
+                                <div class="stat-label">Productos Activos</div>
+                            </div>
+                            <div class="stat-item loading" id="stat-ingresos">
+                                <div class="stat-number text-warning">...</div>
+                                <div class="stat-label">Ingresos Generados</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metadatos -->
+            <div class="stats-card">
+                <div class="card-header-modern">
+                    <i class="fas fa-database me-2"></i>Información del Sistema
+                </div>
+                <div class="card-body">
+                    <div class="metadata">
+                        <div class="metadata-item">
+                            <span class="metadata-label">ID de la Categoría</span>
+                            <span class="metadata-value">
+                                <code>#{{ categoria.id }}</code>
+                            </span>
+                        </div>
+
+                        <div class="metadata-item">
+                            <span class="metadata-label">Total de Productos</span>
+                            <span class="metadata-value">
+                                {{ categoria.productos|length }} producto(s)
+                            </span>
+                        </div>
+
+                        <div class="metadata-item">
+                            <span class="metadata-label">Estado</span>
+                            <span class="metadata-value">
+                                <span class="badge-modern bg-success">
+                                    <i class="fas fa-check me-1"></i>Activa
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Lista de Productos Asociados -->
+            {% if categoria.productos|length > 0 %}
+                <h3 class="section-title">
+                    <i class="fas fa-cubes me-2"></i>Productos en esta Categoría ({{ categoria.productos|length }})
+                </h3>
+                <div class="table-modern">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Descripción</th>
+                                <th class="text-center">Estado</th>
+                                <th class="text-center">Actualizado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for producto in  categoria.productos %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light rounded p-2 me-3">
+                                                <i class="fas fa-cube text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <div class="product-name">{{ producto.nombre }}</div>
+                                                <small class="text-muted">
+                                                    {% if producto.codigoBarras %}
+                                                        📋 {{ producto.codigoBarras }}
+                                                    {% else %}
+                                                        📋 Sin código
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted">
+                                            {{ producto.descipcion ? (producto.descipcion|slice(0, 40) ~ (producto.descipcion|length > 40 ? '...' : '')) : 'Sin descripción' }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        {% if producto.activo %}
+                                            <span class="badge-modern text-success">
+                                                <i class="fas fa-check me-1"></i>Activo
+                                            </span>
+                                        {% else %}
+                                            <span class="badge-modern text-secondary">
+                                                <i class="fas fa-times me-1"></i>Inactivo
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center text-muted">
+                                        <small>{{ producto.fechaActualizacion ? producto.fechaActualizacion|date('d/m/Y') : 'N/A' }}</small>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="action-buttons">
+                                            <a href="{{ path('app_producto_show', {'id': producto.id}) }}"
+                                               class="btn btn-modern btn-outline-modern" title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ path('app_producto_edit', {'id': producto.id}) }}"
+                                               class="btn btn-modern btn-primary-modern" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="7" class="empty-state">
+                                        <i class="fas fa-inbox"></i>
+                                        <h4 class="mt-3">No se encontraron productos</h4>
+                                        <p class="text-muted mb-3">Comienza agregando tu primer producto al catálogo</p>
+                                        <a href="{{ path('app_producto_new') }}"
+                                           class="btn btn-primary-modern btn-modern">
+                                            <i class="fas fa-plus-circle me-2"></i>Crear Primer Producto
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            {% endif %}
+
+            <!-- Acciones -->
+            <div class="stats-card">
+                <div class="card-header-modern">
+                    <i class="fas fa-cogs me-2"></i>Acciones
+                </div>
+                <div class="card-body p-4">
+                    <div class="action-buttons">
+                        <a href="{{ path('app_categoria_edit', {'id': categoria.id}) }}"
+                           class="btn btn-modern btn-warning-modern">
+                            <i class="fas fa-edit me-2"></i>Editar Categoría
+                        </a>
+
+                        <a href="{{ path('app_categoria_index') }}"
+                           class="btn btn-modern btn-primary-modern">
+                            <i class="fas fa-list me-2"></i>Volver al Listado
+                        </a>
+
+                        <!-- Botón de eliminar con confirmación -->
+                        <button type="button"
+                                class="btn btn-modern btn-danger-modern"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal">
+                            <i class="fas fa-trash me-2"></i>Eliminar Categoría
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Modal de Confirmación para Eliminar -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar la categoría <strong>"{{ categoria.nombre }}"</strong>?</p>
+                    <p class="text-danger small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        {% if categoria.productos|length > 0 %}
+                            Esta categoría tiene {{ categoria.productos|length }} producto(s) asociado(s).
+                            Al eliminar la categoría, estos productos quedarán sin categoría asignada.
+                        {% else %}
+                            Esta acción no se puede deshacer.
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    {{ include('categoria/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Animación suave para las tarjetas
+            const cards = document.querySelectorAll('.stats-card, .detalle-card, .stat-item');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // Cargar estadísticas
+            loadStats();
+        });
+
+        async function loadStats() {
+            try {
+                // Usar datos reales de la categoría
+                const stats = {
+                    productos: {{ categoria.productos|length }},
+                    activos: {{ categoria.productos|filter(p => p.activo)|length }},
+                    ingresos: calcularIngresosTotales()
+                };
+
+                // Actualizar las estadísticas
+                document.getElementById('stat-productos').querySelector('.stat-number').textContent = stats.productos;
+                document.getElementById('stat-activos').querySelector('.stat-number').textContent = stats.activos;
+                document.getElementById('stat-ingresos').querySelector('.stat-number').textContent = '$' + stats.ingresos.toLocaleString('es-ES', {minimumFractionDigits: 2});
+
+                // Remover clase de loading
+                document.querySelectorAll('.stat-item').forEach(item => {
+                    item.classList.remove('loading');
+                });
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+                document.querySelectorAll('.stat-item').forEach(item => {
+                    item.classList.remove('loading');
+                    item.querySelector('.stat-number').textContent = 'Error';
+                });
+            }
+        }
+
+        function calcularIngresosTotales() {
+            // Esta función calcularía los ingresos totales de los productos de esta categoría
+            // Por ahora devolvemos 0, pero puedes implementar la lógica real aquí
+            return 0;
+        }
+    </script>
 {% endblock %}

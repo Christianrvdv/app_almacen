@@ -21,8 +21,10 @@ class CompraType extends AbstractType
             ->add('total')
             ->add('estado', ChoiceType::class, [
                 'choices' => [
-                    'Pagado' => 'Pagado',
-                    'Pendiente' => 'Pendiente',
+                    'Completada' => 'completada',
+                    'Pendiente' => 'pendiente',
+                    'Cancelada' => 'cancelada',
+                    'En proceso' => 'en_proceso',
                 ],
                 'required' => true,
                 'placeholder' => 'Selecciona un estado',

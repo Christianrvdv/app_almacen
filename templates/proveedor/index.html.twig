@@ -2,66 +2,251 @@
 
 {% block title %}Listado de Proveedores{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
+{% endblock %}
+
 {% block body %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <a href="{{ path('app_dashboard_index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Regresar
-            </a>
-            <h1 class="fw-bold text-primary">Proveedores</h1>
-            <a href="{{ path('app_proveedor_new') }}" class="btn btn-primary">
-                <i class="fas fa-plus-circle me-2"></i>Nuevo Proveedor
-            </a>
+    <div class="container-fluid py-4">
+        <!-- Header Mejorado -->
+        <div class="page-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="{{ path('app_dashboard_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+                        </a>
+                    </div>
+                    <div class="text-center text-white">
+                        <h1 class="fw-bold mb-1">🏢 Gestión de Proveedores</h1>
+                        <p class="mb-0 opacity-75">Administra tus proveedores y contactos comerciales</p>
+                    </div>
+                    <div>
+                        <a href="{{ path('app_proveedor_new') }}" class="btn btn-warning btn-sm rounded-pill px-3">
+                            <i class="fas fa-plus-circle me-2"></i>Nuevo Proveedor
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
+        <!-- Estadísticas Rápidas -->
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-primary">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="metric-value text-primary">{{ proveedors|length }}</div>
+                            <div class="metric-label">Total Proveedores</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-success">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="metric-value text-success">
+                                {{ proveedors|filter(p => p.telefono != null)|length }}
+                            </div>
+                            <div class="metric-label">Con Teléfono</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-info">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="metric-value text-info">
+                                {{ proveedors|filter(p => p.email != null)|length }}
+                            </div>
+                            <div class="metric-label">Con Email</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-warning">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="metric-value text-warning">
+                                {{ proveedors|filter(p => p.direccion != null)|length }}
+                            </div>
+                            <div class="metric-label">Con Dirección</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barra de Búsqueda -->
+            <div class="search-filter">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <input type="text" class="form-control form-control-modern" placeholder="🔍 Buscar proveedores por nombre, teléfono, email o dirección...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Proveedores -->
+            <div class="table-modern">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
+                        <thead>
                         <tr>
-                            <th>Nombre</th>
-                            <th>Teléfono</th>
-                            <th>Email</th>
-                            <th>Dirección</th>
+                            <th>Proveedor</th>
+                            <th>Contacto</th>
+                            <th>Ubicación</th>
+                            <th class="text-center">Productos</th>
                             <th class="text-center">Acciones</th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for proveedor in proveedors %}
                             <tr>
-                                <td>{{ proveedor.nombre }}</td>
                                 <td>
-                                    <a href="tel:{{ proveedor.telefono }}" class="text-decoration-none">
-                                        <i class="fas fa-phone-alt me-1 text-success"></i>{{ proveedor.telefono }}
-                                    </a>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded p-2 me-3">
+                                            <i class="fas fa-truck text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="product-name">{{ proveedor.nombre }}</div>
+                                            <small class="text-muted">
+                                                ID: {{ proveedor.id }}
+                                            </small>
+                                        </div>
+                                    </div>
                                 </td>
                                 <td>
-                                    <a href="mailto:{{ proveedor.email }}" class="text-decoration-none">
-                                        <i class="fas fa-envelope me-1 text-primary"></i>{{ proveedor.email }}
-                                    </a>
+                                    <div class="contact-info">
+                                        {% if proveedor.telefono %}
+                                            <div class="mb-1">
+                                                <a href="tel:{{ proveedor.telefono }}" class="text-decoration-none text-success">
+                                                    <i class="fas fa-phone-alt me-2"></i>{{ proveedor.telefono }}
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                        {% if proveedor.email %}
+                                            <div>
+                                                <a href="mailto:{{ proveedor.email }}" class="text-decoration-none text-primary">
+                                                    <i class="fas fa-envelope me-2"></i>{{ proveedor.email }}
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                        {% if not proveedor.telefono and not proveedor.email %}
+                                            <span class="text-muted">Sin información de contacto</span>
+                                        {% endif %}
+                                    </div>
                                 </td>
-                                <td title="{{ proveedor.direccion }}">
-                                    {{ proveedor.direccion|slice(0, 30) }}{{ proveedor.direccion|length > 30 ? '...' : '' }}
+                                <td>
+                                    {% if proveedor.direccion %}
+                                        <div class="text-muted">
+                                            <i class="fas fa-map-marker-alt me-2 text-warning"></i>
+                                            {{ proveedor.direccion|slice(0, 40) }}{{ proveedor.direccion|length > 40 ? '...' : '' }}
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted">Sin dirección</span>
+                                    {% endif %}
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ path('app_proveedor_show', {'id': proveedor.id}) }}" class="btn btn-sm btn-outline-info me-1" title="Ver">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{{ path('app_proveedor_edit', {'id': proveedor.id}) }}" class="btn btn-sm btn-outline-warning" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
+                                    <span class="badge-modern text-info">
+                                        <i class="fas fa-cube me-1"></i>{{ proveedor.productos|length }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="action-buttons">
+                                        <a href="{{ path('app_proveedor_show', {'id': proveedor.id}) }}"
+                                           class="btn btn-modern btn-outline-modern" title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ path('app_proveedor_edit', {'id': proveedor.id}) }}"
+                                           class="btn btn-modern btn-primary-modern" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="6" class="text-center text-muted">No se encontraron proveedores.</td>
+                                <td colspan="5" class="empty-state">
+                                    <i class="fas fa-truck"></i>
+                                    <h4 class="mt-3">No se encontraron proveedores</h4>
+                                    <p class="text-muted mb-3">Comienza agregando tu primer proveedor al sistema</p>
+                                    <a href="{{ path('app_proveedor_new') }}" class="btn btn-primary-modern btn-modern">
+                                        <i class="fas fa-plus-circle me-2"></i>Crear Primer Proveedor
+                                    </a>
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            <!-- Información de Paginación -->
+            {% if proveedors|length > 0 %}
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="text-muted">
+                        Mostrando <strong>{{ proveedors|length }}</strong> proveedores en total
+                    </div>
+                    <div>
+                        <!-- Aquí iría la paginación si la hubiera -->
+                        <nav>
+                            <ul class="pagination mb-0">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">Anterior</a>
+                                </li>
+                                <li class="page-item active">
+                                    <a class="page-link" href="#">1</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Siguiente</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Funcionalidad básica de búsqueda
+            const searchInput = document.querySelector('input[type="text"]');
+            const tableRows = document.querySelectorAll('tbody tr');
+
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+
+                tableRows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+
+            // Animación suave para las filas
+            tableRows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+
+                setTimeout(() => {
+                    row.style.transition = 'all 0.5s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateX(0)';
+                }, index * 100);
+            });
+        });
+    </script>
 {% endblock %}

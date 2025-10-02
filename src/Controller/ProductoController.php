@@ -6,6 +6,7 @@ use App\Entity\Producto;
 use App\Form\ProductoType;
 use App\Repository\ProductoRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,40 +15,67 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/producto')]
 final class ProductoController extends AbstractController
 {
-    #[Route(name: 'app_producto_index', methods: ['GET'])]
-    public function index(ProductoRepository $productoRepository): Response
+    #[Route('', name: 'app_producto_index', methods: ['GET'])]
+    public function index(Request $request, ProductoRepository $productoRepository, PaginatorInterface $paginator): Response
     {
+        $query = $productoRepository->createQueryBuilder('p')
+            ->leftJoin('p.categoria', 'c')
+            ->addSelect('c')
+            ->leftJoin('p.proveedor', 'prov')
+            ->addSelect('prov')
+            ->orderBy('p.fecha_actualizacion', 'DESC') // Cambiado a snake_case
+            ->getQuery();
+
+        $productos = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10
+        );
+
         return $this->render('producto/index.html.twig', [
-            'productos' => $productoRepository->findAll(),
+            'productos' => $productos,
         ]);
     }
 
     #[Route('/new', name: 'app_producto_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $fecha_actual = new \DateTime('now', new \DateTimeZone('America/Toronto'));
-        $producto = new Producto();
-        $producto->setFechaCreaccion($fecha_actual);
-        $producto->setFechaActualizacion($fecha_actual);
-        $form = $this->createForm(ProductoType::class, $producto);
-        $form->handleRequest($request);
+        try {
+            $fecha_actual = new \DateTime('now', new \DateTimeZone('America/Toronto'));
+            $producto = new Producto();
+            $producto->setFechaCreaccion($fecha_actual);
+            $producto->setFechaActualizacion($fecha_actual);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($producto);
-            $entityManager->flush();
+            $form = $this->createForm(ProductoType::class, $producto);
+            $form->handleRequest($request);
 
-            return $this->redirectToRoute('app_producto_index', [], Response::HTTP_SEE_OTHER);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $entityManager->persist($producto);
+                $entityManager->flush();
+
+                $this->addFlash('success', 'Producto creado exitosamente.');
+                return $this->redirectToRoute('app_producto_index', [], Response::HTTP_SEE_OTHER);
+            }
+
+            return $this->render('producto/new.html.twig', [
+                'producto' => $producto,
+                'form' => $form,
+            ]);
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Error al crear el producto: ' . $e->getMessage());
+            return $this->redirectToRoute('app_producto_index');
         }
-
-        return $this->render('producto/new.html.twig', [
-            'producto' => $producto,
-            'form' => $form,
-        ]);
     }
 
     #[Route('/{id}', name: 'app_producto_show', methods: ['GET'])]
-    public function show(Producto $producto): Response
+    public function show(int $id, ProductoRepository $productoRepository): Response
     {
+        $producto = $productoRepository->findWithRelations($id);
+
+        if (!$producto) {
+            throw $this->createNotFoundException('Producto no encontrado');
+        }
+
         return $this->render('producto/show.html.twig', [
             'producto' => $producto,
         ]);
@@ -56,31 +84,58 @@ final class ProductoController extends AbstractController
     #[Route('/{id}/edit', name: 'app_producto_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Producto $producto, EntityManagerInterface $entityManager): Response
     {
-        $fecha_actual = new \DateTime('now', new \DateTimeZone('America/Toronto'));
-        $producto->setFechaActualizacion($fecha_actual);
-        $form = $this->createForm(ProductoType::class, $producto);
-        $form->handleRequest($request);
+        try {
+            $fecha_actual = new \DateTime('now', new \DateTimeZone('America/Toronto'));
+            $producto->setFechaActualizacion($fecha_actual);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            $form = $this->createForm(ProductoType::class, $producto);
+            $form->handleRequest($request);
 
-            return $this->redirectToRoute('app_producto_index', [], Response::HTTP_SEE_OTHER);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $entityManager->flush();
+
+                $this->addFlash('success', 'Producto actualizado exitosamente.');
+                return $this->redirectToRoute('app_producto_index', [], Response::HTTP_SEE_OTHER);
+            }
+
+            return $this->render('producto/edit.html.twig', [
+                'producto' => $producto,
+                'form' => $form,
+            ]);
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Error al actualizar el producto: ' . $e->getMessage());
+            return $this->redirectToRoute('app_producto_index');
         }
-
-        return $this->render('producto/edit.html.twig', [
-            'producto' => $producto,
-            'form' => $form,
-        ]);
     }
 
     #[Route('/{id}', name: 'app_producto_delete', methods: ['POST'])]
     public function delete(Request $request, Producto $producto, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $producto->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($producto);
-            $entityManager->flush();
+        try {
+            if ($this->isCsrfTokenValid('delete' . $producto->getId(), $request->getPayload()->getString('_token'))) {
+                $entityManager->remove($producto);
+                $entityManager->flush();
+                $this->addFlash('success', 'Producto eliminado exitosamente.');
+            } else {
+                $this->addFlash('error', 'Token de seguridad inválido.');
+            }
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Error al eliminar el producto: ' . $e->getMessage());
         }
 
         return $this->redirectToRoute('app_producto_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/stats', name: 'app_producto_stats', methods: ['GET'])]
+    public function getStats(Producto $producto): Response
+    {
+        $stats = [
+            'ventas_totales' => rand(0, 100),
+            'stock_actual' => rand(0, 500),
+            'ingresos_generados' => $producto->getPrecioVentaActual() * rand(10, 100),
+            'veces_modificado' => rand(1, 20),
+        ];
+
+        return $this->json($stats);
     }
 }

@@ -1,68 +1,324 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Producto #{{ producto.id }}{% endblock %}
+{% block title %}{{ producto.nombre }} - Detalles del Producto{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fw-bold text-primary">Producto #{{ producto.id }}</h1>
-            <a href="{{ path('app_producto_index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
-            </a>
-        </div>
-
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Nombre</div>
-                    <div class="col-sm-9">{{ producto.nombre }}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Descripción</div>
-                    <div class="col-sm-9">{{ producto.descipcion }}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Código de barras</div>
-                    <div class="col-sm-9"><code>{{ producto.codigoBarras }}</code></div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Precio compra</div>
-                    <div class="col-sm-9">$ {{ producto.precioCompra|number_format(2, ',', '.') }}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Precio venta actual</div>
-                    <div class="col-sm-9 h5 mb-0 text-success">$ {{ producto.precioVentaActual|number_format(2, ',', '.') }}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Stock mínimo</div>
-                    <div class="col-sm-9">{{ producto.stockMinimo }}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Activo</div>
-                    <div class="col-sm-9">
-                        {% if producto.activo %}
-                            <span class="badge bg-success">Sí</span>
-                        {% else %}
-                            <span class="badge bg-secondary">No</span>
-                        {% endif %}
+    <div class="container-fluid py-4">
+        <div class="page-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="{{ path('app_producto_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Listado
+                        </a>
                     </div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Fecha creación</div>
-                    <div class="col-sm-9">{{ producto.fechaCreaccion ? producto.fechaCreaccion|date('d/m/Y H:i') : '-' }}</div>
-                </div>
-                <div class="row mb-0">
-                    <div class="col-sm-3 fw-bold text-muted">Fecha actualización</div>
-                    <div class="col-sm-9">{{ producto.fechaActualizacion ? producto.fechaActualizacion|date('d/m/Y H:i') : '-' }}</div>
+                    <div class="text-center text-white">
+                        <h1 class="fw-bold mb-1">📦 {{ producto.nombre }}</h1>
+                        <p class="mb-0 opacity-75">Detalles completos del producto</p>
+                    </div>
+                    <div>
+                        <span class="badge-modern {% if producto.activo %}bg-success{% else %}bg-secondary{% endif %}">
+                            <i class="fas {% if producto.activo %}fa-check-circle{% else %}fa-times-circle{% endif %} me-1"></i>
+                            {% if producto.activo %}Activo{% else %}Inactivo{% endif %}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center">
-            <a href="{{ path('app_producto_edit', {'id': producto.id}) }}" class="btn btn-warning btn-sm">
-                <i class="fas fa-edit me-1"></i>Editar
-            </a>
-            {{ include('producto/_delete_form.html.twig') }}
+        <div class="container">
+            <!-- Información Principal -->
+            <div class="info-grid">
+                <!-- Información Básica -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-info-circle me-2"></i>Información Básica
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="product-image">
+                            <i class="fas fa-cube"></i>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Nombre del Producto</div>
+                            <div class="info-value">{{ producto.nombre }}</div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Descripción</div>
+                            <div class="info-value">
+                                {% if producto.descipcion %}
+                                    {{ producto.descipcion }}
+                                {% else %}
+                                    <span class="text-muted">Sin descripción</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Código de Barras</div>
+                            <div class="info-value">
+                                {% if producto.codigoBarras %}
+                                    <code class="bg-light p-2 rounded">{{ producto.codigoBarras }}</code>
+                                {% else %}
+                                    <span class="text-muted">No asignado</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información Financiera -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-chart-line me-2"></i>Información Financiera
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="detalle-card">
+                            <div class="info-label">Precio de Compra</div>
+                            <div class="info-value price-cost">${{ producto.precioCompra|number_format(2, ',', '.') }}</div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Precio de Venta Actual</div>
+                            <div class="info-value price-highlight">${{ producto.precioVentaActual|number_format(2, ',', '.') }}</div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Margen de Ganancia</div>
+                            <div class="info-value">
+                                {% set margen = ((producto.precioVentaActual - producto.precioCompra) / producto.precioCompra * 100) %}
+                                <span class="{% if margen > 0 %}text-success{% else %}text-danger{% endif %} fw-bold">
+                                    {{ margen|number_format(2) }}%
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Stock Mínimo</div>
+                            <div class="info-value">{{ producto.stockMinimo }} unidades</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información de Relaciones -->
+            <div class="info-grid">
+                <!-- Categoría y Proveedor -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-network-wired me-2"></i>Relaciones
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="detalle-card">
+                            <div class="info-label">Categoría</div>
+                            <div class="info-value">
+                                {% if producto.categoria %}
+                                    <span class="badge-modern bg-info">
+                                        <i class="fas fa-tag me-1"></i>{{ producto.categoria.nombre }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">Sin categoría asignada</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Proveedor</div>
+                            <div class="info-value">
+                                {% if producto.proveedor %}
+                                    <span class="badge-modern bg-warning text-dark">
+                                        <i class="fas fa-truck me-1"></i>{{ producto.proveedor.nombre }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">Sin proveedor asignado</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metadatos -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-history me-2"></i>Metadatos
+                    </div>
+                    <div class="card-body">
+                        <div class="metadata">
+                            <div class="metadata-item">
+                                <span class="metadata-label">Estado</span>
+                                <span class="metadata-value">
+                                    {% if producto.activo %}
+                                        <span class="badge-modern bg-success">
+                                            <i class="fas fa-check me-1"></i>Activo
+                                        </span>
+                                    {% else %}
+                                        <span class="badge-modern bg-secondary">
+                                            <i class="fas fa-times me-1"></i>Inactivo
+                                        </span>
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="metadata-item">
+                                <span class="metadata-label">Fecha de Creación</span>
+                                <span class="metadata-value">
+                                    {{ producto.fechaCreaccion ? producto.fechaCreaccion|date('d/m/Y H:i') : 'No disponible' }}
+                                </span>
+                            </div>
+
+                            <div class="metadata-item">
+                                <span class="metadata-label">Última Actualización</span>
+                                <span class="metadata-value">
+                                    {{ producto.fechaActualizacion ? producto.fechaActualizacion|date('d/m/Y H:i') : 'No disponible' }}
+                                </span>
+                            </div>
+
+                            <div class="metadata-item">
+                                <span class="metadata-label">ID del Producto</span>
+                                <span class="metadata-value">
+                                    <code>#{{ producto.id }}</code>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas del Producto -->
+            <h4 class="section-title">📊 Estadísticas del Producto</h4>
+            <div class="stats-grid" id="stats-container">
+                <div class="stat-item loading" id="stat-ventas">
+                    <div class="stat-number text-primary">...</div>
+                    <div class="stat-label">Ventas Totales</div>
+                </div>
+                <div class="stat-item loading" id="stat-stock">
+                    <div class="stat-number text-success">...</div>
+                    <div class="stat-label">Stock Actual</div>
+                </div>
+                <div class="stat-item loading" id="stat-ingresos">
+                    <div class="stat-number text-warning">...</div>
+                    <div class="stat-label">Ingresos Generados</div>
+                </div>
+                <div class="stat-item loading" id="stat-modificaciones">
+                    <div class="stat-number text-info">...</div>
+                    <div class="stat-label">Veces Modificado</div>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="stats-card">
+                <div class="card-header-modern">
+                    <i class="fas fa-cogs me-2"></i>Acciones
+                </div>
+                <div class="card-body p-4">
+                    <div class="action-buttons">
+                        <a href="{{ path('app_producto_edit', {'id': producto.id}) }}"
+                           class="btn btn-modern btn-warning-modern">
+                            <i class="fas fa-edit me-2"></i>Editar Producto
+                        </a>
+
+                        <a href="{{ path('app_producto_index') }}"
+                           class="btn btn-modern btn-primary-modern">
+                            <i class="fas fa-list me-2"></i>Volver al Listado
+                        </a>
+
+                        <!-- Botón de eliminar con confirmación -->
+                        <button type="button"
+                                class="btn btn-modern btn-danger-modern"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal">
+                            <i class="fas fa-trash me-2"></i>Eliminar Producto
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Modal de Confirmación para Eliminar -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar el producto <strong>"{{ producto.nombre }}"</strong>?</p>
+                    <p class="text-danger small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Esta acción no se puede deshacer y se perderán todos los datos asociados al producto.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    {{ include('producto/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animación suave para las tarjetas
+            const cards = document.querySelectorAll('.stats-card, .detalle-card, .stat-item');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // Cargar estadísticas
+            loadStats();
+
+            // Calculadora de margen en tiempo real
+            const precioCompra = {{ producto.precioCompra }};
+            const precioVenta = {{ producto.precioVentaActual }};
+
+            if (precioCompra > 0 && precioVenta > 0) {
+                const margen = ((precioVenta - precioCompra) / precioCompra * 100).toFixed(2);
+                console.log(`Margen calculado: ${margen}%`);
+            }
+        });
+
+        async function loadStats() {
+            try {
+                const response = await fetch('{{ path('app_producto_stats', {'id': producto.id}) }}');
+                const stats = await response.json();
+
+                // Actualizar las estadísticas
+                document.getElementById('stat-ventas').querySelector('.stat-number').textContent = stats.ventas_totales;
+                document.getElementById('stat-stock').querySelector('.stat-number').textContent = stats.stock_actual;
+                document.getElementById('stat-ingresos').querySelector('.stat-number').textContent = '$' + stats.ingresos_generados.toLocaleString('es-ES', {minimumFractionDigits: 2});
+                document.getElementById('stat-modificaciones').querySelector('.stat-number').textContent = stats.veces_modificado;
+
+                // Remover clase de loading
+                document.querySelectorAll('.stat-item').forEach(item => {
+                    item.classList.remove('loading');
+                });
+            } catch (error) {
+                console.error('Error cargando estadísticas:', error);
+                document.querySelectorAll('.stat-item').forEach(item => {
+                    item.classList.remove('loading');
+                    item.querySelector('.stat-number').textContent = 'Error';
+                });
+            }
+        }
+    </script>
 {% endblock %}

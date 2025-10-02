@@ -72,10 +72,10 @@ final class VentaController extends AbstractController
 
         ]);
     }
-
     #[Route('/{id}/edit', name: 'app_venta_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Venta $venta, EntityManagerInterface $entityManager): Response
     {
+        // Guardar detalles originales antes del handleRequest
         $originalDetalles = new ArrayCollection();
         foreach ($venta->getDetalleVentas() as $detalle) {
             $originalDetalles->add($detalle);
@@ -87,29 +87,41 @@ final class VentaController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 $totalVenta = 0;
+                // Manejar nuevos detalles y calcular subtotales
                 foreach ($venta->getDetalleVentas() as $detalle) {
-                    // Calcular el subtotal para cada detalle
+                    // Calcular subtotal para cada detalle
                     $subtotal = $detalle->getCantidad() * $detalle->getPrecioUnitario();
                     $detalle->setSubtotal($subtotal);
-                    $totalVenta += $subtotal;
 
+                    $totalVenta += $subtotal; // Acumular al total
+
+                    // Si es un detalle nuevo, persistirlo y establecer la relación
                     if (!$originalDetalles->contains($detalle)) {
                         $detalle->setVenta($venta);
                         $entityManager->persist($detalle);
                     }
                 }
+
+                // Actualizar el total de la venta
                 $venta->setTotal($totalVenta);
+
+                // Manejar detalles eliminados
                 foreach ($originalDetalles as $detalle) {
                     if (!$venta->getDetalleVentas()->contains($detalle)) {
                         $entityManager->remove($detalle);
                     }
                 }
+
                 $entityManager->flush();
+
+                $this->addFlash('success', 'Venta actualizada correctamente'); // ✅ Agregado
                 return $this->redirectToRoute('app_venta_index', [], Response::HTTP_SEE_OTHER);
+
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Error al guardar la venta: ' . $e->getMessage());
+                $this->addFlash('error', 'Error al actualizar la venta: ' . $e->getMessage());
             }
         } elseif ($form->isSubmitted()) {
+            // Manejo de errores de validación (mantener este buen patrón)
             $errors = $form->getErrors(true);
             foreach ($errors as $error) {
                 $this->addFlash('error', $error->getMessage());
@@ -119,10 +131,9 @@ final class VentaController extends AbstractController
         return $this->render('venta/edit.html.twig', [
             'venta' => $venta,
             'form' => $form,
-            'detalle_venta' => $venta->getDetalleVentas(),
+            'detalle_ventas' => $venta->getDetalleVentas(), // ✅ Cambiado a plural para consistencia
         ]);
     }
-
     #[Route('/{id}', name: 'app_venta_delete', methods: ['POST'])]
     public function delete(Request $request, Venta $venta, EntityManagerInterface $entityManager): Response
     {

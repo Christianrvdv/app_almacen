@@ -18,11 +18,21 @@ class VentaType extends AbstractType
         $builder
             ->add('fecha')
             ->add('total')
-            ->add('tipo_veenta')
+            ->add('tipo_veenta', ChoiceType::class, [
+                'choices' => [
+                    'Efectivo' => 'efectivo',
+                    'Transferencia' => 'transferencia',
+                    'Mixto' => 'mixto',
+                ],
+                'required' => true,
+                'placeholder' => 'Selecciona método de pago',
+            ])
             ->add('estado', ChoiceType::class, [
                 'choices' => [
-                    'Pagado' => 'Pagado',
-                    'Pendiente' => 'Pendiente',
+                    'Completada' => 'completada',
+                    'Pendiente' => 'pendiente',
+                    'Cancelada' => 'cancelada',
+                    'En proceso' => 'en_proceso',
                 ],
                 'required' => true,
                 'placeholder' => 'Selecciona un estado',
@@ -41,8 +51,7 @@ class VentaType extends AbstractType
                 'prototype' => true,
                 'required' => false,
                 'label' => false,
-            ])
-        ;
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

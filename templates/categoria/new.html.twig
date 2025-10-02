@@ -1,21 +1,147 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Nueva Categoría{% endblock %}
+{% block title %}Nueva Categoría - Sistema de Inventario{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <a href="{{ path('app_categoria_index') }}"
-               class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
-            </a>
-            <h1 class="fw-bold text-primary">Nueva Categoría</h1>
+    <div class="container-fluid py-4">
+        <!-- Header Mejorado -->
+        <div class="page-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="{{ path('app_categoria_index') }}"
+                           class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Listado
+                        </a>
+                    </div>
+                    <div class="text-center text-white">
+                        <h1 class="fw-bold mb-1">🏷️ Nueva Categoría</h1>
+                        <p class="mb-0 opacity-75">Agrega una nueva categoría para organizar tus productos</p>
+                    </div>
+                    <div style="width: 130px;"></div> <!-- Espaciador para alinear -->
+                </div>
+            </div>
         </div>
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
-                {{ include('categoria/_form.html.twig', {'button_label': 'Guardar categoría'}) }}
+        <div class="container">
+            <!-- Mensajes Flash Mejorados -->
+            {% for message in app.flashes('success') %}
+                <div class="alert-modern alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">¡Éxito!</h5>
+                            {{ message }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('error') %}
+                <div class="alert-modern alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Error</h5>
+                            {{ message }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            <!-- Formulario Principal -->
+            <div class="stats-card">
+                <div class="card-header-modern">
+                    <i class="fas fa-plus-circle me-2"></i>Información de la Nueva Categoría
+                </div>
+                <div class="card-body p-4">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+
+                    <!-- Información Básica -->
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-info-circle me-2"></i>Información Básica
+                        </h3>
+
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.nombre, 'Nombre de la Categoría', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.nombre, {'attr': {
+                                        'class': 'form-control form-control-modern',
+                                        'placeholder': 'Ej: Electrónicos, Ropa, Hogar...',
+                                        'required': 'required'
+                                    }}) }}
+                                    {{ form_errors(form.nombre) }}
+                                    <div class="form-help-text">Nombre descriptivo y único para la categoría</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.descripcion, 'Descripción de la Categoría', {'label_attr': {'class': 'form-label-modern'}}) }}
+                                    {{ form_widget(form.descripcion, {'attr': {
+                                        'class': 'form-control form-control-modern custom-textarea',
+                                        'rows': 4,
+                                        'placeholder': 'Describe el tipo de productos que pertenecerán a esta categoría...'
+                                    }}) }}
+                                    {{ form_errors(form.descripcion) }}
+                                    <div class="form-help-text">Información detallada sobre la categoría (opcional)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="form-section">
+                        <div class="action-buttons">
+                            <a href="{{ path('app_categoria_index') }}" class="btn btn-modern btn-outline-modern">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-modern btn-primary-modern">
+                                <i class="fas fa-save me-2"></i>Crear Categoría
+                            </button>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Validación de formulario
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            });
+
+            // Animación suave para las secciones
+            const sections = document.querySelectorAll('.form-section');
+            sections.forEach((section, index) => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    section.style.transition = 'all 0.6s ease';
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+    </script>
 {% endblock %}

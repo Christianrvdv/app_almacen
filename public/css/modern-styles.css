@@ -1,0 +1,752 @@
+
+:root {
+    --primary-color: #4361ee;
+    --success-color: #06d6a0;
+    --danger-color: #ef476f;
+    --warning-color: #ffd166;
+    --info-color: #118ab2;
+    --dark-color: #2b2d42;
+    --light-color: #f8f9fa;
+}
+
+.page-header {
+    background: linear-gradient(135deg, var(--primary-color), #3a56d4);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    border-radius: 0 0 20px 20px;
+}
+
+.table-modern {
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
+.table-modern thead th {
+    background: linear-gradient(135deg, var(--primary-color), #3a56d4);
+    color: white;
+    border: none;
+    font-weight: 600;
+    padding: 1.2rem 1rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table-modern tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.table-modern tbody tr:hover {
+    background-color: rgba(67, 97, 238, 0.04);
+    transform: translateX(4px);
+}
+
+.table-modern tbody td {
+    padding: 1.2rem 1rem;
+    vertical-align: middle;
+    border: none;
+}
+
+.badge-modern {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: none;
+}
+
+.btn-modern {
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary-modern {
+    background: linear-gradient(135deg, var(--primary-color), #3a56d4);
+    color: white;
+}
+
+.btn-outline-modern {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-outline-modern:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+
+.card-header-modern {
+    background: linear-gradient(135deg, var(--primary-color), #3a56d4);
+    color: white;
+    border: none;
+    font-weight: 600;
+    padding: 1.5rem;
+}
+
+.stats-card {
+    transition: all 0.3s ease;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background: white;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.metric-card {
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    margin: 0.5rem 0;
+}
+
+.metric-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.section-title {
+    position: relative;
+    padding-left: 1rem;
+    margin: 2rem 0 1rem 0;
+    font-weight: 700;
+    color: var(--dark-color);
+}
+
+.section-title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 24px;
+    background: linear-gradient(135deg, var(--primary-color), #3a56d4);
+    border-radius: 2px;
+}
+
+.search-filter {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.form-control-modern {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control-modern:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+}
+
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-modern {
+        width: 100%;
+        margin-bottom: 1rem;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.875rem;
+        justify-content: center;
+    }
+
+    .form-section {
+        padding: 1.5rem;
+    }
+
+    .table-modern {
+        font-size: 0.85rem;
+    }
+
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.price-cell {
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+}
+
+.product-name {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+/*ESTE ES EL CSS EXTRA PARA NEW PRODUCTO*/
+
+.form-section {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+    border-left: 4px solid var(--primary-color);
+}
+
+.form-group-modern {
+    margin-bottom: 1.5rem;
+}
+
+.form-label-modern {
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+
+.form-select-modern {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.form-select-modern:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+}
+
+.input-group-modern {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.input-group-text-modern {
+    background: linear-gradient(135deg, var(--primary-color), #3a56d4);
+    color: white;
+    border: 2px solid var(--primary-color);
+    font-weight: 600;
+}
+
+.alert-modern {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+}
+
+.price-preview {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-top: 0.5rem;
+}
+
+.price-preview-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.price-preview-item:last-child {
+    border-bottom: none;
+}
+
+.margen-ganancia {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.text-profit {
+    color: var(--success-color);
+}
+
+.text-loss {
+    color: var(--danger-color);
+}
+
+.form-help-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+.required-field::after {
+    content: " *";
+    color: var(--danger-color);
+}
+
+
+/*ESTE ES EL CSS EXTRA PARA EDIT PRODUCTO*/
+.btn-danger-modern {
+    background: linear-gradient(135deg, var(--danger-color), #e63946);
+    color: white;
+}
+
+.delete-form {
+    display: inline-block;
+    margin: 0;
+}
+
+
+/*ESTE ES EL CSS PARA SHOW*/
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.detalle-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.detalle-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.info-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.5rem;
+}
+
+.info-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0;
+}
+
+.price-highlight {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--success-color);
+}
+
+.price-cost {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--danger-color);
+}
+
+.badge-modern {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: none;
+}
+
+
+.btn-warning-modern {
+    background: linear-gradient(135deg, var(--warning-color), #ffb74d);
+    color: #000;
+}
+
+
+.product-image {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-item {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.stat-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+}
+
+.stat-number {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.metadata {
+    background: rgba(67, 97, 238, 0.05);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.metadata-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.metadata-item:last-child {
+    border-bottom: none;
+}
+
+.metadata-label {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.metadata-value {
+    color: var(--dark-color);
+    font-weight: 600;
+}
+
+.loading {
+    opacity: 0.6;
+}
+
+
+/*VENTA*/
+/*INDEX*/
+.sale-name {
+    font-weight: 600;
+    color: var(--dark-color);
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-completed {
+    background-color: rgba(6, 214, 160, 0.1);
+    color: var(--success-color);
+}
+
+.status-pending {
+    background-color: rgba(255, 209, 102, 0.1);
+    color: var(--warning-color);
+}
+
+.status-cancelled {
+    background-color: rgba(239, 71, 111, 0.1);
+    color: var(--danger-color);
+}
+
+/*VENTA*/
+.total-preview {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.total-preview-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.total-preview-item:last-child {
+    border-bottom: none;
+}
+
+.monto-total {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+/*SHOW*/
+.total-highlight {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--success-color);
+}
+
+.total-highlight {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--success-color);
+}
+
+.table-show {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    margin-bottom: 0;
+}
+
+.table-show thead {
+    background: linear-gradient(135deg, var(--primary-color), #3a56d4);
+    color: white;
+}
+
+.table-show th {
+    border: none;
+    font-weight: 600;
+    padding: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.85rem;
+}
+
+.table-show td {
+    padding: 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    vertical-align: middle;
+}
+
+.table-show tbody tr {
+    transition: all 0.3s ease;
+}
+
+.table-show tbody tr:hover {
+    background-color: rgba(67, 97, 238, 0.05);
+    transform: translateY(-1px);
+}
+
+
+/*COMPRA*/
+/*INDEX*/
+.status-pagada {
+    background-color: rgba(6, 214, 160, 0.1);
+    color: var(--success-color);
+}
+
+.status-pendiente {
+    background-color: rgba(255, 209, 102, 0.1);
+    color: var(--warning-color);
+}
+
+.status-cancelada {
+    background-color: rgba(239, 71, 111, 0.1);
+    color: var(--danger-color);
+}
+
+
+
+/*NEW CATEGORIA*/
+.custom-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/*SHOW*/
+.category-icon {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+}
+
+
+
+
+
+
+
+/*CLLIENTE*/
+
+/* Estilos adicionales para la vista de clientes */
+.contact-info {
+    font-size: 0.9rem;
+}
+
+.contact-info a:hover {
+    color: var(--primary-color) !important;
+}
+
+/* Asegurar que los enlaces en las tablas mantengan buen contraste */
+.table-modern a.text-dark:hover {
+    color: var(--primary-color) !important;
+}
+
+/* Mejorar el espaciado en las celdas de contacto */
+.contact-info div {
+    line-height: 1.4;
+}
+
+/* Ajustes responsivos para la vista de clientes */
+@media (max-width: 768px) {
+    .contact-info {
+        font-size: 0.8rem;
+    }
+
+    .contact-info .d-flex {
+        flex-direction: column;
+        align-items: flex-start !important;
+    }
+
+    .contact-info .me-2 {
+        margin-right: 0 !important;
+        margin-bottom: 0.25rem;
+    }
+}
+
+
+/* Estilos específicos para la vista show de cliente */
+.user-image {
+    width: 100%;
+    height: 200px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+}
+
+.contact-link {
+    transition: all 0.3s ease;
+}
+
+.contact-link:hover {
+    color: var(--primary-color) !important;
+    transform: translateX(5px);
+}
+
+/* Mejoras para la tabla de ventas recientes */
+.table-modern .bg-light {
+    background-color: rgba(67, 97, 238, 0.1) !important;
+}
+
+/* Ajustes para estadísticas de cliente */
+.stat-item {
+    cursor: default;
+}
+
+.stat-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+}
+
+/* Estilos específicos para el formulario de cliente */
+.form-group-modern.focused {
+    transform: translateY(-2px);
+}
+
+.form-group-modern.focused .form-label-modern {
+    color: var(--primary-color);
+}
+
+/* Mejoras para los grupos de input */
+.input-group-modern:focus-within {
+    box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+    border-radius: 10px;
+}
+
+.input-group-modern:focus-within .input-group-text-modern {
+    background: linear-gradient(135deg, var(--primary-color), #3a56d4);
+    color: white;
+}
+
+/* Ajustes para campos de solo lectura */
+.form-control-modern[readonly] {
+    background-color: #f8f9fa;
+    border-color: #e9ecef;
+}
+
+.form-control-modern[readonly]:focus {
+    border-color: #e9ecef;
+    box-shadow: none;
+}

@@ -1,50 +1,343 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Proveedor #{{ proveedor.id }}{% endblock %}
+{% block title %}{{ proveedor.nombre }} - Detalles del Proveedor{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fw-bold text-primary">Proveedor #{{ proveedor.id }}</h1>
-            <a href="{{ path('app_proveedor_index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
-            </a>
-        </div>
-
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Nombre</div>
-                    <div class="col-sm-9">{{ proveedor.nombre }}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Teléfono</div>
-                    <div class="col-sm-9">
-                        <a href="tel:{{ proveedor.telefono }}" class="text-decoration-none">
-                            <i class="fas fa-phone-alt me-1 text-success"></i>{{ proveedor.telefono }}
+    <div class="container-fluid py-4">
+        <div class="page-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="{{ path('app_proveedor_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Listado
                         </a>
                     </div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Email</div>
-                    <div class="col-sm-9">
-                        <a href="mailto:{{ proveedor.email }}" class="text-decoration-none">
-                            <i class="fas fa-envelope me-1 text-primary"></i>{{ proveedor.email }}
-                        </a>
+                    <div class="text-center text-white">
+                        <h1 class="fw-bold mb-1">🏢 {{ proveedor.nombre }}</h1>
+                        <p class="mb-0 opacity-75">Detalles completos del proveedor</p>
                     </div>
-                </div>
-                <div class="row mb-0">
-                    <div class="col-sm-3 fw-bold text-muted">Dirección</div>
-                    <div class="col-sm-9">{{ proveedor.direccion }}</div>
+                    <div>
+                        <span class="badge-modern bg-info">
+                            <i class="fas fa-cube me-1"></i>{{ proveedor.productos|length }} productos
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center">
-            <a href="{{ path('app_proveedor_edit', {'id': proveedor.id}) }}" class="btn btn-warning btn-sm">
-                <i class="fas fa-edit me-1"></i>Editar
-            </a>
-            {{ include('proveedor/_delete_form.html.twig') }}
+        <div class="container">
+            <!-- Información Principal -->
+            <div class="info-grid">
+                <!-- Información Básica -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-info-circle me-2"></i>Información Básica
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="product-image">
+                            <i class="fas fa-truck"></i>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Nombre del Proveedor</div>
+                            <div class="info-value">{{ proveedor.nombre }}</div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">ID del Proveedor</div>
+                            <div class="info-value">
+                                <code class="bg-light p-2 rounded">#{{ proveedor.id }}</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información de Contacto -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-address-book me-2"></i>Información de Contacto
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="detalle-card">
+                            <div class="info-label">Teléfono</div>
+                            <div class="info-value">
+                                {% if proveedor.telefono %}
+                                    <a href="tel:{{ proveedor.telefono }}" class="text-decoration-none text-success">
+                                        <i class="fas fa-phone-alt me-2"></i>{{ proveedor.telefono }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">No asignado</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Correo Electrónico</div>
+                            <div class="info-value">
+                                {% if proveedor.email %}
+                                    <a href="mailto:{{ proveedor.email }}" class="text-decoration-none text-primary">
+                                        <i class="fas fa-envelope me-2"></i>{{ proveedor.email }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">No asignado</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Dirección</div>
+                            <div class="info-value">
+                                {% if proveedor.direccion %}
+                                    <i class="fas fa-map-marker-alt me-2 text-warning"></i>
+                                    {{ proveedor.direccion }}
+                                {% else %}
+                                    <span class="text-muted">No asignada</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas del Proveedor -->
+            <h4 class="section-title">📊 Estadísticas del Proveedor</h4>
+            <div class="stats-grid" id="stats-container">
+                <div class="stat-item" id="stat-productos">
+                    <div class="stat-number text-primary">{{ proveedor.productos|length }}</div>
+                    <div class="stat-label">Productos Asociados</div>
+                </div>
+                <div class="stat-item" id="stat-contacto">
+                    <div class="stat-number text-success">
+                        {% set contactInfo = 0 %}
+                        {% if proveedor.telefono %}{% set contactInfo = contactInfo + 1 %}{% endif %}
+                        {% if proveedor.email %}{% set contactInfo = contactInfo + 1 %}{% endif %}
+                        {% if proveedor.direccion %}{% set contactInfo = contactInfo + 1 %}{% endif %}
+                        {{ contactInfo }}/3
+                    </div>
+                    <div class="stat-label">Información de Contacto</div>
+                </div>
+                <div class="stat-item" id="stat-activos">
+                    <div class="stat-number text-warning">
+                        {{ proveedor.productos|filter(p => p.activo)|length }}
+                    </div>
+                    <div class="stat-label">Productos Activos</div>
+                </div>
+                <div class="stat-item" id="stat-completo">
+                    <div class="stat-number text-info">
+                        {% if proveedor.telefono and proveedor.email and proveedor.direccion %}
+                            <i class="fas fa-check"></i>
+                        {% else %}
+                            <i class="fas fa-exclamation-triangle"></i>
+                        {% endif %}
+                    </div>
+                    <div class="stat-label">
+                        {% if proveedor.telefono and proveedor.email and proveedor.direccion %}
+                            Perfil Completo
+                        {% else %}
+                            Perfil Incompleto
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Productos del Proveedor -->
+            {% if proveedor.productos|length > 0 %}
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-cubes me-2"></i>Productos Asociados ({{ proveedor.productos|length }})
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-show mb-0">
+                                <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th class="text-center">Precio Compra</th>
+                                    <th class="text-center">Precio Venta</th>
+                                    <th class="text-center">Stock Mínimo</th>
+                                    <th class="text-center">Estado</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for producto in proveedor.productos %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="bg-light rounded p-2 me-3">
+                                                    <i class="fas fa-cube text-primary"></i>
+                                                </div>
+                                                <div>
+                                                    <div class="product-name">{{ producto.nombre }}</div>
+                                                    <small class="text-muted">
+                                                        {% if producto.codigoBarras %}
+                                                            📋 {{ producto.codigoBarras }}
+                                                        {% else %}
+                                                            📋 Sin código
+                                                        {% endif %}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-center price-cell text-danger">
+                                            ${{ producto.precioCompra|number_format(2, ',', '.') }}
+                                        </td>
+                                        <td class="text-center price-cell text-success">
+                                            ${{ producto.precioVentaActual|number_format(2, ',', '.') }}
+                                        </td>
+                                        <td class="text-center">
+                                            {{ producto.stockMinimo }} und.
+                                        </td>
+                                        <td class="text-center">
+                                            {% if producto.activo %}
+                                                <span class="badge-modern text-success">
+                                                        <i class="fas fa-check me-1"></i>Activo
+                                                    </span>
+                                            {% else %}
+                                                <span class="badge-modern text-secondary">
+                                                        <i class="fas fa-times me-1"></i>Inactivo
+                                                    </span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="{{ path('app_producto_show', {'id': producto.id}) }}"
+                                               class="btn btn-modern btn-outline-modern btn-sm" title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="stats-card">
+                    <div class="card-body p-4">
+                        <div class="empty-state">
+                            <i class="fas fa-cubes"></i>
+                            <h4 class="mt-3">No hay productos asociados</h4>
+                            <p class="text-muted mb-3">Este proveedor no tiene productos en el inventario</p>
+                            <a href="{{ path('app_producto_new') }}" class="btn btn-primary-modern btn-modern">
+                                <i class="fas fa-plus-circle me-2"></i>Crear Producto
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Acciones -->
+            <div class="stats-card">
+                <div class="card-header-modern">
+                    <i class="fas fa-cogs me-2"></i>Acciones
+                </div>
+                <div class="card-body p-4">
+                    <div class="action-buttons">
+                        <a href="{{ path('app_proveedor_edit', {'id': proveedor.id}) }}"
+                           class="btn btn-modern btn-warning-modern">
+                            <i class="fas fa-edit me-2"></i>Editar Proveedor
+                        </a>
+
+                        <a href="{{ path('app_proveedor_index') }}"
+                           class="btn btn-modern btn-primary-modern">
+                            <i class="fas fa-list me-2"></i>Volver al Listado
+                        </a>
+
+                        <!-- Botón de eliminar con confirmación -->
+                        <button type="button"
+                                class="btn btn-modern btn-danger-modern"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal">
+                            <i class="fas fa-trash me-2"></i>Eliminar Proveedor
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Modal de Confirmación para Eliminar -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar el proveedor <strong>"{{ proveedor.nombre }}"</strong>?</p>
+
+                    {% if proveedor.productos|length > 0 %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Advertencia:</strong> Este proveedor tiene {{ proveedor.productos|length }} producto(s) asociado(s).
+                            Al eliminar el proveedor, estos productos quedarán sin proveedor asignado.
+                        </div>
+                    {% endif %}
+
+                    <p class="text-danger small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Esta acción no se puede deshacer.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    {{ include('proveedor/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animación suave para las tarjetas
+            const cards = document.querySelectorAll('.stats-card, .detalle-card, .stat-item');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // Animación para las filas de la tabla de productos
+            const tableRows = document.querySelectorAll('tbody tr');
+            tableRows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+
+                setTimeout(() => {
+                    row.style.transition = 'all 0.5s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateX(0)';
+                }, index * 100);
+            });
+
+            // Efecto hover para las estadísticas
+            const statItems = document.querySelectorAll('.stat-item');
+            statItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+
+                item.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
 {% endblock %}

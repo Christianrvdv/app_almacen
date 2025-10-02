@@ -2,25 +2,96 @@
 
 {% block title %}Listado de Categorías{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
+{% endblock %}
+
 {% block body %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <a href="{{ path('app_producto_index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Regresar
-            </a>
-            <h1 class="fw-bold text-primary">Categorías</h1>
-            <a href="{{ path('app_categoria_new') }}" class="btn btn-primary">
-                <i class="fas fa-plus-circle me-2"></i>Nueva Categoría
-            </a>
+    <div class="container-fluid py-4">
+        <!-- Header Mejorado -->
+        <div class="page-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="{{ path('app_producto_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver a Productos
+                        </a>
+                    </div>
+                    <div class="text-center text-white">
+                        <h1 class="fw-bold mb-1">🏷️ Gestión de Categorías</h1>
+                        <p class="mb-0 opacity-75">Administra las categorías de tu inventario</p>
+                    </div>
+                    <div>
+                        <a href="{{ path('app_categoria_new') }}" class="btn btn-warning btn-sm rounded-pill px-3">
+                            <i class="fas fa-plus-circle me-2"></i>Nueva Categoría
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
+        <!-- Estadísticas Rápidas -->
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-primary">
+                                <i class="fas fa-tags"></i>
+                            </div>
+                            <div class="metric-value text-primary">{{ categorias|length }}</div>
+                            <div class="metric-label">Total Categorías</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-success">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="metric-value text-success">
+                                {{ categorias|filter(c => c.descripcion is not empty)|length }}
+                            </div>
+                            <div class="metric-label">Con Descripción</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-info">
+                                <i class="fas fa-boxes"></i>
+                            </div>
+                            <div class="metric-value text-info">
+                                <!-- Aquí podrías mostrar el número de categorías con productos si tienes esa relación -->
+                                {{ categorias|length }}
+                            </div>
+                            <div class="metric-label">En Uso</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barra de Búsqueda y Filtros -->
+            <div class="search-filter">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <input type="text" class="form-control form-control-modern" placeholder="🔍 Buscar categorías por nombre o descripción...">
+                    </div>
+                    <div class="col-md-2">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Categorías -->
+            <div class="table-modern">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
+                        <thead>
                         <tr>
-                            <th>Nombre</th>
+                            <th>Categoría</th>
                             <th>Descripción</th>
                             <th class="text-center">Acciones</th>
                         </tr>
@@ -28,28 +99,108 @@
                         <tbody>
                         {% for categoria in categorias %}
                             <tr>
-                                <td>{{ categoria.nombre }}</td>
-                                <td title="{{ categoria.descripcion }}">
-                                    {{ categoria.descripcion|slice(0, 40) }}{{ categoria.descripcion|length > 40 ? '...' : '' }}
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded p-2 me-3">
+                                            <i class="fas fa-tag text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="category-name">{{ categoria.nombre }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="text-muted">
+                                        {{ categoria.descripcion ? (categoria.descripcion|slice(0, 60) ~ (categoria.descripcion|length > 60 ? '...' : '')) : 'Sin descripción' }}
+                                    </span>
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ path('app_categoria_show', {'id': categoria.id}) }}" class="btn btn-sm btn-outline-info me-1" title="Ver">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{{ path('app_categoria_edit', {'id': categoria.id}) }}" class="btn btn-sm btn-outline-warning" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
+                                    <div class="action-buttons">
+                                        <a href="{{ path('app_categoria_show', {'id': categoria.id}) }}"
+                                           class="btn btn-modern btn-outline-modern" title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ path('app_categoria_edit', {'id': categoria.id}) }}"
+                                           class="btn btn-modern btn-primary-modern" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="4" class="text-center text-muted">No se encontraron categorías.</td>
+                                <td colspan="3" class="empty-state">
+                                    <i class="fas fa-tags"></i>
+                                    <h4 class="mt-3">No se encontraron categorías</h4>
+                                    <p class="text-muted mb-3">Comienza agregando tu primera categoría</p>
+                                    <a href="{{ path('app_categoria_new') }}" class="btn btn-primary-modern btn-modern">
+                                        <i class="fas fa-plus-circle me-2"></i>Crear Primera Categoría
+                                    </a>
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            <!-- Información de Paginación -->
+            {% if categorias|length > 0 %}
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="text-muted">
+                        Mostrando <strong>{{ categorias|length }}</strong> categorías en total
+                    </div>
+                    <div>
+                        <!-- Aquí iría la paginación si la hiciera -->
+                        <nav>
+                            <ul class="pagination mb-0">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">Anterior</a>
+                                </li>
+                                <li class="page-item active">
+                                    <a class="page-link" href="#">1</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Siguiente</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Funcionalidad básica de búsqueda
+            const searchInput = document.querySelector('input[type="text"]');
+            const tableRows = document.querySelectorAll('tbody tr');
+
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+
+                tableRows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+
+            // Animación suave para las filas
+            tableRows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+
+                setTimeout(() => {
+                    row.style.transition = 'all 0.5s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateX(0)';
+                }, index * 100);
+            });
+        });
+    </script>
 {% endblock %}

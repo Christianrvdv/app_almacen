@@ -1,58 +1,406 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Cliente #{{ cliente.id }}{% endblock %}
+{% block title %}{{ cliente.nombre }} - Detalles del Cliente{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fw-bold text-primary">Cliente #{{ cliente.id }}</h1>
-            <a href="{{ path('app_cliente_index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
-            </a>
-        </div>
-
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Nombre</div>
-                    <div class="col-sm-9"><strong>{{ cliente.nombre }}</strong></div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Teléfono</div>
-                    <div class="col-sm-9">
-                        <a href="tel:{{ cliente.telefono }}" class="text-decoration-none">
-                            <i class="fas fa-phone-alt me-1 text-success"></i>{{ cliente.telefono }}
+    <div class="container-fluid py-4">
+        <div class="page-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="{{ path('app_cliente_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Listado
                         </a>
                     </div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Email</div>
-                    <div class="col-sm-9">
-                        <a href="mailto:{{ cliente.email }}" class="text-decoration-none">
-                            <i class="fas fa-envelope me-1 text-primary"></i>{{ cliente.email }}
-                        </a>
+                    <div class="text-center text-white">
+                        <h1 class="fw-bold mb-1">👤 {{ cliente.nombre }}</h1>
+                        <p class="mb-0 opacity-75">Detalles completos del cliente</p>
                     </div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Dirección</div>
-                    <div class="col-sm-9">{{ cliente.direccion }}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Fecha registro</div>
-                    <div class="col-sm-9">{{ cliente.fechaRegistro ? cliente.fechaRegistro|date('d/m/Y H:i') : '-' }}</div>
-                </div>
-                <div class="row mb-0">
-                    <div class="col-sm-3 fw-bold text-muted">Total compras</div>
-                    <div class="col-sm-9 h5 mb-0 text-success">$ {{ cliente.compraTotales|number_format(2, ',', '.') }}</div>
+                    <div>
+                        <span class="badge-modern bg-success">
+                            <i class="fas fa-user-check me-1"></i>
+                            Cliente Activo
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center">
-            <a href="{{ path('app_cliente_edit', {'id': cliente.id}) }}" class="btn btn-warning btn-sm">
-                <i class="fas fa-edit me-1"></i>Editar
-            </a>
-            {{ include('cliente/_delete_form.html.twig') }}
+        <div class="container">
+            <!-- Información Principal -->
+            <div class="info-grid">
+                <!-- Información de Contacto -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-address-card me-2"></i>Información de Contacto
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="product-image">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Nombre Completo</div>
+                            <div class="info-value">{{ cliente.nombre }}</div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Teléfono</div>
+                            <div class="info-value">
+                                {% if cliente.telefono %}
+                                    <a href="tel:{{ cliente.telefono }}" class="text-decoration-none text-dark">
+                                        <i class="fas fa-phone-alt text-success me-2"></i>
+                                        {{ cliente.telefono }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">No proporcionado</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Email</div>
+                            <div class="info-value">
+                                {% if cliente.email %}
+                                    <a href="mailto:{{ cliente.email }}" class="text-decoration-none text-dark">
+                                        <i class="fas fa-envelope text-primary me-2"></i>
+                                        {{ cliente.email }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">No proporcionado</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información de Compras -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-chart-line me-2"></i>Información de Compras
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="detalle-card">
+                            <div class="info-label">Compras Totales</div>
+                            <div class="info-value price-highlight">${{ cliente.compraTotales|number_format(2, ',', '.') }}</div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Total de Ventas</div>
+                            <div class="info-value">
+                                <span class="text-success fw-bold">
+                                    {{ cliente.ventas|length }} ventas
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Cliente desde</div>
+                            <div class="info-value">
+                                {{ cliente.fechaRegistro ? cliente.fechaRegistro|date('d/m/Y') : 'Fecha no disponible' }}
+                            </div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Promedio por Venta</div>
+                            <div class="info-value">
+                                {% if cliente.ventas|length > 0 %}
+                                    {% set promedio = cliente.compraTotales / cliente.ventas|length %}
+                                    <span class="text-info fw-bold">
+                                        ${{ promedio|number_format(2, ',', '.') }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">Sin ventas</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información Adicional -->
+            <div class="info-grid">
+                <!-- Dirección y Ubicación -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-map-marker-alt me-2"></i>Dirección y Ubicación
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="detalle-card">
+                            <div class="info-label">Dirección Completa</div>
+                            <div class="info-value">
+                                {% if cliente.direccion %}
+                                    <i class="fas fa-home text-warning me-2"></i>
+                                    {{ cliente.direccion }}
+                                {% else %}
+                                    <span class="text-muted">No proporcionada</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Mapa de Ubicación</div>
+                            <div class="info-value">
+                                <div class="bg-light rounded p-4 text-center text-muted">
+                                    <i class="fas fa-map fa-3x mb-3"></i>
+                                    <p class="mb-0">Mapa no disponible</p>
+                                    <small>Integración con Google Maps opcional</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metadatos -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-history me-2"></i>Metadatos
+                    </div>
+                    <div class="card-body">
+                        <div class="metadata">
+                            <div class="metadata-item">
+                                <span class="metadata-label">Estado</span>
+                                <span class="metadata-value">
+                                    <span class="badge-modern bg-success">
+                                        <i class="fas fa-check me-1"></i>Cliente Activo
+                                    </span>
+                                </span>
+                            </div>
+
+                            <div class="metadata-item">
+                                <span class="metadata-label">Fecha de Registro</span>
+                                <span class="metadata-value">
+                                    {{ cliente.fechaRegistro ? cliente.fechaRegistro|date('d/m/Y H:i') : 'No disponible' }}
+                                </span>
+                            </div>
+
+                            <div class="metadata-item">
+                                <span class="metadata-label">Tiempo como Cliente</span>
+                                <span class="metadata-value">
+                                    {% if cliente.fechaRegistro %}
+                                        {% set hoy = date('now') %}
+                                        {% set diferencia = hoy.diff(cliente.fechaRegistro) %}
+                                        {{ diferencia.y }} años, {{ diferencia.m }} meses
+                                    {% else %}
+                                        No disponible
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="metadata-item">
+                                <span class="metadata-label">ID del Cliente</span>
+                                <span class="metadata-value">
+                                    <code>#{{ cliente.id }}</code>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas del Cliente -->
+            <h4 class="section-title">📊 Estadísticas del Cliente</h4>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number text-primary">{{ cliente.ventas|length }}</div>
+                    <div class="stat-label">Ventas Realizadas</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number text-success">${{ cliente.compraTotales|number_format(2, ',', '.') }}</div>
+                    <div class="stat-label">Total en Compras</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number text-warning">
+                        {% if cliente.ventas|length > 0 %}
+                            ${{ (cliente.compraTotales / cliente.ventas|length)|number_format(2, ',', '.') }}
+                        {% else %}
+                            $0.00
+                        {% endif %}
+                    </div>
+                    <div class="stat-label">Promedio por Venta</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number text-info">
+                        {% if cliente.fechaRegistro %}
+                            {% set hoy = date('now') %}
+                            {% set diferencia = hoy.diff(cliente.fechaRegistro) %}
+                            {{ diferencia.y * 12 + diferencia.m }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </div>
+                    <div class="stat-label">Meses como Cliente</div>
+                </div>
+            </div>
+
+            <!-- Historial de Ventas Reciente -->
+            {% if cliente.ventas|length > 0 %}
+                <h4 class="section-title">🛒 Ventas Recientes</h4>
+                <div class="table-modern">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th>ID Venta</th>
+                                <th>Fecha</th>
+                                <th class="text-center">Total</th>
+                                <th class="text-center">Estado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for venta in cliente.ventas|slice(0, 5) %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light rounded p-2 me-3">
+                                                <i class="fas fa-receipt text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <div class="product-name">Venta #{{ venta.id }}</div>
+                                                <small class="text-muted">
+                                                    {# Comentado temporalmente hasta que definamos la relación correcta #}
+                                                    {# {{ venta.detalles|length }} productos #}
+                                                    Venta registrada
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {{ venta.fecha ? venta.fecha|date('d/m/Y H:i') : 'N/A' }}
+                                        </small>
+                                    </td>
+                                    <td class="text-center price-cell text-success">
+                                        ${{ venta.total|number_format(2, ',', '.') }}
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge-modern text-success">
+                                            <i class="fas fa-check me-1"></i>Completada
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="#" class="btn btn-modern btn-outline-modern" title="Ver venta">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {% if cliente.ventas|length > 5 %}
+                    <div class="text-center mt-3">
+                        <a href="#" class="btn btn-modern btn-primary-modern">
+                            <i class="fas fa-list me-2"></i>Ver todas las ventas ({{ cliente.ventas|length }})
+                        </a>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="stats-card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Este cliente no tiene ventas registradas</h5>
+                        <p class="text-muted mb-0">Cuando realice su primera compra, aparecerá aquí.</p>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Acciones -->
+            <div class="stats-card">
+                <div class="card-header-modern">
+                    <i class="fas fa-cogs me-2"></i>Acciones
+                </div>
+                <div class="card-body p-4">
+                    <div class="action-buttons">
+                        <a href="{{ path('app_cliente_edit', {'id': cliente.id}) }}"
+                           class="btn btn-modern btn-warning-modern">
+                            <i class="fas fa-edit me-2"></i>Editar Cliente
+                        </a>
+
+                        <a href="{{ path('app_cliente_index') }}"
+                           class="btn btn-modern btn-primary-modern">
+                            <i class="fas fa-list me-2"></i>Volver al Listado
+                        </a>
+
+                        <!-- Botón de eliminar con confirmación -->
+                        <button type="button"
+                                class="btn btn-modern btn-danger-modern"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal">
+                            <i class="fas fa-trash me-2"></i>Eliminar Cliente
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Modal de Confirmación para Eliminar -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar al cliente <strong>"{{ cliente.nombre }}"</strong>?</p>
+                    <p class="text-danger small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Esta acción no se puede deshacer y se perderán todos los datos asociados al cliente.
+                        {% if cliente.ventas|length > 0 %}
+                            <br><strong>Advertencia:</strong> Este cliente tiene {{ cliente.ventas|length }} ventas asociadas.
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    {{ include('cliente/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animación suave para las tarjetas
+            const cards = document.querySelectorAll('.stats-card, .detalle-card, .stat-item');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // Animación para las filas de la tabla de ventas
+            const tableRows = document.querySelectorAll('tbody tr');
+            tableRows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+
+                setTimeout(() => {
+                    row.style.transition = 'all 0.5s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateX(0)';
+                }, index * 100 + 600);
+            });
+        });
+    </script>
 {% endblock %}

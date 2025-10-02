@@ -2,74 +2,261 @@
 
 {% block title %}Listado de Compras{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
+{% endblock %}
+
 {% block body %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <a href="{{ path('app_dashboard_index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Regresar
-            </a>
-            <h1 class="fw-bold text-primary">Compras</h1>
-            <a href="{{ path('app_compra_new') }}" class="btn btn-primary">
-                <i class="fas fa-plus-circle me-2"></i>Nueva Compra
-            </a>
-
-
+    <div class="container-fluid py-4">
+        <!-- Header Mejorado -->
+        <div class="page-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="{{ path('app_dashboard_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+                        </a>
+                    </div>
+                    <div class="text-center text-white">
+                        <h1 class="fw-bold mb-1">📦 Gestión de Compras</h1>
+                        <p class="mb-0 opacity-75">Administra y consulta el historial de compras</p>
+                    </div>
+                    <div>
+                        <a href="{{ path('app_compra_new') }}" class="btn btn-warning btn-sm rounded-pill px-3">
+                            <i class="fas fa-plus-circle me-2"></i>Nueva Compra
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
+        <!-- Estadísticas Rápidas -->
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-primary">
+                                <i class="fas fa-shopping-bag"></i>
+                            </div>
+                            <div class="metric-value text-primary">{{ compras|length }}</div>
+                            <div class="metric-label">Total Compras</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="metric-value text-success">
+                                {% set pagadas = compras|filter(c => c.estado|lower == 'pagada') %}
+                                {{ pagadas|length }}
+                            </div>
+                            <div class="metric-label">Compras Pagadas</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-warning">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="metric-value text-warning">
+                                {% set pendientes = compras|filter(c => c.estado|lower == 'pendiente') %}
+                                {{ pendientes|length }}
+                            </div>
+                            <div class="metric-label">Compras Pendientes</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-info">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="metric-value text-info">
+                                ${{ compras|reduce((total, c) => total + c.total, 0)|number_format(2, ',', '.') }}
+                            </div>
+                            <div class="metric-label">Gastos Totales</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barra de Búsqueda y Filtros -->
+            <div class="search-filter">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <input type="text" class="form-control form-control-modern" placeholder="🔍 Buscar compras por ID, factura o estado...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Compras -->
+            <div class="table-modern">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
+                        <thead>
                         <tr>
-                            <th>#</th>
+                            <th>Compra</th>
                             <th>Fecha</th>
                             <th>Número de Factura</th>
-                            <th>Total</th>
-                            <th>Estado</th>
-                            <th>Observaciones</th>
+                            <th class="text-center">Total</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center">Observaciones</th>
                             <th class="text-center">Acciones</th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for compra in compras %}
                             <tr>
-                                <td>{{ compra.id }}</td>
-                                <td>{{ compra.fecha ? compra.fecha|date('d/m/Y H:i') : '-' }}</td>
-                                <td><strong>{{ compra.numeroFactura }}</strong></td>
-                                <td>${{ compra.total|number_format(2, ',', '.') }}</td>
                                 <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded p-2 me-3">
+                                            <i class="fas fa-file-invoice text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <div class="compra-name">Compra #{{ compra.id }}</div>
+                                            <small class="text-muted">
+                                                📋 Factura: {{ compra.numeroFactura }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="text-muted">
+                                        <strong>{{ compra.fecha ? compra.fecha|date('d/m/Y') : '-' }}</strong>
+                                        <br>
+                                        <small>{{ compra.fecha ? compra.fecha|date('H:i') : '' }}</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <strong>{{ compra.numeroFactura }}</strong>
+                                </td>
+                                <td class="text-center price-cell text-success">
+                                    ${{ compra.total|number_format(2, ',', '.') }}
+                                </td>
+                                <td class="text-center">
                                     {% set estado = compra.estado|lower %}
                                     {% if estado == 'pagada' %}
-                                        <span class="badge bg-success">Pagada</span>
+                                        <span class="status-badge status-pagada">
+                                            <i class="fas fa-check me-1"></i>{{ compra.estado|capitalize }}
+                                        </span>
                                     {% elseif estado == 'pendiente' %}
-                                        <span class="badge bg-warning text-dark">Pendiente</span>
+                                        <span class="status-badge status-pendiente">
+                                            <i class="fas fa-clock me-1"></i>{{ compra.estado|capitalize }}
+                                        </span>
+                                    {% elseif estado == 'cancelada' %}
+                                        <span class="status-badge status-cancelada">
+                                            <i class="fas fa-times me-1"></i>{{ compra.estado|capitalize }}
+                                        </span>
                                     {% else %}
-                                        <span class="badge bg-secondary">{{ compra.estado|capitalize }}</span>
+                                        <span class="badge-modern text-secondary">
+                                            {{ compra.estado|capitalize }}
+                                        </span>
                                     {% endif %}
                                 </td>
-                                <td>{{ compra.observaciones|slice(0, 30) }}{{ compra.observaciones|length > 30 ? '...' : '' }}</td>
                                 <td class="text-center">
-                                    <a href="{{ path('app_compra_show', {'id': compra.id}) }}"
-                                       class="btn btn-sm btn-outline-info me-1" title="Ver">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{{ path('app_compra_edit', {'id': compra.id}) }}"
-                                       class="btn btn-sm btn-outline-warning" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
+                                    {% if compra.observaciones %}
+                                        <span class="text-muted" title="{{ compra.observaciones }}">
+                                            {{ compra.observaciones|slice(0, 30) }}{{ compra.observaciones|length > 30 ? '...' : '' }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <div class="action-buttons">
+                                        <a href="{{ path('app_compra_show', {'id': compra.id}) }}"
+                                           class="btn btn-modern btn-outline-modern" title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ path('app_compra_edit', {'id': compra.id}) }}"
+                                           class="btn btn-modern btn-primary-modern" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="7" class="text-center text-muted">No se encontraron compras.</td>
+                                <td colspan="7" class="empty-state">
+                                    <i class="fas fa-shopping-bag"></i>
+                                    <h4 class="mt-3">No se encontraron compras</h4>
+                                    <p class="text-muted mb-3">Comienza registrando tu primera compra</p>
+                                    <a href="{{ path('app_compra_new') }}" class="btn btn-primary-modern btn-modern">
+                                        <i class="fas fa-plus-circle me-2"></i>Registrar Primera Compra
+                                    </a>
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
-        </div>
 
+            <!-- Información de Paginación -->
+            {% if compras|length > 0 %}
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="text-muted">
+                        Mostrando <strong>{{ compras|length }}</strong> compras en total
+                    </div>
+                    <div>
+                        <!-- Aquí iría la paginación si la hiciera -->
+                        <nav>
+                            <ul class="pagination mb-0">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">Anterior</a>
+                                </li>
+                                <li class="page-item active">
+                                    <a class="page-link" href="#">1</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Siguiente</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Funcionalidad básica de búsqueda
+            const searchInput = document.querySelector('input[type="text"]');
+            const tableRows = document.querySelectorAll('tbody tr');
+
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+
+                tableRows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+
+            // Animación suave para las filas
+            tableRows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+
+                setTimeout(() => {
+                    row.style.transition = 'all 0.5s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateX(0)';
+                }, index * 100);
+            });
+        });
+    </script>
 {% endblock %}
