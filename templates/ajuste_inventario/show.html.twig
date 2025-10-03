@@ -1,55 +1,341 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Ajuste de Inventario #{{ ajuste_inventario.id }}{% endblock %}
+{% block title %}Ajuste de Inventario #{{ ajuste_inventario.id }} - Detalles{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fw-bold text-primary">Ajuste de Inventario #{{ ajuste_inventario.id }}</h1>
-            <a href="{{ path('app_ajuste_inventario_index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
-            </a>
-        </div>
-
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Tipo</div>
-                    <div class="col-sm-9">
+    <div class="container-fluid py-4">
+        <div class="page-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="{{ path('app_ajuste_inventario_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Listado
+                        </a>
+                    </div>
+                    <div class="text-center text-white">
+                        <h1 class="fw-bold mb-1">📊 Ajuste de Inventario #{{ ajuste_inventario.id }}</h1>
+                        <p class="mb-0 opacity-75">Detalles completos del movimiento</p>
+                    </div>
+                    <div>
                         {% set tipo = ajuste_inventario.tipo|lower %}
                         {% if tipo == 'entrada' %}
-                            <span class="badge bg-success">Entrada</span>
+                            <span class="badge-modern bg-success">
+                                <i class="fas fa-sign-in-alt me-1"></i>Entrada
+                            </span>
                         {% elseif tipo == 'salida' %}
-                            <span class="badge bg-danger">Salida</span>
+                            <span class="badge-modern bg-danger">
+                                <i class="fas fa-sign-out-alt me-1"></i>Salida
+                            </span>
                         {% else %}
-                            <span class="badge bg-secondary">{{ ajuste_inventario.tipo|capitalize }}</span>
+                            <span class="badge-modern bg-secondary">{{ ajuste_inventario.tipo|capitalize }}</span>
                         {% endif %}
                     </div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Cantidad</div>
-                    <div class="col-sm-9">{{ ajuste_inventario.cantidad }}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Fecha</div>
-                    <div class="col-sm-9">{{ ajuste_inventario.fecha ? ajuste_inventario.fecha|date('d/m/Y H:i') : '-' }}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Motivo</div>
-                    <div class="col-sm-9">{{ ajuste_inventario.motivo }}</div>
-                </div>
-                <div class="row mb-0">
-                    <div class="col-sm-3 fw-bold text-muted">Usuario</div>
-                    <div class="col-sm-9">{{ ajuste_inventario.usuario }}</div>
                 </div>
             </div>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center">
-            <a href="{{ path('app_ajuste_inventario_edit', {'id': ajuste_inventario.id}) }}" class="btn btn-warning btn-sm">
-                <i class="fas fa-edit me-1"></i>Editar
-            </a>
-            {{ include('ajuste_inventario/_delete_form.html.twig') }}
+        <div class="container">
+            <!-- Información Principal -->
+            <div class="info-grid">
+                <!-- Información Básica del Ajuste -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-info-circle me-2"></i>Información del Movimiento
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="detalle-card">
+                            <div class="info-label">Tipo de Movimiento</div>
+                            <div class="info-value">
+                                {% set tipo = ajuste_inventario.tipo|lower %}
+                                {% if tipo == 'entrada' %}
+                                    <span class="badge-modern bg-success bg-opacity-10 text-success">
+                                        <i class="fas fa-sign-in-alt me-1"></i>Entrada
+                                    </span>
+                                {% elseif tipo == 'salida' %}
+                                    <span class="badge-modern bg-danger bg-opacity-10 text-danger">
+                                        <i class="fas fa-sign-out-alt me-1"></i>Salida
+                                    </span>
+                                {% else %}
+                                    <span class="badge-modern bg-secondary">{{ ajuste_inventario.tipo|capitalize }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Cantidad Ajustada</div>
+                            <div class="info-value {% if tipo == 'entrada' %}text-success{% else %}text-danger{% endif %} fw-bold">
+                                {% if tipo == 'entrada' %}+{% else %}-{% endif %}{{ ajuste_inventario.cantidad }} unidades
+                            </div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Motivo del Ajuste</div>
+                            <div class="info-value">{{ ajuste_inventario.motivo }}</div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Usuario Responsable</div>
+                            <div class="info-value">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-light rounded p-2 me-3">
+                                        <i class="fas fa-user text-primary"></i>
+                                    </div>
+                                    <span>{{ ajuste_inventario.usuario }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información del Producto -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-cube me-2"></i>Información del Producto
+                    </div>
+                    <div class="card-body p-4">
+                        {% if ajuste_inventario.producto %}
+                            <div class="product-image">
+                                <i class="fas fa-cube"></i>
+                            </div>
+
+                            <div class="detalle-card">
+                                <div class="info-label">Producto</div>
+                                <div class="info-value">{{ ajuste_inventario.producto.nombre }}</div>
+                            </div>
+
+                            <div class="detalle-card">
+                                <div class="info-label">Código de Barras</div>
+                                <div class="info-value">
+                                    {% if ajuste_inventario.producto.codigoBarras %}
+                                        <code class="bg-light p-2 rounded">{{ ajuste_inventario.producto.codigoBarras }}</code>
+                                    {% else %}
+                                        <span class="text-muted">No asignado</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="detalle-card">
+                                <div class="info-label">Precio Actual</div>
+                                <div class="info-value text-success">${{ ajuste_inventario.producto.precioVentaActual|number_format(2, ',', '.') }}</div>
+                            </div>
+                        {% else %}
+                            <div class="empty-state text-center py-4">
+                                <i class="fas fa-exclamation-triangle text-warning mb-3" style="font-size: 3rem;"></i>
+                                <h5 class="text-muted">Producto no encontrado</h5>
+                                <p class="text-muted small">El producto asociado a este ajuste ha sido eliminado</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información Adicional -->
+            <div class="info-grid">
+                <!-- Fecha y Hora -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-calendar-alt me-2"></i>Información Temporal
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="detalle-card">
+                            <div class="info-label">Fecha del Ajuste</div>
+                            <div class="info-value">{{ ajuste_inventario.fecha ? ajuste_inventario.fecha|date('d/m/Y') : 'No disponible' }}</div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Hora del Ajuste</div>
+                            <div class="info-value">{{ ajuste_inventario.fecha ? ajuste_inventario.fecha|date('H:i:s') : 'No disponible' }}</div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Fecha Completa</div>
+                            <div class="info-value">{{ ajuste_inventario.fecha ? ajuste_inventario.fecha|date('d/m/Y H:i:s') : 'No disponible' }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metadatos -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-history me-2"></i>Metadatos
+                    </div>
+                    <div class="card-body">
+                        <div class="metadata">
+                            <div class="metadata-item">
+                                <span class="metadata-label">ID del Ajuste</span>
+                                <span class="metadata-value">
+                                    <code>#{{ ajuste_inventario.id }}</code>
+                                </span>
+                            </div>
+
+                            <div class="metadata-item">
+                                <span class="metadata-label">Tipo de Movimiento</span>
+                                <span class="metadata-value">
+                                    {% set tipo = ajuste_inventario.tipo|lower %}
+                                    {% if tipo == 'entrada' %}
+                                        <span class="badge-modern bg-success">
+                                            <i class="fas fa-sign-in-alt me-1"></i>Entrada
+                                        </span>
+                                    {% elseif tipo == 'salida' %}
+                                        <span class="badge-modern bg-danger">
+                                            <i class="fas fa-sign-out-alt me-1"></i>Salida
+                                        </span>
+                                    {% else %}
+                                        <span class="badge-modern bg-secondary">{{ ajuste_inventario.tipo|capitalize }}</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="metadata-item">
+                                <span class="metadata-label">Impacto en Inventario</span>
+                                <span class="metadata-value {% if tipo == 'entrada' %}text-success{% else %}text-danger{% endif %} fw-bold">
+                                    {% if tipo == 'entrada' %}+{% else %}-{% endif %}{{ ajuste_inventario.cantidad }} unidades
+                                </span>
+                            </div>
+
+                            <div class="metadata-item">
+                                <span class="metadata-label">Registrado por</span>
+                                <span class="metadata-value">{{ ajuste_inventario.usuario }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Impacto del Ajuste -->
+            <h3 class="section-title">
+                <i class="fas fa-chart-bar me-2"></i>Impacto del Ajuste
+            </h3>
+            <div class="stats-grid" id="stats-container">
+                <div class="stat-item loading" id="stat-tipo">
+                    <div class="stat-number {% if tipo == 'entrada' %}text-success{% else %}text-danger{% endif %}">
+                        {{ ajuste_inventario.tipo|upper }}
+                    </div>
+                    <div class="stat-label">Tipo de Movimiento</div>
+                </div>
+                <div class="stat-item loading" id="stat-cantidad">
+                    <div class="stat-number text-primary">{{ ajuste_inventario.cantidad }}</div>
+                    <div class="stat-label">Cantidad Ajustada</div>
+                </div>
+                <div class="stat-item loading" id="stat-valor">
+                    <div class="stat-number text-warning">
+                        {% if ajuste_inventario.producto %}
+                            ${{ (ajuste_inventario.cantidad * ajuste_inventario.producto.precioVentaActual)|number_format(2, ',', '.') }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </div>
+                    <div class="stat-label">Valor del Movimiento</div>
+                </div>
+                <div class="stat-item loading" id="stat-fecha">
+                    <div class="stat-number text-info">{{ ajuste_inventario.fecha ? ajuste_inventario.fecha|date('d/m/Y') : 'N/A' }}</div>
+                    <div class="stat-label">Fecha del Ajuste</div>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <h3 class="section-title">
+                <i class="fas fa-cogs me-2"></i>Acciones
+            </h3>
+            <div class="stat-item">
+                <div class="card-body p-4">
+                    <div class="action-buttons">
+                        <a href="{{ path('app_ajuste_inventario_edit', {'id': ajuste_inventario.id}) }}"
+                           class="btn btn-modern btn-warning-modern">
+                            <i class="fas fa-edit me-2"></i>Editar Ajuste
+                        </a>
+
+                        <a href="{{ path('app_ajuste_inventario_index') }}"
+                           class="btn btn-modern btn-primary-modern">
+                            <i class="fas fa-list me-2"></i>Volver al Listado
+                        </a>
+
+                        <!-- Botón de eliminar con confirmación -->
+                        <button type="button"
+                                class="btn btn-modern btn-danger-modern"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal">
+                            <i class="fas fa-trash me-2"></i>Eliminar Ajuste
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Modal de Confirmación para Eliminar -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar el ajuste de inventario <strong>#{{ ajuste_inventario.id }}</strong>?</p>
+                    <div class="alert alert-warning small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        <strong>Información del ajuste:</strong><br>
+                        - Producto: {% if ajuste_inventario.producto %}{{ ajuste_inventario.producto.nombre }}{% else %}Producto eliminado{% endif %}<br>
+                        - Tipo: {{ ajuste_inventario.tipo }}<br>
+                        - Cantidad: {{ ajuste_inventario.cantidad }} unidades<br>
+                        - Motivo: {{ ajuste_inventario.motivo }}
+                    </div>
+                    <p class="text-danger small">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        Esta acción no se puede deshacer y afectará el historial de inventario.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    {{ include('ajuste_inventario/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animación suave para las tarjetas
+            const cards = document.querySelectorAll('.stats-card, .detalle-card, .stat-item');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // Remover clase de loading de las estadísticas
+            setTimeout(() => {
+                document.querySelectorAll('.stat-item').forEach(item => {
+                    item.classList.remove('loading');
+                });
+            }, 1000);
+
+            // Mostrar información del impacto
+            const tipo = '{{ ajuste_inventario.tipo|lower }}';
+            const cantidad = {{ ajuste_inventario.cantidad }};
+            const producto = {% if ajuste_inventario.producto %}true{% else %}false{% endif %};
+
+            if (producto) {
+                const precioVenta = {{ ajuste_inventario.producto ? ajuste_inventario.producto.precioVentaActual : 0 }};
+                const valorTotal = cantidad * precioVenta;
+                console.log(`Impacto del ajuste: ${tipo} de ${cantidad} unidades (Valor: $${valorTotal.toLocaleString('es-ES', {minimumFractionDigits: 2})})`);
+            }
+        });
+    </script>
 {% endblock %}

@@ -1,24 +1,324 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Editar Ajuste de Inventario{% endblock %}
+{% block title %}Editar Ajuste de Inventario #{{ ajuste_inventario.id }} - Sistema de Inventario{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fw-bold text-primary">Editar Ajuste de Inventario</h1>
-            <a href="{{ path('app_ajuste_inventario_index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
-            </a>
-        </div>
-
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                {{ include('ajuste_inventario/_form.html.twig', {'button_label': 'Actualizar ajuste'}) }}
+    <div class="container-fluid py-4">
+        <!-- Header Mejorado -->
+        <div class="page-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="{{ path('app_ajuste_inventario_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Listado
+                        </a>
+                    </div>
+                    <div class="text-center text-white">
+                        <h1 class="fw-bold mb-1">✏️ Editar Ajuste de Inventario</h1>
+                        <p class="mb-0 opacity-75">Actualiza la información del ajuste #{{ ajuste_inventario.id }}</p>
+                    </div>
+                    <div style="width: 130px;"></div> <!-- Espaciador para alinear -->
+                </div>
             </div>
         </div>
 
-        <div class="text-end">
-            {{ include('ajuste_inventario/_delete_form.html.twig') }}
+        <div class="container">
+            <!-- Mensajes Flash Mejorados -->
+            {% for message in app.flashes('success') %}
+                <div class="alert-modern alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">¡Éxito!</h5>
+                            {{ message }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('error') %}
+                <div class="alert-modern alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Error</h5>
+                            {{ message }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            <!-- Formulario Principal -->
+            <div class="stats-card">
+                <div class="card-header-modern">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <i class="fas fa-edit me-2"></i>Editando Ajuste: #{{ ajuste_inventario.id }}
+                        </div>
+                        <form method="post" action="{{ path('app_ajuste_inventario_delete', {'id': ajuste_inventario.id}) }}"
+                              onsubmit="return confirm('¿Estás seguro de que deseas eliminar este ajuste de inventario?');"
+                              class="delete-form">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ajuste_inventario.id) }}">
+                            <button type="submit" class="btn btn-danger-modern btn-modern btn-sm">
+                                <i class="fas fa-trash me-1"></i>Eliminar Ajuste
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+
+                    <!-- Información Básica del Ajuste -->
+                    <h3 class="section-title">
+                        <i class="fas fa-info-circle me-2"></i>Información Básica del Movimiento
+                    </h3>
+
+                    <div class="form-section">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.tipo, 'Tipo de Movimiento', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.tipo, {'attr': {
+                                        'class': 'form-control form-control-modern form-select-modern',
+                                        'required': 'required'
+                                    }}) }}
+                                    {{ form_errors(form.tipo) }}
+                                    <div class="form-help-text">Selecciona si es una entrada o salida de inventario</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.cantidad, 'Cantidad', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.cantidad, {'attr': {
+                                        'class': 'form-control form-control-modern',
+                                        'min': '1',
+                                        'required': 'required',
+                                        'placeholder': 'Ej: 10'
+                                    }}) }}
+                                    {{ form_errors(form.cantidad) }}
+                                    <div class="form-help-text">Cantidad de unidades a ajustar</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.fecha, 'Fecha del Ajuste', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.fecha, {'attr': {
+                                        'class': 'form-control form-control-modern',
+                                        'required': 'required'
+                                    }}) }}
+                                    {{ form_errors(form.fecha) }}
+                                    <div class="form-help-text">Fecha y hora en que se realiza el ajuste</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.usuario, 'Usuario Responsable', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.usuario, {'attr': {
+                                        'class': 'form-control form-control-modern',
+                                        'required': 'required',
+                                        'placeholder': 'Ej: Juan Pérez'
+                                    }}) }}
+                                    {{ form_errors(form.usuario) }}
+                                    <div class="form-help-text">Nombre del usuario que realiza el ajuste</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información del Producto -->
+                    <h3 class="section-title">
+                        <i class="fas fa-cube me-2"></i>Información del Producto
+                    </h3>
+                    <div class="form-section">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.producto, 'Producto', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.producto, {'attr': {
+                                        'class': 'form-control form-control-modern form-select-modern',
+                                        'required': 'required'
+                                    }}) }}
+                                    {{ form_errors(form.producto) }}
+                                    <div class="form-help-text">Selecciona el producto a ajustar</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.motivo, 'Motivo del Ajuste', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.motivo, {'attr': {
+                                        'class': 'form-control form-control-modern',
+                                        'required': 'required',
+                                        'placeholder': 'Ej: Ajuste por inventario físico, daño, etc...'
+                                    }}) }}
+                                    {{ form_errors(form.motivo) }}
+                                    <div class="form-help-text">Describe el motivo del ajuste de inventario</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vista Previa del Impacto -->
+                    <h3 class="section-title">
+                        <i class="fas fa-chart-bar me-2"></i>Vista Previa del Impacto
+                    </h3>
+                    <div class="form-section">
+
+                        <div class="price-preview">
+                            <div class="price-preview-item">
+                                <span>Tipo de Movimiento:</span>
+                                <span id="tipoPreview" class="margen-ganancia text-profit">Selecciona un tipo</span>
+                            </div>
+                            <div class="price-preview-item">
+                                <span>Impacto en Inventario:</span>
+                                <span id="impactoPreview" class="text-success">0 unidades</span>
+                            </div>
+                            <div class="price-preview-item">
+                                <span>Producto Seleccionado:</span>
+                                <span id="productoPreview" class="text-info">Ninguno</span>
+                            </div>
+                            <div class="price-preview-item">
+                                <span>Estado Actual:</span>
+                                <span class="badge-modern bg-info">Editando ajuste existente</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="form-section">
+                        <div class="action-buttons">
+                            <a href="{{ path('app_ajuste_inventario_index') }}" class="btn btn-modern btn-outline-modern">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-modern btn-primary-modern">
+                                <i class="fas fa-save me-2"></i>Actualizar Ajuste
+                            </button>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            <!-- Información del Ajuste Actual -->
+            <div class="stats-card mt-4">
+                <div class="card-header-modern">
+                    <i class="fas fa-history me-2"></i>Información Actual del Ajuste
+                </div>
+                <div class="card-body">
+                    <div class="metadata">
+                        <div class="metadata-item">
+                            <span class="metadata-label">ID del Ajuste</span>
+                            <span class="metadata-value">
+                                <code>#{{ ajuste_inventario.id }}</code>
+                            </span>
+                        </div>
+                        <div class="metadata-item">
+                            <span class="metadata-label">Fecha de Creación</span>
+                            <span class="metadata-value">
+                                {{ ajuste_inventario.fecha ? ajuste_inventario.fecha|date('d/m/Y H:i:s') : 'No disponible' }}
+                            </span>
+                        </div>
+                        <div class="metadata-item">
+                            <span class="metadata-label">Producto Asociado</span>
+                            <span class="metadata-value">
+                                {% if ajuste_inventario.producto %}
+                                    {{ ajuste_inventario.producto.nombre }}
+                                {% else %}
+                                    <span class="text-danger">Producto no encontrado</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="metadata-item">
+                            <span class="metadata-label">Última Modificación</span>
+                            <span class="metadata-value">
+                                {{ 'now'|date('d/m/Y H:i:s') }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tipoSelect = document.getElementById('{{ form.tipo.vars.id }}');
+            const cantidadInput = document.getElementById('{{ form.cantidad.vars.id }}');
+            const productoSelect = document.getElementById('{{ form.producto.vars.id }}');
+            const tipoPreview = document.getElementById('tipoPreview');
+            const impactoPreview = document.getElementById('impactoPreview');
+            const productoPreview = document.getElementById('productoPreview');
+
+            function actualizarVistaPrevia() {
+                const tipo = tipoSelect.value;
+                const cantidad = parseInt(cantidadInput.value) || 0;
+                const productoTexto = productoSelect.options[productoSelect.selectedIndex]?.text || 'Ninguno';
+
+                // Actualizar tipo
+                if (tipo === 'entrada') {
+                    tipoPreview.textContent = 'ENTRADA 📥';
+                    tipoPreview.className = 'margen-ganancia text-success';
+                    impactoPreview.textContent = `+${cantidad} unidades`;
+                    impactoPreview.className = 'text-success';
+                } else if (tipo === 'salida') {
+                    tipoPreview.textContent = 'SALIDA 📤';
+                    tipoPreview.className = 'margen-ganancia text-danger';
+                    impactoPreview.textContent = `-${cantidad} unidades`;
+                    impactoPreview.className = 'text-danger';
+                } else {
+                    tipoPreview.textContent = 'Selecciona un tipo';
+                    tipoPreview.className = 'margen-ganancia text-secondary';
+                    impactoPreview.textContent = '0 unidades';
+                    impactoPreview.className = 'text-secondary';
+                }
+
+                // Actualizar producto
+                productoPreview.textContent = productoTexto;
+            }
+
+            // Actualizar vista previa cuando cambien los campos
+            tipoSelect.addEventListener('change', actualizarVistaPrevia);
+            cantidadInput.addEventListener('input', actualizarVistaPrevia);
+            productoSelect.addEventListener('change', actualizarVistaPrevia);
+
+            // Actualizar vista previa inicial con los datos actuales
+            actualizarVistaPrevia();
+
+            // Validación de formulario
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            });
+
+            // Animación suave para las secciones
+            const sections = document.querySelectorAll('.form-section, .stats-card');
+            sections.forEach((section, index) => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    section.style.transition = 'all 0.6s ease';
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // Mostrar información de cambios
+            console.log('Editando ajuste de inventario #{{ ajuste_inventario.id }}');
+        });
+    </script>
 {% endblock %}

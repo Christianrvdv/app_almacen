@@ -14,11 +14,22 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/ajuste/inventario')]
 final class AjusteInventarioController extends AbstractController
 {
+
     #[Route(name: 'app_ajuste_inventario_index', methods: ['GET'])]
     public function index(AjusteInventarioRepository $ajusteInventarioRepository): Response
     {
+        $ajuste_inventarios = $ajusteInventarioRepository->findAll();
+
+        // Calcular la cantidad de usuarios únicos
+        $usuariosUnicos = [];
+        foreach ($ajuste_inventarios as $ajuste) {
+            $usuariosUnicos[] = $ajuste->getUsuario();
+        }
+        $cantidadUsuariosUnicos = count(array_unique($usuariosUnicos));
+
         return $this->render('ajuste_inventario/index.html.twig', [
-            'ajuste_inventarios' => $ajusteInventarioRepository->findAll(),
+            'ajuste_inventarios' => $ajuste_inventarios,
+            'cantidad_usuarios_unicos' => $cantidadUsuariosUnicos, // Pasar el cálculo
         ]);
     }
 
@@ -26,7 +37,13 @@ final class AjusteInventarioController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $ajusteInventario = new AjusteInventario();
+
+        // Establecer valores por defecto
+        $ajusteInventario->setFecha(new \DateTime());
+        $ajusteInventario->setUsuario($this->getUser() ? $this->getUser()->getUsername() : 'Sistema');
+
         $form = $this->createForm(AjusteInventarioType::class, $ajusteInventario);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
