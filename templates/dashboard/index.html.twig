@@ -4,34 +4,16 @@
 
 {% block stylesheets %}
     {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
     <style>
-        :root {
-            --primary-color: #4361ee;
-            --success-color: #06d6a0;
-            --danger-color: #ef476f;
-            --warning-color: #ffd166;
-            --info-color: #118ab2;
-            --dark-color: #2b2d42;
-            --light-color: #f8f9fa;
-        }
-
-        .page-header {
-            background: linear-gradient(135deg, var(--primary-color), #3a56d4);
-            color: white;
-            padding: 2rem 0;
-            margin-bottom: 2rem;
-            border-radius: 0 0 20px 20px;
-            box-shadow: 0 4px 20px rgba(67, 97, 238, 0.15);
-        }
-
-        .stats-grid {
+        .dashboard-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 1.5rem;
             margin-bottom: 2rem;
         }
 
-        .dashboard-card, .stats-card {
+        .dashboard-card {
             transition: all 0.3s ease;
             border: none;
             border-radius: 15px;
@@ -39,153 +21,126 @@
             background: white;
             overflow: hidden;
             height: 100%;
-            position: relative;
         }
 
-        .dashboard-card:hover, .stats-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
 
-        .card-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            opacity: 0.9;
-            background: linear-gradient(135deg, currentColor, rgba(255,255,255,0.8));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
 
-        .card-content {
-            padding: 2rem;
-            text-align: center;
-            position: relative;
-            z-index: 2;
+        .module-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            border-left: 4px solid var(--primary-color);
         }
 
-        .card-title {
-            font-size: 1.3rem;
+        .module-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .module-header {
+            background: linear-gradient(135deg, var(--primary-color), #3a56d4);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .module-icon {
+            font-size: 2rem;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .module-title {
+            font-size: 1.2rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
-            color: var(--dark-color);
+            margin: 0;
         }
 
-        .card-description {
+        .module-body {
+            padding: 1.5rem;
+        }
+
+        .module-description {
             color: #6c757d;
-            font-size: 0.9rem;
             margin-bottom: 1.5rem;
             line-height: 1.5;
         }
 
-        .card-footer {
-            background: rgba(67, 97, 238, 0.03);
-            padding: 1.2rem 2rem;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        .module-actions {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s ease;
+            gap: 0.5rem;
+            flex-wrap: wrap;
         }
 
-        .dashboard-card:hover .card-footer {
-            background: rgba(67, 97, 238, 0.08);
-        }
-
-        .card-link {
-            color: var(--primary-color);
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-
-        .card-link:hover {
-            color: #3a56d4;
-            transform: translateX(3px);
-        }
-
-        .quick-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
+        .alert-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--warning-color);
+            padding: 1.5rem;
             margin-bottom: 2rem;
         }
 
-        .stat-item {
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .quick-action-card {
             background: white;
-            padding: 1.5rem;
             border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
             text-align: center;
             transition: all 0.3s ease;
-            border-left: 4px solid var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
-        .stat-item:hover {
+        .quick-action-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12);
+            border-color: var(--primary-color);
         }
 
-        .stat-number {
-            font-size: 1.8rem;
-            font-weight: 800;
+        .quick-action-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .quick-action-title {
+            font-weight: 600;
             margin-bottom: 0.5rem;
-            line-height: 1;
+            color: var(--dark-color);
         }
 
-        .stat-label {
+        .quick-action-description {
             font-size: 0.85rem;
             color: #6c757d;
-            font-weight: 500;
         }
 
-        .welcome-section {
-            text-align: center;
-            margin-bottom: 3rem;
-            padding: 0 1rem;
-        }
-
-        .welcome-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--primary-color), #3a56d4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .welcome-subtitle {
-            font-size: 1.1rem;
-            color: #6c757d;
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        .section-title {
-            position: relative;
-            padding-left: 1rem;
-            margin: 2rem 0 1.5rem 0;
-            font-weight: 700;
-            color: var(--dark-color);
-            font-size: 1.4rem;
-        }
-
-        .section-title::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 4px;
-            height: 24px;
-            background: linear-gradient(135deg, var(--primary-color), #3a56d4);
-            border-radius: 2px;
-        }
-
-        .alert-badge {
+        .stat-badge {
             position: absolute;
             top: -8px;
             right: -8px;
@@ -207,260 +162,61 @@
             position: relative;
         }
 
-        .btn-modern {
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-modern:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .btn-primary-modern {
-            background: linear-gradient(135deg, var(--primary-color), #3a56d4);
-            color: white;
-        }
-
-        .btn-outline-modern {
-            background: transparent;
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        .btn-outline-modern:hover {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .metric-card {
-            padding: 1.5rem;
-            text-align: center;
-        }
-
-        .metric-value {
-            font-size: 2rem;
-            font-weight: 800;
-            line-height: 1;
-            margin: 0.5rem 0;
-        }
-
-        .metric-label {
-            font-size: 0.9rem;
-            color: #6c757d;
-            font-weight: 500;
-        }
-
-        .metric-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            opacity: 0.8;
-        }
-
-        .alert-modern {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-            margin-bottom: 2rem;
-            border-left: 4px solid var(--warning-color);
-        }
-
-        .badge-modern {
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            border: none;
-        }
-
-        .module-stats {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .module-stat-item {
-            text-align: center;
-            padding: 0.5rem;
-        }
-
-        .module-stat-value {
-            font-size: 1.1rem;
-            font-weight: 700;
-            display: block;
-        }
-
-        .module-stat-label {
-            font-size: 0.75rem;
-            color: #6c757d;
-        }
-
-        .quick-actions {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            margin-top: 2rem;
-        }
-
-        .action-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .action-card {
-            background: rgba(67, 97, 238, 0.05);
-            border-radius: 10px;
-            padding: 1.5rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            border: 1px solid transparent;
-        }
-
-        .action-card:hover {
-            background: rgba(67, 97, 238, 0.1);
-            border-color: var(--primary-color);
-            transform: translateY(-3px);
-        }
-
-        .action-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-        }
-
-        .action-title {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--dark-color);
-        }
-
-        .action-description {
-            font-size: 0.85rem;
-            color: #6c757d;
-        }
-
-        .card-background {
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            background: linear-gradient(135deg, rgba(67, 97, 238, 0.03), rgba(67, 97, 238, 0.01));
-            z-index: 1;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .dashboard-card:hover .card-background {
-            opacity: 1;
-        }
-
         @media (max-width: 768px) {
-            .stats-grid {
+            .dashboard-stats {
                 grid-template-columns: 1fr;
             }
 
-            .welcome-title {
-                font-size: 2rem;
-            }
-
-            .card-content {
-                padding: 1.5rem;
-            }
-
-            .action-grid {
+            .module-grid {
                 grid-template-columns: 1fr;
             }
 
-            .module-stats {
+            .quick-actions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .module-actions {
                 flex-direction: column;
-                gap: 0.5rem;
             }
         }
-
-        /* Efectos de partículas para las tarjetas principales */
-        .card-particles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 1;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .dashboard-card:hover .card-particles {
-            opacity: 0.6;
-        }
-
-        .particle {
-            position: absolute;
-            background: currentColor;
-            border-radius: 50%;
-            opacity: 0.1;
-        }
-
-        /* Colores específicos para cada módulo */
-        .card-products { color: var(--primary-color); }
-        .card-sales { color: var(--success-color); }
-        .card-purchases { color: var(--warning-color); }
-        .card-clients { color: var(--info-color); }
-        .card-suppliers { color: var(--danger-color); }
-        .card-history { color: #6f42c1; }
-        .card-stats { color: #fd7e14; }
-        .card-inventory { color: #20c997; }
-        .card-categories { color: #e83e8c; }
     </style>
 {% endblock %}
 
 {% block body %}
     <div class="container-fluid py-4">
-        <!-- Header Mejorado -->
+        <!-- Header -->
         <div class="page-header">
             <div class="container">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="text-center text-white flex-grow-1">
-                        <h1 class="fw-bold mb-2">🚀 Panel de Control</h1>
-                        <p class="mb-0 opacity-90 fs-5">Resumen en tiempo real de tu negocio</p>
-                        <div class="mt-2">
-                            <span class="badge bg-light text-dark fs-6">
-                                <i class="fas fa-clock me-1"></i>
-                                Actualizado al {{ "now"|date("d/m/Y H:i") }}
-                            </span>
-                        </div>
+                <div class="text-center text-white">
+                    <h1 class="fw-bold mb-2">🚀 Panel de Control</h1>
+                    <p class="mb-0 opacity-90 fs-5">Resumen en tiempo real de tu negocio</p>
+                    <div class="mt-2">
+                        <span class="badge-modern bg-light text-dark">
+                            <i class="fas fa-clock me-1"></i>
+                            Actualizado al {{ "now"|date("d/m/Y H:i") }}
+                        </span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Alertas de Stock -->
-        {% if productosAgotados > 0 or productosStockBajo > 0 %}
-            <div class="container">
-                <div class="alert-modern alert alert-warning alert-dismissible fade show" role="alert">
+        <div class="container">
+            <!-- Alertas de Stock -->
+            {% if productosAgotados > 0 or productosStockBajo > 0 %}
+                <div class="alert-card">
                     <div class="d-flex align-items-center">
                         <i class="fas fa-exclamation-triangle fa-2x me-3 text-warning"></i>
                         <div class="flex-grow-1">
-                            <h5 class="alert-heading mb-2">⚠️ Alertas de Inventario</h5>
+                            <h5 class="fw-bold mb-2">⚠️ Alertas de Inventario</h5>
                             <div class="d-flex flex-wrap gap-2">
                                 {% if productosAgotados > 0 %}
-                                    <span class="badge-modern" style="background-color: rgba(239, 71, 111, 0.1); color: var(--danger-color); border: 1px solid rgba(239, 71, 111, 0.2);">
+                                    <span class="badge-modern bg-danger text-white">
                                         <i class="fas fa-times-circle me-1"></i>
                                         {{ productosAgotados }} Productos Agotados
                                     </span>
                                 {% endif %}
                                 {% if productosStockBajo > 0 %}
-                                    <span class="badge-modern" style="background-color: rgba(255, 209, 102, 0.1); color: var(--warning-color); border: 1px solid rgba(255, 209, 102, 0.2);">
+                                    <span class="badge-modern bg-warning text-dark">
                                         <i class="fas fa-exclamation-triangle me-1"></i>
                                         {{ productosStockBajo }} Productos con Stock Bajo
                                     </span>
@@ -468,355 +224,351 @@
                             </div>
                         </div>
                     </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-            </div>
-        {% endif %}
+            {% endif %}
 
-        <div class="container">
-            <!-- Estadísticas Rápidas -->
-            <div class="row g-3 mb-4">
-                <div class="col-md-3">
-                    <div class="stats-card">
-                        <div class="metric-card">
-                            <div class="metric-icon text-primary">
-                                <i class="fas fa-shopping-cart"></i>
-                            </div>
-                            <div class="metric-value text-primary">{{ ventasHoy.total }}</div>
-                            <div class="metric-label">Ventas Hoy</div>
-                            <small class="text-muted fw-semibold">${{ ventasHoy.monto|number_format(0, ',', '.') }}</small>
+            <!-- Estadísticas Principales -->
+            <h3 class="section-title">
+                <i class="fas fa-chart-bar me-2"></i>Métricas Principales
+            </h3>
+            <div class="dashboard-stats">
+                <div class="stats-card">
+                    <div class="metric-card">
+                        <div class="metric-icon text-primary">
+                            <i class="fas fa-shopping-cart"></i>
                         </div>
+                        <div class="metric-value text-primary">{{ ventasHoy.total }}</div>
+                        <div class="metric-label">Ventas Hoy</div>
+                        <small class="text-muted fw-semibold">${{ ventasHoy.monto|number_format(0, ',', '.') }}</small>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="stats-card">
-                        <div class="metric-card">
-                            <div class="metric-icon text-success">
-                                <i class="fas fa-boxes"></i>
-                            </div>
-                            <div class="metric-value text-success">{{ productosActivos }}</div>
-                            <div class="metric-label">Productos Activos</div>
-                            <small class="text-muted fw-semibold">
-                                {% if totalProductos > 0 %}
-                                    {{ (productosActivos / totalProductos * 100)|round(1) }}% del total
-                                {% else %}
-                                    0% del total
-                                {% endif %}
-                            </small>
+                <div class="stats-card">
+                    <div class="metric-card">
+                        <div class="metric-icon text-success">
+                            <i class="fas fa-boxes"></i>
                         </div>
+                        <div class="metric-value text-success">{{ productosActivos }}</div>
+                        <div class="metric-label">Productos Activos</div>
+                        <small class="text-muted fw-semibold">
+                            {% if totalProductos > 0 %}
+                                {{ (productosActivos / totalProductos * 100)|round(1) }}% del total
+                            {% else %}
+                                0% del total
+                            {% endif %}
+                        </small>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="stats-card">
-                        <div class="metric-card">
-                            <div class="metric-icon text-warning">
-                                <i class="fas fa-user-friends"></i>
-                            </div>
-                            <div class="metric-value text-warning">{{ totalClientes }}</div>
-                            <div class="metric-label">Clientes Registrados</div>
-                            <small class="text-muted fw-semibold">{{ nuevosClientesMes }} nuevos este mes</small>
+                <div class="stats-card">
+                    <div class="metric-card">
+                        <div class="metric-icon text-warning">
+                            <i class="fas fa-user-friends"></i>
                         </div>
+                        <div class="metric-value text-warning">{{ totalClientes }}</div>
+                        <div class="metric-label">Clientes Registrados</div>
+                        <small class="text-muted fw-semibold">{{ nuevosClientesMes }} nuevos este mes</small>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="stats-card">
-                        <div class="metric-card">
-                            <div class="metric-icon text-info">
-                                <i class="fas fa-receipt"></i>
-                            </div>
-                            <div class="metric-value text-info">{{ comprasMes }}</div>
-                            <div class="metric-label">Compras Este Mes</div>
-                            <small class="text-muted fw-semibold">{{ comprasPendientes }} pendientes</small>
+                <div class="stats-card">
+                    <div class="metric-card">
+                        <div class="metric-icon text-info">
+                            <i class="fas fa-receipt"></i>
                         </div>
+                        <div class="metric-value text-info">{{ comprasMes }}</div>
+                        <div class="metric-label">Compras Este Mes</div>
+                        <small class="text-muted fw-semibold">{{ comprasPendientes }} pendientes</small>
                     </div>
                 </div>
             </div>
 
             <!-- Módulos Principales -->
-            <h3 class="section-title">📦 Módulos Principales</h3>
-            <div class="stats-grid">
+            <h3 class="section-title">
+                <i class="fas fa-cubes me-2"></i>Módulos Principales
+            </h3>
+            <div class="module-grid">
                 <!-- Productos -->
-                <a href="{{ path('app_producto_index') }}" class="text-decoration-none card-with-badge">
+                <div class="module-card card-with-badge">
                     {% if productosAgotados > 0 or productosStockBajo > 0 %}
-                        <div class="alert-badge">{{ productosAgotados + productosStockBajo }}</div>
+                        <div class="stat-badge">{{ productosAgotados + productosStockBajo }}</div>
                     {% endif %}
-                    <div class="dashboard-card card-products">
-                        <div class="card-background"></div>
-                        <div class="card-particles" id="particles-products"></div>
-                        <div class="card-content">
-                            <div class="card-icon">
-                                <i class="fas fa-boxes"></i>
-                            </div>
-                            <h3 class="card-title">Gestión de Productos</h3>
-                            <p class="card-description">
-                                Administra tu inventario, precios, categorías y control de stock
-                            </p>
-                            <div class="module-stats">
-                                <div class="module-stat-item">
-                                    <span class="module-stat-value text-success">{{ productosActivos }}</span>
-                                    <span class="module-stat-label">Activos</span>
-                                </div>
-                                <div class="module-stat-item">
-                                    <span class="module-stat-value text-danger">{{ productosAgotados }}</span>
-                                    <span class="module-stat-label">Agotados</span>
-                                </div>
-                                <div class="module-stat-item">
-                                    <span class="module-stat-value text-warning">{{ productosStockBajo }}</span>
-                                    <span class="module-stat-label">Stock Bajo</span>
-                                </div>
-                            </div>
+                    <div class="module-header">
+                        <div class="module-icon">
+                            <i class="fas fa-boxes"></i>
                         </div>
-                        <div class="card-footer">
-                            <span class="card-link">Acceder al módulo</span>
-                            <i class="fas fa-arrow-right"></i>
+                        <div>
+                            <h3 class="module-title">Gestión de Productos</h3>
                         </div>
                     </div>
-                </a>
+                    <div class="module-body">
+                        <p class="module-description">
+                            Administra tu inventario, precios, categorías y control de stock de manera eficiente.
+                        </p>
+                        <div class="module-actions">
+                            <a href="{{ path('app_producto_index') }}" class="btn btn-modern btn-primary-modern btn-sm">
+                                <i class="fas fa-list me-1"></i>Ver Listado
+                            </a>
+                            <a href="{{ path('app_producto_new') }}" class="btn btn-modern btn-outline-modern btn-sm">
+                                <i class="fas fa-plus me-1"></i>Nuevo Producto
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Ventas -->
-                <a href="{{ path('app_venta_index') }}" class="text-decoration-none">
-                    <div class="dashboard-card card-sales">
-                        <div class="card-background"></div>
-                        <div class="card-particles" id="particles-sales"></div>
-                        <div class="card-content">
-                            <div class="card-icon">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <h3 class="card-title">Sistema de Ventas</h3>
-                            <p class="card-description">
-                                Registra ventas, gestiona clientes y consulta historial de transacciones
-                            </p>
-                            <div class="module-stats">
-                                <div class="module-stat-item">
-                                    <span class="module-stat-value text-primary">{{ ventasHoy.total }}</span>
-                                    <span class="module-stat-label">Hoy</span>
-                                </div>
-                                <div class="module-stat-item">
-                                    <span class="module-stat-value text-success">${{ ventasMes|number_format(0, ',', '.') }}</span>
-                                    <span class="module-stat-label">Este Mes</span>
-                                </div>
-                            </div>
+                <div class="module-card">
+                    <div class="module-header"
+                         style="background: linear-gradient(135deg, var(--success-color), #05c391);">
+                        <div class="module-icon">
+                            <i class="fas fa-chart-line"></i>
                         </div>
-                        <div class="card-footer">
-                            <span class="card-link">Acceder al módulo</span>
-                            <i class="fas fa-arrow-right"></i>
+                        <div>
+                            <h3 class="module-title">Gestion de Ventas</h3>
                         </div>
                     </div>
-                </a>
+                    <div class="module-body">
+                        <p class="module-description">
+                            Registra ventas, gestiona clientes y consulta historial de transacciones.
+                        </p>
+                        <div class="module-actions">
+                            <a href="{{ path('app_venta_index') }}" class="btn btn-modern btn-primary-modern btn-sm">
+                                <i class="fas fa-list me-1"></i>Ver Ventas
+                            </a>
+                            <a href="{{ path('app_venta_new') }}" class="btn btn-modern btn-outline-modern btn-sm">
+                                <i class="fas fa-cash-register me-1"></i>Nueva Venta
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Compras -->
-                <a href="{{ path('app_compra_index') }}" class="text-decoration-none">
-                    <div class="dashboard-card card-purchases">
-                        <div class="card-background"></div>
-                        <div class="card-particles" id="particles-purchases"></div>
-                        <div class="card-content">
-                            <div class="card-icon">
-                                <i class="fas fa-shopping-cart"></i>
-                            </div>
-                            <h3 class="card-title">Gestión de Compras</h3>
-                            <p class="card-description">
-                                Controla compras, proveedores, órdenes de pedido y recepción de mercancía
-                            </p>
-                            <div class="module-stats">
-                                <div class="module-stat-item">
-                                    <span class="module-stat-value text-info">{{ comprasMes }}</span>
-                                    <span class="module-stat-label">Este Mes</span>
-                                </div>
-                                <div class="module-stat-item">
-                                    <span class="module-stat-value text-warning">{{ comprasPendientes }}</span>
-                                    <span class="module-stat-label">Pendientes</span>
-                                </div>
-                            </div>
+                <div class="module-card">
+                    <div class="module-header"
+                         style="background: linear-gradient(135deg, var(--warning-color), #ffc107);">
+                        <div class="module-icon">
+                            <i class="fas fa-shopping-cart"></i>
                         </div>
-                        <div class="card-footer">
-                            <span class="card-link">Acceder al módulo</span>
-                            <i class="fas fa-arrow-right"></i>
+                        <div>
+                            <h3 class="module-title">Gestión de Compras</h3>
                         </div>
                     </div>
-                </a>
+                    <div class="module-body">
+                        <p class="module-description">
+                            Controla compras, proveedores, órdenes de pedido y recepción de mercancía.
+                        </p>
+                        <div class="module-actions">
+                            <a href="{{ path('app_compra_index') }}" class="btn btn-modern btn-primary-modern btn-sm">
+                                <i class="fas fa-list me-1"></i>Ver Compras
+                            </a>
+                            <a href="{{ path('app_compra_new') }}" class="btn btn-modern btn-outline-modern btn-sm">
+                                <i class="fas fa-receipt me-1"></i>Nueva Compra
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Segunda Fila de Módulos -->
-            <div class="stats-grid">
+            <div class="module-grid">
                 <!-- Clientes -->
-                <a href="{{ path('app_cliente_index') }}" class="text-decoration-none">
-                    <div class="dashboard-card card-clients">
-                        <div class="card-background"></div>
-                        <div class="card-particles" id="particles-clients"></div>
-                        <div class="card-content">
-                            <div class="card-icon">
-                                <i class="fas fa-user-friends"></i>
-                            </div>
-                            <h3 class="card-title">Gestión de Clientes</h3>
-                            <p class="card-description">
-                                Administra tu base de clientes, contactos y historial de compras
-                            </p>
-                            <div class="module-stats">
-                                <div class="module-stat-item">
-                                    <span class="module-stat-value text-info">{{ totalClientes }}</span>
-                                    <span class="module-stat-label">Total</span>
-                                </div>
-                                <div class="module-stat-item">
-                                    <span class="module-stat-value text-success">{{ nuevosClientesMes }}</span>
-                                    <span class="module-stat-label">Nuevos</span>
-                                </div>
-                            </div>
+                <div class="module-card">
+                    <div class="module-header" style="background: linear-gradient(135deg, var(--info-color), #0d7ea6);">
+                        <div class="module-icon">
+                            <i class="fas fa-user-friends"></i>
                         </div>
-                        <div class="card-footer">
-                            <span class="card-link">Acceder al módulo</span>
-                            <i class="fas fa-arrow-right"></i>
+                        <div>
+                            <h3 class="module-title">Gestión de Clientes</h3>
                         </div>
                     </div>
-                </a>
+                    <div class="module-body">
+                        <p class="module-description">
+                            Administra tu base de clientes, contactos y historial de compras.
+                        </p>
+                        <div class="module-actions">
+                            <a href="{{ path('app_cliente_index') }}" class="btn btn-modern btn-primary-modern btn-sm">
+                                <i class="fas fa-list me-1"></i>Ver Clientes
+                            </a>
+                            <a href="{{ path('app_cliente_new') }}" class="btn btn-modern btn-outline-modern btn-sm">
+                                <i class="fas fa-user-plus me-1"></i>Nuevo Cliente
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
 
                 <!-- Proveedores -->
-                <a href="{{ path('app_proveedor_index') }}" class="text-decoration-none">
-                    <div class="dashboard-card card-suppliers">
-                        <div class="card-background"></div>
-                        <div class="card-particles" id="particles-suppliers"></div>
-                        <div class="card-content">
-                            <div class="card-icon">
-                                <i class="fas fa-truck-loading"></i>
-                            </div>
-                            <h3 class="card-title">Gestión de Proveedores</h3>
-                            <p class="card-description">
-                                Controla proveedores, contactos y evaluaciones de servicio
-                            </p>
+                <div class="module-card">
+                    <div class="module-header" style="background: linear-gradient(135deg, #6f42c1, #5a2d9c);">
+                        <div class="module-icon">
+                            <i class="fas fa-truck-loading"></i>
                         </div>
-                        <div class="card-footer">
-                            <span class="card-link">Acceder al módulo</span>
-                            <i class="fas fa-arrow-right"></i>
+                        <div>
+                            <h3 class="module-title">Gestión de Proveedores</h3>
                         </div>
                     </div>
-                </a>
+                    <div class="module-body">
+                        <p class="module-description">
+                            Controla proveedores, contactos y evaluaciones de servicio.
+                        </p>
+                        <div class="module-actions">
+                            <a href="{{ path('app_proveedor_index') }}"
+                               class="btn btn-modern btn-primary-modern btn-sm">
+                                <i class="fas fa-list me-1"></i>Ver Proveedores
+                            </a>
 
-                <!-- Historial de Precios -->
-                <a href="{{ path('app_historial_precios_index') }}" class="text-decoration-none">
-                    <div class="dashboard-card card-history">
-                        <div class="card-background"></div>
-                        <div class="card-particles" id="particles-history"></div>
-                        <div class="card-content">
-                            <div class="card-icon">
-                                <i class="fas fa-history"></i>
-                            </div>
-                            <h3 class="card-title">Historial de Precios</h3>
-                            <p class="card-description">
-                                Consulta y analiza el historial de cambios de precios y tendencias
-                            </p>
-                        </div>
-                        <div class="card-footer">
-                            <span class="card-link">Acceder al módulo</span>
-                            <i class="fas fa-arrow-right"></i>
+                            <a href="{{ path('app_proveedor_new') }}" class="btn btn-modern btn-outline-modern btn-sm">
+                                <i class="fas fa-plus me-1"></i>Nuevo Proveedor
+                            </a>
                         </div>
                     </div>
-                </a>
-            </div>
-
-            <!-- Módulos de Análisis -->
-            <h3 class="section-title">📊 Análisis y Reportes</h3>
-            <div class="stats-grid">
-                <!-- Estadísticas -->
-                <a href="{{ path('app_estadisticas_index') }}" class="text-decoration-none">
-                    <div class="dashboard-card card-stats">
-                        <div class="card-background"></div>
-                        <div class="card-particles" id="particles-stats"></div>
-                        <div class="card-content">
-                            <div class="card-icon">
-                                <i class="fas fa-chart-bar"></i>
-                            </div>
-                            <h3 class="card-title">Estadísticas Avanzadas</h3>
-                            <p class="card-description">
-                                Dashboard completo con métricas, análisis y reportes de tu negocio
-                            </p>
-                        </div>
-                        <div class="card-footer">
-                            <span class="card-link">Ver estadísticas</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Ajustes de Inventario -->
-                <a href="{{ path('app_ajuste_inventario_index') }}" class="text-decoration-none">
-                    <div class="dashboard-card card-inventory">
-                        <div class="card-background"></div>
-                        <div class="card-particles" id="particles-inventory"></div>
-                        <div class="card-content">
-                            <div class="card-icon">
-                                <i class="fas fa-clipboard-check"></i>
-                            </div>
-                            <h3 class="card-title">Ajustes de Inventario</h3>
-                            <p class="card-description">
-                                Realiza ajustes de stock, conteos físicos y control de inventario
-                            </p>
-                        </div>
-                        <div class="card-footer">
-                            <span class="card-link">Acceder al módulo</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
-                    </div>
-                </a>
+                </div>
 
                 <!-- Categorías -->
-                <a href="{{ path('app_categoria_index') }}" class="text-decoration-none">
-                    <div class="dashboard-card card-categories">
-                        <div class="card-background"></div>
-                        <div class="card-particles" id="particles-categories"></div>
-                        <div class="card-content">
-                            <div class="card-icon">
-                                <i class="fas fa-tags"></i>
-                            </div>
-                            <h3 class="card-title">Gestión de Categorías</h3>
-                            <p class="card-description">
-                                Organiza tus productos en categorías, subcategorías y familias
-                            </p>
+                <div class="module-card">
+                    <div class="module-header" style="background: linear-gradient(135deg, #e83e8c, #d91a72);">
+                        <div class="module-icon">
+                            <i class="fas fa-tags"></i>
                         </div>
-                        <div class="card-footer">
-                            <span class="card-link">Acceder al módulo</span>
-                            <i class="fas fa-arrow-right"></i>
+                        <div>
+                            <h3 class="module-title">Gestión de Categorías</h3>
                         </div>
                     </div>
-                </a>
+                    <div class="module-body">
+                        <p class="module-description">
+                            Organiza tus productos en categorías, subcategorías y familias.
+                        </p>
+                        <div class="module-actions">
+                            <a href="{{ path('app_categoria_index') }}"
+                               class="btn btn-modern btn-primary-modern btn-sm">
+                                <i class="fas fa-list me-1"></i>Ver Categorías
+                            </a>
+                            <a href="{{ path('app_categoria_new') }}" class="btn btn-modern btn-outline-modern btn-sm">
+                                <i class="fas fa-plus me-1"></i>Nueva Catgoria
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
 
+            <!-- Tercera Fila de Módulos -->
+            <div class="module-grid">
+                <!-- Historial de Precios -->
+                <div class="module-card">
+                    <div class="module-header" style="background: linear-gradient(135deg, #6f42c1, #5a2d9c);">
+                        <div class="module-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <div>
+                            <h3 class="module-title">Historial de Precios</h3>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <p class="module-description">
+                            Consulta y analiza el historial de cambios de precios y tendencias de tus productos.
+                        </p>
+                        <div class="module-actions">
+                            <a href="{{ path('app_historial_precios_index') }}"
+                               class="btn btn-modern btn-primary-modern btn-sm">
+                                <i class="fas fa-list me-1"></i>Ver Historial
+                            </a>
+                            <a href="{{ path('app_historial_precios_new') }}"
+                               class="btn btn-modern btn-outline-modern btn-sm">
+                                <i class="fas fa-plus me-1"></i>Nuevo Historial
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ajustes de Inventario -->
+                <div class="module-card">
+                    <div class="module-header" style="background: linear-gradient(135deg, #20c997, #199d74);">
+                        <div class="module-icon">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <div>
+                            <h3 class="module-title">Ajustes de Inventario</h3>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <p class="module-description">
+                            Realiza ajustes de stock, conteos físicos y control de inventario.
+                        </p>
+                        <div class="module-actions">
+                            <a href="{{ path('app_ajuste_inventario_index') }}"
+                               class="btn btn-modern btn-primary-modern btn-sm">
+                                <i class="fas fa-list me-1"></i>Ver Ajustes
+                            </a>
+                            <a href="{{ path('app_ajuste_inventario_new') }}"
+                               class="btn btn-modern btn-outline-modern btn-sm">
+                                <i class="fas fa-plus me-1"></i>Nuevo Ajuste
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas -->
+                <div class="module-card">
+                    <div class="module-header" style="background: linear-gradient(135deg, #fd7e14, #e56a0c);">
+                        <div class="module-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div>
+                            <h3 class="module-title">Estadísticas Avanzadas</h3>
+                        </div>
+                    </div>
+                    <div class="module-body">
+                        <p class="module-description">
+                            Dashboard completo con métricas, análisis y reportes detallados de tu negocio.
+                        </p>
+                        <div class="module-actions">
+                            <a href="{{ path('app_estadisticas_index') }}"
+                               class="btn btn-modern btn-primary-modern btn-sm">
+                                <i class="fas fa-chart-line me-1"></i>Ver Estadísticas
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
             <!-- Acciones Rápidas -->
-            <div class="quick-actions">
-                <h3 class="section-title mb-4">⚡ Acciones Rápidas</h3>
-                <div class="action-grid">
+            <h3 class="section-title">
+                <i class="fas fa-bolt me-2"></i>Acciones Rápidas
+            </h3>
+            <div class="card-body p-4">
+                <div class="quick-actions-grid">
                     <a href="{{ path('app_producto_new') }}" class="text-decoration-none">
-                        <div class="action-card">
-                            <div class="action-icon">
+                        <div class="quick-action-card">
+                            <div class="quick-action-icon">
                                 <i class="fas fa-plus"></i>
                             </div>
-                            <div class="action-title">Nuevo Producto</div>
-                            <div class="action-description">Agregar producto al inventario</div>
+                            <div class="quick-action-title">Nuevo Producto</div>
+                            <div class="quick-action-description">Agregar producto al inventario</div>
                         </div>
                     </a>
                     <a href="{{ path('app_venta_new') }}" class="text-decoration-none">
-                        <div class="action-card">
-                            <div class="action-icon">
+                        <div class="quick-action-card">
+                            <div class="quick-action-icon">
                                 <i class="fas fa-cash-register"></i>
                             </div>
-                            <div class="action-title">Nueva Venta</div>
-                            <div class="action-description">Registrar venta rápida</div>
+                            <div class="quick-action-title">Nueva Venta</div>
+                            <div class="quick-action-description">Registrar venta rápida</div>
                         </div>
                     </a>
                     <a href="{{ path('app_compra_new') }}" class="text-decoration-none">
-                        <div class="action-card">
-                            <div class="action-icon">
+                        <div class="quick-action-card">
+                            <div class="quick-action-icon">
                                 <i class="fas fa-receipt"></i>
                             </div>
-                            <div class="action-title">Nueva Compra</div>
-                            <div class="action-description">Registrar compra a proveedor</div>
+                            <div class="quick-action-title">Nueva Compra</div>
+                            <div class="quick-action-description">Registrar compra a proveedor</div>
                         </div>
                     </a>
                     <a href="{{ path('app_cliente_new') }}" class="text-decoration-none">
-                        <div class="action-card">
-                            <div class="action-icon">
+                        <div class="quick-action-card">
+                            <div class="quick-action-icon">
                                 <i class="fas fa-user-plus"></i>
                             </div>
-                            <div class="action-title">Nuevo Cliente</div>
-                            <div class="action-description">Agregar cliente a la base</div>
+                            <div class="quick-action-title">Nuevo Cliente</div>
+                            <div class="quick-action-description">Agregar cliente a la base</div>
                         </div>
                     </a>
                 </div>
@@ -825,9 +577,9 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Animación suave para las tarjetas
-            const cards = document.querySelectorAll('.dashboard-card, .stats-card, .action-card');
+            const cards = document.querySelectorAll('.stats-card, .module-card, .quick-action-card');
 
             cards.forEach((card, index) => {
                 card.style.opacity = '0';
@@ -839,55 +591,6 @@
                     card.style.transform = 'translateY(0)';
                 }, index * 100);
             });
-
-            // Crear partículas para las tarjetas
-            function createParticles(containerId, count = 15) {
-                const container = document.getElementById(containerId);
-                if (!container) return;
-
-                for (let i = 0; i < count; i++) {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-
-                    // Tamaño aleatorio
-                    const size = Math.random() * 6 + 2;
-                    particle.style.width = `${size}px`;
-                    particle.style.height = `${size}px`;
-
-                    // Posición aleatoria
-                    particle.style.left = `${Math.random() * 100}%`;
-                    particle.style.top = `${Math.random() * 100}%`;
-
-                    // Animación
-                    particle.style.animation = `float ${Math.random() * 10 + 10}s infinite ease-in-out`;
-                    particle.style.animationDelay = `${Math.random() * 5}s`;
-
-                    container.appendChild(particle);
-                }
-            }
-
-            // Aplicar partículas a todas las tarjetas principales
-            createParticles('particles-products');
-            createParticles('particles-sales');
-            createParticles('particles-purchases');
-            createParticles('particles-clients');
-            createParticles('particles-suppliers');
-            createParticles('particles-history');
-            createParticles('particles-stats');
-            createParticles('particles-inventory');
-            createParticles('particles-categories');
-
-            // Añadir estilos de animación para las partículas
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes float {
-                    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-                    25% { transform: translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px) rotate(90deg); }
-                    50% { transform: translate(${Math.random() * 30 - 15}px, ${Math.random() * 30 - 15}px) rotate(180deg); }
-                    75% { transform: translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px) rotate(270deg); }
-                }
-            `;
-            document.head.appendChild(style);
         });
     </script>
 {% endblock %}
