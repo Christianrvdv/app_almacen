@@ -2,28 +2,114 @@
 
 {% block title %}Historial de Precios{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
+{% endblock %}
+
 {% block body %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <a href="{{ path('app_dashboard_index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Regresar
-            </a>
-            <h1 class="fw-bold text-primary">Historial de Precios</h1>
-            <a href="{{ path('app_historial_precios_new') }}" class="btn btn-primary">
-                <i class="fas fa-plus-circle me-2"></i>Nuevo Registro
-            </a>
+    <div class="container-fluid py-4">
+        <!-- Header Mejorado -->
+        <div class="page-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="{{ path('app_dashboard_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+                        </a>
+                    </div>
+                    <div class="text-center text-white">
+                        <h1 class="fw-bold mb-1">📊 Historial de Precios</h1>
+                        <p class="mb-0 opacity-75">Seguimiento de cambios en los precios de productos</p>
+                    </div>
+                    <div>
+                        <a href="{{ path('app_producto_index') }}" class="btn btn-light btn-sm rounded-pill px-3 me-2">
+                            <i class="fas fa-boxes me-2"></i>Productos
+                        </a>
+                        <a href="{{ path('app_historial_precios_new') }}" class="btn btn-warning btn-sm rounded-pill px-3">
+                            <i class="fas fa-plus-circle me-2"></i>Nuevo Registro
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
+        <!-- Estadísticas Rápidas -->
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-primary">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div class="metric-value text-primary">{{ historial_precios|length }}</div>
+                            <div class="metric-label">Total Registros</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-success">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="metric-value text-success">
+                                {{ historial_precios|filter(h => h.tipo|lower == 'venta')|length }}
+                            </div>
+                            <div class="metric-label">Cambios Venta</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-info">
+                                <i class="fas fa-truck-loading"></i>
+                            </div>
+                            <div class="metric-value text-info">
+                                {{ historial_precios|filter(h => h.tipo|lower == 'compra')|length }}
+                            </div>
+                            <div class="metric-label">Cambios Compra</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <div class="metric-card">
+                            <div class="metric-icon text-warning">
+                                <i class="fas fa-tags"></i>
+                            </div>
+                            <div class="metric-value text-warning">
+                                {{ historial_precios|filter(h => h.tipo|lower == 'promocion' or h.tipo|lower == 'ajuste')|length }}
+                            </div>
+                            <div class="metric-label">Ajustes/Promos</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barra de Búsqueda y Filtros -->
+            <div class="search-filter">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <input type="text" class="form-control form-control-modern" placeholder="🔍 Buscar en el historial por motivo, tipo o producto...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Historial de Precios -->
+            <div class="table-modern">
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
+                        <thead>
                         <tr>
                             <th>#</th>
+                            <th>Producto</th>
                             <th>Tipo</th>
-                            <th>Precio Anterior</th>
-                            <th>Precio Nuevo</th>
+                            <th class="text-center">Precio Anterior</th>
+                            <th class="text-center">Precio Nuevo</th>
+                            <th class="text-center">Diferencia</th>
                             <th>Fecha Cambio</th>
                             <th>Motivo</th>
                             <th class="text-center">Acciones</th>
@@ -32,41 +118,150 @@
                         <tbody>
                         {% for registro in historial_precios %}
                             <tr>
-                                <td>{{ registro.id }}</td>
+                                <td class="fw-bold">{{ registro.id }}</td>
+                                <td>
+                                    {% if registro.producto %}
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-light rounded p-2 me-3">
+                                                <i class="fas fa-cube text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <div class="product-name">{{ registro.producto.nombre }}</div>
+                                                <small class="text-muted">
+                                                    {% if registro.producto.codigoBarras %}
+                                                        📋 {{ registro.producto.codigoBarras }}
+                                                    {% else %}
+                                                        📋 Sin código
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted">Producto no disponible</span>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     {% set tipo = registro.tipo|lower %}
                                     {% if tipo == 'venta' %}
-                                        <span class="badge bg-primary">Venta</span>
+                                        <span class="badge-modern bg-primary">Venta</span>
                                     {% elseif tipo == 'compra' %}
-                                        <span class="badge bg-success">Compra</span>
+                                        <span class="badge-modern bg-success">Compra</span>
+                                    {% elseif tipo == 'promocion' %}
+                                        <span class="badge-modern bg-warning text-dark">Promoción</span>
+                                    {% elseif tipo == 'ajuste' %}
+                                        <span class="badge-modern bg-info">Ajuste</span>
                                     {% else %}
-                                        <span class="badge bg-secondary">{{ registro.tipo|capitalize }}</span>
+                                        <span class="badge-modern bg-secondary">{{ registro.tipo|capitalize }}</span>
                                     {% endif %}
                                 </td>
-                                <td>$ {{ registro.precioAnterior|number_format(2, ',', '.') }}</td>
-                                <td><strong>$ {{ registro.precioNuevo|number_format(2, ',', '.') }}</strong></td>
-                                <td>{{ registro.fechaCambio ? registro.fechaCambio|date('d/m/Y H:i') : '-' }}</td>
-                                <td title="{{ registro.motivo }}">
-                                    {{ registro.motivo|slice(0, 30) }}{{ registro.motivo|length > 30 ? '...' : '' }}
+                                <td class="text-center price-cell text-muted">
+                                    ${{ registro.precioAnterior|number_format(2, ',', '.') }}
+                                </td>
+                                <td class="text-center price-cell fw-bold text-success">
+                                    ${{ registro.precioNuevo|number_format(2, ',', '.') }}
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ path('app_historial_precios_show', {'id': registro.id}) }}" class="btn btn-sm btn-outline-info me-1" title="Ver">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="{{ path('app_historial_precios_edit', {'id': registro.id}) }}" class="btn btn-sm btn-outline-warning" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
+                                    {% set diferencia = registro.precioNuevo - registro.precioAnterior %}
+                                    {% if diferencia > 0 %}
+                                        <span class="text-success fw-bold">+${{ diferencia|number_format(2, ',', '.') }}</span>
+                                    {% else %}
+                                        <span class="text-danger fw-bold">${{ diferencia|number_format(2, ',', '.') }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="fw-bold">{{ registro.fechaCambio ? registro.fechaCambio|date('d/m/Y') : '-' }}</div>
+                                    <small class="text-muted">{{ registro.fechaCambio ? registro.fechaCambio|date('H:i') : '' }}</small>
+                                </td>
+                                <td title="{{ registro.motivo }}">
+                                    {{ registro.motivo ? (registro.motivo|slice(0, 30) ~ (registro.motivo|length > 30 ? '...' : '')) : 'Sin motivo' }}
+                                </td>
+                                <td class="text-center">
+                                    <div class="action-buttons">
+                                        <a href="{{ path('app_historial_precios_show', {'id': registro.id}) }}"
+                                           class="btn btn-modern btn-outline-modern" title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ path('app_historial_precios_edit', {'id': registro.id}) }}"
+                                           class="btn btn-modern btn-primary-modern" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="7" class="text-center text-muted">No se encontraron registros en el historial.</td>
+                                <td colspan="9" class="empty-state">
+                                    <i class="fas fa-history"></i>
+                                    <h4 class="mt-3">No se encontraron registros en el historial</h4>
+                                    <p class="text-muted mb-3">Comienza agregando tu primer registro al historial</p>
+                                    <a href="{{ path('app_historial_precios_new') }}" class="btn btn-primary-modern btn-modern">
+                                        <i class="fas fa-plus-circle me-2"></i>Crear Primer Registro
+                                    </a>
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
+
+            <!-- Información de Paginación -->
+            {% if historial_precios|length > 0 %}
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="text-muted">
+                        Mostrando <strong>{{ historial_precios|length }}</strong> registros en total
+                    </div>
+                    <div>
+                        <!-- Aquí iría la paginación si la hiciera -->
+                        <nav>
+                            <ul class="pagination mb-0">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">Anterior</a>
+                                </li>
+                                <li class="page-item active">
+                                    <a class="page-link" href="#">1</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Siguiente</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Funcionalidad básica de búsqueda
+            const searchInput = document.querySelector('input[type="text"]');
+            const tableRows = document.querySelectorAll('tbody tr');
+
+            searchInput.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+
+                tableRows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+
+            // Animación suave para las filas
+            tableRows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+
+                setTimeout(() => {
+                    row.style.transition = 'all 0.5s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateX(0)';
+                }, index * 100);
+            });
+        });
+    </script>
 {% endblock %}

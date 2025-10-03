@@ -1,24 +1,392 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Editar Historial de Precios{% endblock %}
+{% block title %}Editar Historial de Precios #{{ historial_precio.id }} - Sistema de Inventario{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fw-bold text-primary">Editar Historial de Precios</h1>
-            <a href="{{ path('app_historial_precios_index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
-            </a>
-        </div>
-
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                {{ include('historial_precios/_form.html.twig', {'button_label': 'Actualizar registro'}) }}
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="page-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="{{ path('app_historial_precios_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Historial
+                        </a>
+                    </div>
+                    <div class="text-center text-white">
+                        <h1 class="fw-bold mb-1">✏️ Editar Registro</h1>
+                        <p class="mb-0 opacity-75">Actualiza la información del registro #{{ historial_precio.id }}</p>
+                    </div>
+                    <div style="width: 130px;"></div> <!-- Espaciador para alinear -->
+                </div>
             </div>
         </div>
 
-        <div class="text-end">
-            {{ include('historial_precios/_delete_form.html.twig') }}
+        <div class="container">
+            <!-- Mensajes Flash -->
+            {% for message in app.flashes('success') %}
+                <div class="alert-modern alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">¡Éxito!</h5>
+                            {{ message }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('error') %}
+                <div class="alert-modern alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Error</h5>
+                            {{ message }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            <!-- Información Actual del Registro -->
+            <div class="stats-grid mb-4">
+                <div class="stat-item">
+                    <div class="stat-number text-primary">
+                        ${{ historial_precio.precioAnterior|number_format(2, ',', '.') }}
+                    </div>
+                    <div class="stat-label">Precio Anterior</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number text-success">
+                        ${{ historial_precio.precioNuevo|number_format(2, ',', '.') }}
+                    </div>
+                    <div class="stat-label">Precio Nuevo</div>
+                </div>
+                <div class="stat-item">
+                    {% set diferencia = historial_precio.precioNuevo - historial_precio.precioAnterior %}
+                    <div class="stat-number {% if diferencia > 0 %}text-success{% else %}text-danger{% endif %}">
+                        {% if diferencia > 0 %}+{% endif %}${{ diferencia|number_format(2, ',', '.') }}
+                    </div>
+                    <div class="stat-label">Diferencia</div>
+                </div>
+                <div class="stat-item">
+                    {% set porcentaje = ((historial_precio.precioNuevo - historial_precio.precioAnterior) / historial_precio.precioAnterior * 100)|number_format(2) %}
+                    <div class="stat-number {% if porcentaje > 0 %}text-success{% else %}text-danger{% endif %}">
+                        {% if porcentaje > 0 %}+{% endif %}{{ porcentaje }}%
+                    </div>
+                    <div class="stat-label">Variación %</div>
+                </div>
+            </div>
+
+            <!-- Formulario Principal -->
+            <div class="stats-card">
+                <div class="card-header-modern">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <i class="fas fa-edit me-2"></i>Editando Registro #{{ historial_precio.id }}
+                        </div>
+                        <form method="post" action="{{ path('app_historial_precios_delete', {'id': historial_precio.id}) }}"
+                              onsubmit="return confirm('¿Estás seguro de que deseas eliminar este registro del historial?');"
+                              class="delete-form">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ historial_precio.id) }}">
+                            <button type="submit" class="btn btn-danger-modern btn-modern btn-sm">
+                                <i class="fas fa-trash me-1"></i>Eliminar Registro
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+
+                    <!-- Información Básica -->
+                    <h3 class="section-title">
+                        <i class="fas fa-info-circle me-2"></i>Información Básica
+                    </h3>
+                    <div class="form-section">
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.tipo, 'Tipo de Cambio', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.tipo, {'attr': {
+                                        'class': 'form-control form-control-modern form-select-modern',
+                                        'required': 'required'
+                                    }}) }}
+                                    {{ form_errors(form.tipo) }}
+                                    <div class="form-help-text">Selecciona el tipo de cambio de precio</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.producto, 'Producto', {'label_attr': {'class': 'form-label-modern'}}) }}
+                                    {{ form_widget(form.producto, {'attr': {
+                                        'class': 'form-control form-control-modern form-select-modern'
+                                    }}) }}
+                                    {{ form_errors(form.producto) }}
+                                    <div class="form-help-text">Producto asociado al cambio (opcional)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de Precios -->
+                    <h3 class="section-title">
+                        <i class="fas fa-dollar-sign me-2"></i>Información de Precios
+                    </h3>
+                    <div class="form-section">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.precio_anterior, 'Precio Anterior', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    <div class="input-group input-group-modern">
+                                        <span class="input-group-text input-group-text-modern">$</span>
+                                        {{ form_widget(form.precio_anterior, {'attr': {
+                                            'class': 'form-control form-control-modern',
+                                            'step': '0.01',
+                                            'min': '0',
+                                            'required': 'required',
+                                            'placeholder': '0.00'
+                                        }}) }}
+                                    </div>
+                                    {{ form_errors(form.precio_anterior) }}
+                                    <div class="form-help-text">Precio anterior del producto</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.precio_nuevo, 'Precio Nuevo', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    <div class="input-group input-group-modern">
+                                        <span class="input-group-text input-group-text-modern">$</span>
+                                        {{ form_widget(form.precio_nuevo, {'attr': {
+                                            'class': 'form-control form-control-modern',
+                                            'step': '0.01',
+                                            'min': '0',
+                                            'required': 'required',
+                                            'placeholder': '0.00'
+                                        }}) }}
+                                    </div>
+                                    {{ form_errors(form.precio_nuevo) }}
+                                    <div class="form-help-text">Nuevo precio del producto</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vista Previa de Cambio -->
+                        <div class="price-preview">
+                            <div class="price-preview-item">
+                                <span>Diferencia:</span>
+                                <span id="diferenciaPreview" class="text-success">$0.00</span>
+                            </div>
+                            <div class="price-preview-item">
+                                <span>Variación Porcentual:</span>
+                                <span id="variacionPreview" class="text-profit">0.00%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fecha y Motivo -->
+                    <h3 class="section-title">
+                        <i class="fas fa-calendar-alt me-2"></i>Fecha y Motivo
+                    </h3>
+                    <div class="form-section">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.fecha_cambio, 'Fecha del Cambio', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.fecha_cambio, {'attr': {
+                                        'class': 'form-control form-control-modern',
+                                        'required': 'required'
+                                    }}) }}
+                                    {{ form_errors(form.fecha_cambio) }}
+                                    <div class="form-help-text">Fecha y hora en que se realizó el cambio</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group-modern">
+                                    {{ form_label(form.motivo, 'Motivo del Cambio', {'label_attr': {'class': 'form-label-modern'}}) }}
+                                    {{ form_widget(form.motivo, {'attr': {
+                                        'class': 'form-control form-control-modern',
+                                        'placeholder': 'Describe el motivo del cambio de precio...'
+                                    }}) }}
+                                    {{ form_errors(form.motivo) }}
+                                    <div class="form-help-text">Razón o justificación del cambio (opcional)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de Resumen -->
+                    <h3 class="section-title">
+                        <i class="fas fa-chart-line me-2"></i>Resumen del Cambio
+                    </h3>
+
+                    <div class="form-section">
+                        <div class="detalle-card">
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <div class="info-label">Tipo</div>
+                                    <div id="resumenTipo" class="info-value">-</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="info-label">Precio Anterior</div>
+                                    <div id="resumenAnterior" class="info-value text-danger">$0.00</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="info-label">Precio Nuevo</div>
+                                    <div id="resumenNuevo" class="info-value text-success">$0.00</div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="info-label">Diferencia</div>
+                                    <div id="resumenDiferencia" class="info-value text-primary">$0.00</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="form-section">
+                        <div class="action-buttons">
+                            <a href="{{ path('app_historial_precios_index') }}" class="btn btn-modern btn-outline-modern">
+                                <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-modern btn-primary-modern">
+                                <i class="fas fa-save me-2"></i>Actualizar Registro
+                            </button>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tipoSelect = document.getElementById('{{ form.tipo.vars.id }}');
+            const precioAnteriorInput = document.getElementById('{{ form.precio_anterior.vars.id }}');
+            const precioNuevoInput = document.getElementById('{{ form.precio_nuevo.vars.id }}');
+            const diferenciaPreview = document.getElementById('diferenciaPreview');
+            const variacionPreview = document.getElementById('variacionPreview');
+
+            // Elementos del resumen
+            const resumenTipo = document.getElementById('resumenTipo');
+            const resumenAnterior = document.getElementById('resumenAnterior');
+            const resumenNuevo = document.getElementById('resumenNuevo');
+            const resumenDiferencia = document.getElementById('resumenDiferencia');
+
+            function calcularCambio() {
+                const precioAnterior = parseFloat(precioAnteriorInput.value) || 0;
+                const precioNuevo = parseFloat(precioNuevoInput.value) || 0;
+                const tipo = tipoSelect.options[tipoSelect.selectedIndex]?.text || '-';
+
+                if (precioAnterior > 0 && precioNuevo > 0) {
+                    const diferencia = precioNuevo - precioAnterior;
+                    const variacionPorcentaje = (diferencia / precioAnterior) * 100;
+
+                    // Actualizar preview
+                    diferenciaPreview.textContent = `$${diferencia.toFixed(2)}`;
+                    variacionPreview.textContent = `${variacionPorcentaje.toFixed(2)}%`;
+
+                    // Cambiar colores según el resultado
+                    if (diferencia > 0) {
+                        diferenciaPreview.className = 'text-success';
+                        variacionPreview.className = 'text-profit';
+                    } else {
+                        diferenciaPreview.className = 'text-danger';
+                        variacionPreview.className = 'text-loss';
+                    }
+
+                    // Actualizar resumen
+                    resumenTipo.textContent = tipo;
+                    resumenAnterior.textContent = `$${precioAnterior.toFixed(2)}`;
+                    resumenNuevo.textContent = `$${precioNuevo.toFixed(2)}`;
+                    resumenDiferencia.textContent = `$${diferencia.toFixed(2)}`;
+                    resumenDiferencia.className = diferencia > 0 ? 'info-value text-success' : 'info-value text-danger';
+                } else {
+                    // Valores por defecto
+                    diferenciaPreview.textContent = '$0.00';
+                    variacionPreview.textContent = '0.00%';
+                    diferenciaPreview.className = 'text-success';
+                    variacionPreview.className = 'text-profit';
+
+                    // Resumen por defecto
+                    resumenTipo.textContent = tipo || '-';
+                    resumenAnterior.textContent = `$${(precioAnterior || 0).toFixed(2)}`;
+                    resumenNuevo.textContent = `$${(precioNuevo || 0).toFixed(2)}`;
+                    resumenDiferencia.textContent = '$0.00';
+                    resumenDiferencia.className = 'info-value text-primary';
+                }
+            }
+
+            // Calcular cuando cambien los precios o el tipo
+            tipoSelect.addEventListener('change', calcularCambio);
+            precioAnteriorInput.addEventListener('input', calcularCambio);
+            precioNuevoInput.addEventListener('input', calcularCambio);
+
+            // Calcular inicialmente
+            calcularCambio();
+
+            // Validación de formulario
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    // Mostrar mensajes de error específicos
+                    const requiredFields = form.querySelectorAll('[required]');
+                    requiredFields.forEach(field => {
+                        if (!field.value) {
+                            field.classList.add('is-invalid');
+                        }
+                    });
+                }
+                form.classList.add('was-validated');
+            });
+
+            // Remover clase de error cuando se complete el campo
+            const requiredFields = form.querySelectorAll('[required]');
+            requiredFields.forEach(field => {
+                field.addEventListener('input', function() {
+                    if (this.value) {
+                        this.classList.remove('is-invalid');
+                    }
+                });
+            });
+
+            // Animación suave para las secciones
+            const sections = document.querySelectorAll('.form-section');
+            sections.forEach((section, index) => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    section.style.transition = 'all 0.6s ease';
+                    section.style.opacity = '1';
+                    section.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // Efecto hover para las tarjetas de estadísticas
+            const statItems = document.querySelectorAll('.stat-item');
+            statItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                item.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
 {% endblock %}

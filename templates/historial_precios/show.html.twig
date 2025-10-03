@@ -2,54 +2,333 @@
 
 {% block title %}Historial de Precios #{{ historial_precio.id }}{% endblock %}
 
-{% block body %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fw-bold text-primary">Historial de Precios #{{ historial_precio.id }}</h1>
-            <a href="{{ path('app_historial_precios_index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
-            </a>
-        </div>
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
+{% endblock %}
 
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Tipo</div>
-                    <div class="col-sm-9">
-                        {% set tipo = historial_precio.tipo|lower %}
-                        {% if tipo == 'venta' %}
-                            <span class="badge bg-primary">Venta</span>
-                        {% elseif tipo == 'compra' %}
-                            <span class="badge bg-success">Compra</span>
-                        {% else %}
-                            <span class="badge bg-secondary">{{ historial_precio.tipo|capitalize }}</span>
-                        {% endif %}
+{% block body %}
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="page-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="{{ path('app_historial_precios_index') }}"
+                           class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Historial
+                        </a>
                     </div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Precio anterior</div>
-                    <div class="col-sm-9">$ {{ historial_precio.precioAnterior|number_format(2, ',', '.') }}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Precio nuevo</div>
-                    <div class="col-sm-9 h5 mb-0 text-success">$ {{ historial_precio.precioNuevo|number_format(2, ',', '.') }}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Fecha cambio</div>
-                    <div class="col-sm-9">{{ historial_precio.fechaCambio ? historial_precio.fechaCambio|date('d/m/Y H:i') : '-' }}</div>
-                </div>
-                <div class="row mb-0">
-                    <div class="col-sm-3 fw-bold text-muted">Motivo</div>
-                    <div class="col-sm-9">{{ historial_precio.motivo }}</div>
+                    <div class="text-center text-white">
+                        <h1 class="fw-bold mb-1">📊 Detalle del Historial</h1>
+                        <p class="mb-0 opacity-75">Registro #{{ historial_precio.id }}</p>
+                    </div>
+                    <div>
+                        <a href="{{ path('app_producto_index') }}" class="btn btn-light btn-sm rounded-pill px-3 me-2">
+                            <i class="fas fa-boxes me-2"></i>Productos
+                        </a>
+                        <a href="{{ path('app_historial_precios_edit', {'id': historial_precio.id}) }}"
+                           class="btn btn-warning btn-sm rounded-pill px-3 me-2">
+                            <i class="fas fa-edit me-2"></i>Editar
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center">
-            <a href="{{ path('app_historial_precios_edit', {'id': historial_precio.id}) }}" class="btn btn-warning btn-sm">
-                <i class="fas fa-edit me-1"></i>Editar
-            </a>
-            {{ include('historial_precios/_delete_form.html.twig') }}
+        <div class="container">
+            <!-- Estadísticas Rápidas -->
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number text-primary">
+                        ${{ historial_precio.precioAnterior|number_format(2, ',', '.') }}
+                    </div>
+                    <div class="stat-label">Precio Anterior</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number text-success">
+                        ${{ historial_precio.precioNuevo|number_format(2, ',', '.') }}
+                    </div>
+                    <div class="stat-label">Precio Nuevo</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number
+                        {% set diferencia = historial_precio.precioNuevo - historial_precio.precioAnterior %}
+                        {% if diferencia > 0 %}text-success{% else %}text-danger{% endif %}">
+                        {% if diferencia > 0 %}+{% endif %}${{ diferencia|number_format(2, ',', '.') }}
+                    </div>
+                    <div class="stat-label">Diferencia</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number text-info">
+                        {% set porcentaje = ((historial_precio.precioNuevo - historial_precio.precioAnterior) / historial_precio.precioAnterior * 100)|number_format(2) %}
+                        {% if porcentaje > 0 %}+{% endif %}{{ porcentaje }}%
+                    </div>
+                    <div class="stat-label">Variación %</div>
+                </div>
+            </div>
+
+            <!-- Información Principal -->
+            <div class="info-grid">
+                <!-- Detalles del Cambio -->
+                <div class="row">
+                    <h3 class="section-title">
+                        <i class="fas fa-info-circle me-2"></i>Información de Cambios
+                    </h3>
+                    <div class="detalle-card">
+
+                        <div class="metadata">
+                            <div class="metadata-item">
+                                <span class="metadata-label">Tipo de Cambio:</span>
+                                <span class="metadata-value">
+                                {% set tipo = historial_precio.tipo|lower %}
+                                    {% if tipo == 'venta' %}
+                                        <span class="badge-modern bg-primary">Venta</span>
+                                {% elseif tipo == 'compra' %}
+                                        <span class="badge-modern bg-success">Compra</span>
+                                {% elseif tipo == 'promocion' %}
+                                        <span class="badge-modern bg-warning text-dark">Promoción</span>
+                                {% elseif tipo == 'ajuste' %}
+                                        <span class="badge-modern bg-info">Ajuste</span>
+                                {% else %}
+                                        <span
+                                            class="badge-modern bg-secondary">{{ historial_precio.tipo|capitalize }}</span>
+                                    {% endif %}
+                            </span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label">Fecha del Cambio:</span>
+                                <span class="metadata-value">
+                                {{ historial_precio.fechaCambio ? historial_precio.fechaCambio|date('d/m/Y H:i') : 'No especificada' }}
+                            </span>
+                            </div>
+                            <div class="metadata-item">
+                                <span class="metadata-label">Registro ID:</span>
+                                <span class="metadata-value">#{{ historial_precio.id }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información de Precios -->
+                <div class="row">
+
+                    <h3 class="section-title">
+                        <i class="fas fa-dollar-sign me-2"></i>Información de Precios
+                    </h3>
+                    <div class="detalle-card">
+
+                        <div class="price-preview">
+                            <div class="price-preview-item">
+                                <span class="text-muted">Precio Anterior:</span>
+                                <span
+                                    class="price-cost">${{ historial_precio.precioAnterior|number_format(2, ',', '.') }}</span>
+                            </div>
+                            <div class="price-preview-item">
+                                <span class="text-muted">Precio Nuevo:</span>
+                                <span
+                                    class="price-highlight">${{ historial_precio.precioNuevo|number_format(2, ',', '.') }}</span>
+                            </div>
+                            <div class="price-preview-item">
+                                <span class="text-muted">Diferencia:</span>
+                                <span
+                                    class="{% set diferencia = historial_precio.precioNuevo - historial_precio.precioAnterior %}{% if diferencia > 0 %}text-success{% else %}text-danger{% endif %} fw-bold">
+                                {% if diferencia > 0 %}+{% endif %}${{ diferencia|number_format(2, ',', '.') }}
+                            </span>
+                            </div>
+                            <div class="price-preview-item">
+                                <span class="text-muted">Variación:</span>
+                                <span
+                                    class="{% set porcentaje = ((historial_precio.precioNuevo - historial_precio.precioAnterior) / historial_precio.precioAnterior * 100)|number_format(2) %}{% if porcentaje > 0 %}text-success{% else %}text-danger{% endif %} fw-bold">
+                                {% if porcentaje > 0 %}+{% endif %}{{ porcentaje }}%
+                            </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Motivo del Cambio -->
+            <h3 class="section-title">
+                <i class="fas fa-retweet me-2"></i>Motivo de Cambio
+            </h3>
+
+            <div class="form-section">
+                <div class="detalle-card">
+                    {% if historial_precio.motivo %}
+                        <p class="mb-0">{{ historial_precio.motivo }}</p>
+                    {% else %}
+                        <p class="text-muted mb-0 fst-italic">No se especificó un motivo para este cambio.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Información del Producto -->
+            {% if historial_precio.producto %}
+                <h3 class="section-title">
+                    <i class="fas fa-cubes me-2"></i>Producto Asociado
+                </h3>
+
+                <div class="form-section">
+                    <div class="detalle-card">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-light rounded p-3 me-3">
+                                <i class="fas fa-cube text-primary fa-2x"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="fw-bold mb-1">{{ historial_precio.producto.nombre }}</h5>
+                                <div class="d-flex flex-wrap gap-3">
+                                    {% if historial_precio.producto.codigoBarras %}
+                                        <small class="text-muted">
+                                            <i class="fas fa-barcode me-1"></i>{{ historial_precio.producto.codigoBarras }}
+                                        </small>
+                                    {% endif %}
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        Actualizado: {{ historial_precio.producto.fechaActualizacion ? historial_precio.producto.fechaActualizacion|date('d/m/Y') : 'N/A' }}
+                                    </small>
+                                    <small>
+                                        {% if historial_precio.producto.activo %}
+                                            <span class="badge-modern text-success">
+                                            <i class="fas fa-check me-1"></i>Activo
+                                        </span>
+                                        {% else %}
+                                            <span class="badge-modern text-secondary">
+                                            <i class="fas fa-times me-1"></i>Inactivo
+                                        </span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <a href="{{ path('app_producto_show', {'id': historial_precio.producto.id}) }}"
+                                   class="btn btn-modern btn-outline-modern">
+                                    <i class="fas fa-external-link-alt me-1"></i>Ver Producto
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <h3 class="section-title">
+                    <i class="fas fa-cubes me-2"></i>Producto Asociado
+                </h3>
+                <div class="form-section">
+                    <div class="detalle-card">
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-exclamation-circle fa-2x mb-2"></i>
+                            <p class="mb-0">No hay producto asociado a este registro del historial.</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Acciones -->
+                <h3 class="section-title">
+                    <i class="fas fa-cogs me-2"></i>Acciones
+                </h3>
+                <div class="stat-item p-4">
+                    <div class="action-buttons">
+
+                        <a href="{{ path('app_historial_precios_edit', {'id': historial_precio.id}) }}"
+                           class="btn btn-modern btn-warning-modern">
+                            <i class="fas fa-edit me-2"></i>Editar Registro
+                        </a>
+
+                        <a href="{{ path('app_historial_precios_index') }}"
+                           class="btn btn-modern btn-primary-modern">
+                            <i class="fas fa-list me-2"></i>Volver al Listado
+                        </a>
+
+                        <!-- Botón de eliminar con confirmación -->
+                        <button type="button"
+                                class="btn btn-modern btn-danger-modern"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal">
+                            <i class="fas fa-trash me-2"></i>Eliminar Registro
+                        </button>
+                    </div>
+                </div>
+
+
+            <!-- Modal de Confirmación para Eliminar -->
+            <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title text-danger" id="deleteModalLabel">
+                                <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>¿Estás seguro de que deseas eliminar el historial de precio asociado al producto
+                                <strong>"{{ historial_precio.producto.nombre }}"</strong>?</p>
+                            <p class="text-danger small">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Esta acción no se puede deshacer y se perderán todos los datos asociados al producto.
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            {{ include('historial_precios/_delete_form.html.twig') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metadata Adicional -->
+            <div class="metadata mt-4">
+                <div class="metadata-item">
+                    <span class="metadata-label">Creado:</span>
+                    <span class="metadata-value">
+                        {% if historial_precio.fechaCambio %}
+                            {{ historial_precio.fechaCambio|date('d/m/Y H:i') }}
+                        {% else %}
+                            No disponible
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">Última actualización:</span>
+                    <span class="metadata-value">
+                        {% if historial_precio.fechaCambio %}
+                            {{ historial_precio.fechaCambio|date('d/m/Y H:i') }}
+                        {% else %}
+                            No disponible
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Animación para las tarjetas
+            const cards = document.querySelectorAll('.detalle-card, .stat-item');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 150);
+            });
+
+            // Confirmación para eliminar
+            const deleteForms = document.querySelectorAll('.delete-form');
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    if (!confirm('¿Estás seguro de que deseas eliminar este registro del historial? Esta acción no se puede deshacer.')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
 {% endblock %}
