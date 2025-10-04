@@ -73,10 +73,10 @@
                     {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
 
                     <!-- Información General de la Compra -->
+                    <h3 class="section-title">
+                        <i class="fas fa-info-circle me-2"></i>Información General
+                    </h3>
                     <div class="form-section">
-                        <h3 class="section-title">
-                            <i class="fas fa-info-circle me-2"></i>Información General
-                        </h3>
 
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -155,10 +155,10 @@
                     </div>
 
                     <!-- Detalles de la Compra -->
+                    <h3 class="section-title">
+                        <i class="fas fa-list-alt me-2"></i>Detalles de la Compra
+                    </h3>
                     <div class="form-section">
-                        <h3 class="section-title">
-                            <i class="fas fa-list-alt me-2"></i>Detalles de la Compra
-                        </h3>
 
                         <div id="detalle-compras" data-prototype="{{ form_widget(form.detalleCompras.vars.prototype)|e('html_attr') }}">
                             {% for detalle in form.detalleCompras %}

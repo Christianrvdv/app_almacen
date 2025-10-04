@@ -26,9 +26,8 @@ final class ClienteController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $cliente = new Cliente();
-
         // Establecer valores por defecto
-        $cliente->setFechaRegistro(new \DateTime());
+        $cliente->setFechaRegistro(new \DateTime('now', new \DateTimeZone('America/Toronto')));
         $cliente->setCompraTotales('0.00');
 
         $form = $this->createForm(ClienteType::class, $cliente);

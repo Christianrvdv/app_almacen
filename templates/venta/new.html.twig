@@ -65,11 +65,10 @@
                     {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
 
                     <!-- Información General de la Venta -->
+                    <h3 class="section-title">
+                        <i class="fas fa-info-circle me-2"></i>Información General
+                    </h3>
                     <div class="form-section">
-                        <h3 class="section-title">
-                            <i class="fas fa-info-circle me-2"></i>Información General
-                        </h3>
-
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <div class="form-group-modern">
@@ -134,12 +133,12 @@
                     </div>
 
                     <!-- Detalles de la Venta -->
+                    <h3 class="section-title">
+                        <i class="fas fa-list-alt me-2"></i>Detalles de la Venta
+                    </h3>
                     <div class="form-section">
-                        <h3 class="section-title">
-                            <i class="fas fa-list-alt me-2"></i>Detalles de la Venta
-                        </h3>
-
-                        <div id="detalle-ventas" data-prototype="{{ form_widget(form.detalleVentas.vars.prototype)|e('html_attr') }}">
+                        <div id="detalle-ventas"
+                             data-prototype="{{ form_widget(form.detalleVentas.vars.prototype)|e('html_attr') }}">
                             {% for detalle in form.detalleVentas %}
                                 <div class="detalle-card">
                                     <div class="row align-items-center">
@@ -184,7 +183,9 @@
                                                 <label class="form-label-modern">Subtotal</label>
                                                 <div class="input-group input-group-modern">
                                                     <span class="input-group-text input-group-text-modern">$</span>
-                                                    <input type="text" class="form-control form-control-modern subtotal-input" readonly>
+                                                    <input type="text"
+                                                           class="form-control form-control-modern subtotal-input"
+                                                           readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -230,7 +231,7 @@
 
 {% block javascripts %}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const addButton = document.getElementById('add-detalle');
             const detalleVentas = document.getElementById('detalle-ventas');
             const prototype = detalleVentas.getAttribute('data-prototype');
@@ -261,7 +262,7 @@
             }
 
             // Agregar nuevo detalle
-            addButton.addEventListener('click', function() {
+            addButton.addEventListener('click', function () {
                 const index = document.querySelectorAll('.detalle-card').length;
                 const newForm = prototype.replace(/__name__/g, index);
                 const newRow = document.createElement('div');
@@ -313,7 +314,7 @@
             });
 
             // Eliminar detalle
-            detalleVentas.addEventListener('click', function(e) {
+            detalleVentas.addEventListener('click', function (e) {
                 if (e.target.classList.contains('eliminar-detalle') ||
                     e.target.closest('.eliminar-detalle')) {
                     const button = e.target.classList.contains('eliminar-detalle') ?
@@ -369,7 +370,7 @@
 
             // Validación de formulario
             const form = document.querySelector('form');
-            form.addEventListener('submit', function(event) {
+            form.addEventListener('submit', function (event) {
                 if (!form.checkValidity()) {
                     event.preventDefault();
                     event.stopPropagation();

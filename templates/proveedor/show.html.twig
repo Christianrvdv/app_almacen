@@ -13,7 +13,8 @@
             <div class="container">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <a href="{{ path('app_proveedor_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                        <a href="{{ path('app_proveedor_index') }}"
+                           class="btn btn-outline-light btn-sm rounded-pill px-3">
                             <i class="fas fa-arrow-left me-2"></i>Volver al Listado
                         </a>
                     </div>
@@ -147,12 +148,12 @@
 
             <!-- Productos del Proveedor -->
             {% if proveedor.productos|length > 0 %}
+                <h3 class="section-title">
+                    <i class="fas fa-cubes me-2"></i>Productos Asociados ({{ proveedor.productos|length }})
+                </h3>
                 <div class="stats-card">
-                    <div class="card-header-modern">
-                        <i class="fas fa-cubes me-2"></i>Productos Asociados ({{ proveedor.productos|length }})
-                    </div>
                     <div class="card-body p-0">
-                        <div class="table-responsive">
+                        <div class="table-modern">
                             <table class="table table-show mb-0">
                                 <thead>
                                 <tr>
@@ -233,30 +234,28 @@
             {% endif %}
 
             <!-- Acciones -->
-            <div class="stats-card">
-                <div class="card-header-modern">
-                    <i class="fas fa-cogs me-2"></i>Acciones
-                </div>
-                <div class="card-body p-4">
-                    <div class="action-buttons">
-                        <a href="{{ path('app_proveedor_edit', {'id': proveedor.id}) }}"
-                           class="btn btn-modern btn-warning-modern">
-                            <i class="fas fa-edit me-2"></i>Editar Proveedor
-                        </a>
+            <h3 class="section-title">
+                <i class="fas fa-cogs me-2"></i>Acciones
+            </h3>
+            <div class="form-section">
+                <div class="action-buttons">
+                    <a href="{{ path('app_proveedor_edit', {'id': proveedor.id}) }}"
+                       class="btn btn-modern btn-warning-modern">
+                        <i class="fas fa-edit me-2"></i>Editar Proveedor
+                    </a>
 
-                        <a href="{{ path('app_proveedor_index') }}"
-                           class="btn btn-modern btn-primary-modern">
-                            <i class="fas fa-list me-2"></i>Volver al Listado
-                        </a>
+                    <a href="{{ path('app_proveedor_index') }}"
+                       class="btn btn-modern btn-primary-modern">
+                        <i class="fas fa-list me-2"></i>Volver al Listado
+                    </a>
 
-                        <!-- Botón de eliminar con confirmación -->
-                        <button type="button"
-                                class="btn btn-modern btn-danger-modern"
-                                data-bs-toggle="modal"
-                                data-bs-target="#deleteModal">
-                            <i class="fas fa-trash me-2"></i>Eliminar Proveedor
-                        </button>
-                    </div>
+                    <!-- Botón de eliminar con confirmación -->
+                    <button type="button"
+                            class="btn btn-modern btn-danger-modern"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteModal">
+                        <i class="fas fa-trash me-2"></i>Eliminar Proveedor
+                    </button>
                 </div>
             </div>
         </div>
@@ -278,7 +277,8 @@
                     {% if proveedor.productos|length > 0 %}
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle me-2"></i>
-                            <strong>Advertencia:</strong> Este proveedor tiene {{ proveedor.productos|length }} producto(s) asociado(s).
+                            <strong>Advertencia:</strong> Este proveedor tiene {{ proveedor.productos|length }}
+                            producto(s) asociado(s).
                             Al eliminar el proveedor, estos productos quedarán sin proveedor asignado.
                         </div>
                     {% endif %}
@@ -300,7 +300,7 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Animación suave para las tarjetas
             const cards = document.querySelectorAll('.stats-card, .detalle-card, .stat-item');
             cards.forEach((card, index) => {
@@ -330,11 +330,11 @@
             // Efecto hover para las estadísticas
             const statItems = document.querySelectorAll('.stat-item');
             statItems.forEach(item => {
-                item.addEventListener('mouseenter', function() {
+                item.addEventListener('mouseenter', function () {
                     this.style.transform = 'translateY(-5px)';
                 });
 
-                item.addEventListener('mouseleave', function() {
+                item.addEventListener('mouseleave', function () {
                     this.style.transform = 'translateY(0)';
                 });
             });

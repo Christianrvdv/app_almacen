@@ -137,9 +137,9 @@
             </div>
 
             <!-- Detalles de la Venta -->
-            <h4 class="section-title">
+            <h3 class="section-title">
                 <i class="fas fa-list-alt me-2"></i>Detalles de la Venta
-            </h4>
+            </h3>
 
             <div class="stats-card">
                 <div class="card-header-modern">
@@ -169,7 +169,8 @@
                                                 <strong>{{ detalle.producto.nombre ?? 'Producto no disponible' }}</strong>
                                                 {% if detalle.producto %}
                                                     <br>
-                                                    <small class="text-muted">Código: {{ detalle.producto.codigoBarras ?? 'N/A' }}</small>
+                                                    <small
+                                                        class="text-muted">Código: {{ detalle.producto.codigoBarras ?? 'N/A' }}</small>
                                                 {% endif %}
                                             </div>
                                         </div>
@@ -181,7 +182,8 @@
                                         <strong>${{ detalle.precioUnitario|number_format(2, ',', '.') }}</strong>
                                     </td>
                                     <td class="text-end">
-                                        <span class="text-success fw-bold">${{ detalle.subtotal|number_format(2, ',', '.') }}</span>
+                                        <span
+                                            class="text-success fw-bold">${{ detalle.subtotal|number_format(2, ',', '.') }}</span>
                                     </td>
                                     <td class="text-center">
                                         <div class="action-buttons">
@@ -212,7 +214,8 @@
                                 <tr class="table-active">
                                     <td colspan="3" class="text-end fw-bold">Total de Venta:</td>
                                     <td class="text-end">
-                                        <span class="total-highlight">${{ venta.total|number_format(2, ',', '.') }}</span>
+                                        <span
+                                            class="total-highlight">${{ venta.total|number_format(2, ',', '.') }}</span>
                                     </td>
                                     <td></td>
                                 </tr>
@@ -224,30 +227,28 @@
             </div>
 
             <!-- Acciones -->
-            <div class="stats-card">
-                <div class="card-header-modern">
-                    <i class="fas fa-cogs me-2"></i>Acciones
-                </div>
-                <div class="card-body p-4">
-                    <div class="action-buttons">
-                        <a href="{{ path('app_venta_edit', {'id': venta.id}) }}"
-                           class="btn btn-modern btn-warning-modern">
-                            <i class="fas fa-edit me-2"></i>Editar Venta
-                        </a>
+            <h3 class="section-title">
+                <i class="fas fa-cogs me-2"></i>Acciones
+            </h3>
+            <div class="form-section">
+                <div class="action-buttons">
+                    <a href="{{ path('app_venta_edit', {'id': venta.id}) }}"
+                       class="btn btn-modern btn-warning-modern">
+                        <i class="fas fa-edit me-2"></i>Editar Venta
+                    </a>
 
-                        <a href="{{ path('app_venta_index') }}"
-                           class="btn btn-modern btn-primary-modern">
-                            <i class="fas fa-list me-2"></i>Volver al Listado
-                        </a>
+                    <a href="{{ path('app_venta_index') }}"
+                       class="btn btn-modern btn-primary-modern">
+                        <i class="fas fa-list me-2"></i>Volver al Listado
+                    </a>
 
-                        <!-- Botón de eliminar con confirmación -->
-                        <button type="button"
-                                class="btn btn-modern btn-danger-modern"
-                                data-bs-toggle="modal"
-                                data-bs-target="#deleteModal">
-                            <i class="fas fa-trash me-2"></i>Eliminar Venta
-                        </button>
-                    </div>
+                    <!-- Botón de eliminar con confirmación -->
+                    <button type="button"
+                            class="btn btn-modern btn-danger-modern"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteModal">
+                        <i class="fas fa-trash me-2"></i>Eliminar Venta
+                    </button>
                 </div>
             </div>
         </div>
@@ -282,7 +283,7 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Animación suave para las tarjetas
             const cards = document.querySelectorAll('.stats-card, .info-item');
             cards.forEach((card, index) => {

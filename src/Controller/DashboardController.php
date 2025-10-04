@@ -16,58 +16,57 @@ class DashboardController extends AbstractController
 {
     #[Route('/dashboard', name: 'app_dashboard_index')]
     public function index(
-        ProductoRepository $productoRepository,
-        VentaRepository $ventaRepository,
-        CompraRepository $compraRepository,
-        ClienteRepository $clienteRepository,
+        ProductoRepository     $productoRepository,
+        VentaRepository        $ventaRepository,
+        CompraRepository       $compraRepository,
+        ClienteRepository      $clienteRepository,
         EntityManagerInterface $entityManager
-    ): Response {
+    ): Response
+    {
         $connection = $entityManager->getConnection();
 
-        // Obtener estadísticas en tiempo real
-        try {
-            // Ventas de hoy
-            $ventasHoy = $ventaRepository->createQueryBuilder('v')
-                ->select('COUNT(v.id) as total, COALESCE(SUM(v.total), 0) as monto')
-                ->where('v.fecha >= :hoy')
-                ->andWhere('v.estado = :estado')
-                ->setParameter('hoy', new \DateTime('today'))
-                ->setParameter('estado', 'completada')
-                ->getQuery()
-                ->getSingleResult();
+        // Ventas de hoy
+        $ventasHoy = $ventaRepository->createQueryBuilder('v')
+            ->select('COUNT(v.id) as total, COALESCE(SUM(v.total), 0) as monto')
+            ->where('v.fecha >= :hoy')
+            ->andWhere('v.estado = :estado')
+            ->setParameter('hoy', new \DateTime('today'))
+            ->setParameter('estado', 'completada')
+            ->getQuery()
+            ->getSingleResult();
 
-            // Productos activos e inactivos
-            $productosActivos = $productoRepository->count(['activo' => true]);
-            $productosInactivos = $productoRepository->count(['activo' => false]);
-            $totalProductos = $productosActivos + $productosInactivos;
+        // Productos activos e inactivos
+        $productosActivos = $productoRepository->count(['activo' => true]);
+        $productosInactivos = $productoRepository->count(['activo' => false]);
+        $totalProductos = $productosActivos + $productosInactivos;
 
-            // Clientes registrados
-            $totalClientes = $clienteRepository->count([]);
+        // Clientes registrados
+        $totalClientes = $clienteRepository->count([]);
 
-            // Nuevos clientes este mes
-            $primerDiaMes = new \DateTime('first day of this month');
-            $nuevosClientesMes = $clienteRepository->createQueryBuilder('c')
-                ->select('COUNT(c.id)')
-                ->where('c.fechaRegistro >= :mes')
-                ->setParameter('mes', $primerDiaMes)
-                ->getQuery()
-                ->getSingleScalarResult();
+        // Nuevos clientes este mes
+        $primerDiaMes = new \DateTime('first day of this month');
+        $nuevosClientesMes = $clienteRepository->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('c.fecha_registro >= :mes')
+            ->setParameter('mes', $primerDiaMes)
+            ->getQuery()
+            ->getSingleScalarResult();
 
-            // Compras del mes
-            $comprasMes = $compraRepository->createQueryBuilder('c')
-                ->select('COUNT(c.id)')
-                ->where('c.fecha >= :mes')
-                ->andWhere('c.estado = :estado')
-                ->setParameter('mes', $primerDiaMes)
-                ->setParameter('estado', 'completada')
-                ->getQuery()
-                ->getSingleScalarResult();
+        // Compras del mes
+        $comprasMes = $compraRepository->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('c.fecha >= :mes')
+            ->andWhere('c.estado = :estado')
+            ->setParameter('mes', $primerDiaMes)
+            ->setParameter('estado', 'completada')
+            ->getQuery()
+            ->getSingleScalarResult();
 
-            // Compras pendientes
-            $comprasPendientes = $compraRepository->count(['estado' => 'pendiente']);
+        // Compras pendientes
+        $comprasPendientes = $compraRepository->count(['estado' => 'pendiente']);
 
-            // Productos con stock bajo (usando consulta nativa para mejor performance)
-            $sqlStockBajo = "
+        // Productos con stock bajo (usando consulta nativa para mejor performance)
+        $sqlStockBajo = "
                 SELECT COUNT(*) as total
                 FROM producto p
                 WHERE p.activo = true
@@ -82,10 +81,10 @@ class DashboardController extends AbstractController
                     WHERE p2.id = p.id
                 ) <= p.stock_minimo
             ";
-            $productosStockBajo = $connection->executeQuery($sqlStockBajo)->fetchOne();
+        $productosStockBajo = $connection->executeQuery($sqlStockBajo)->fetchOne();
 
-            // Productos agotados
-            $sqlAgotados = "
+        // Productos agotados
+        $sqlAgotados = "
                 SELECT COUNT(*) as total
                 FROM producto p
                 WHERE p.activo = true
@@ -99,32 +98,18 @@ class DashboardController extends AbstractController
                     WHERE p2.id = p.id
                 ) <= 0
             ";
-            $productosAgotados = $connection->executeQuery($sqlAgotados)->fetchOne();
+        $productosAgotados = $connection->executeQuery($sqlAgotados)->fetchOne();
 
-            // Ventas del mes
-            $ventasMes = $ventaRepository->createQueryBuilder('v')
-                ->select('COALESCE(SUM(v.total), 0)')
-                ->where('v.fecha >= :mes')
-                ->andWhere('v.estado = :estado')
-                ->setParameter('mes', $primerDiaMes)
-                ->setParameter('estado', 'completada')
-                ->getQuery()
-                ->getSingleScalarResult();
+        // Ventas del mes
+        $ventasMes = $ventaRepository->createQueryBuilder('v')
+            ->select('COALESCE(SUM(v.total), 0)')
+            ->where('v.fecha >= :mes')
+            ->andWhere('v.estado = :estado')
+            ->setParameter('mes', $primerDiaMes)
+            ->setParameter('estado', 'completada')
+            ->getQuery()
+            ->getSingleScalarResult();
 
-        } catch (\Exception $e) {
-            // En caso de error, establecer valores por defecto
-            $ventasHoy = ['total' => 0, 'monto' => 0];
-            $productosActivos = 0;
-            $productosInactivos = 0;
-            $totalProductos = 0;
-            $totalClientes = 0;
-            $nuevosClientesMes = 0;
-            $comprasMes = 0;
-            $comprasPendientes = 0;
-            $productosStockBajo = 0;
-            $productosAgotados = 0;
-            $ventasMes = 0;
-        }
 
         return $this->render('dashboard/index.html.twig', [
             'ventasHoy' => $ventasHoy,

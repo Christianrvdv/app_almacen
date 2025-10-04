@@ -210,30 +210,28 @@
             {% endif %}
 
             <!-- Acciones -->
-            <div class="stats-card">
-                <div class="card-header-modern">
-                    <i class="fas fa-cogs me-2"></i>Acciones
-                </div>
-                <div class="card-body p-4">
-                    <div class="action-buttons">
-                        <a href="{{ path('app_categoria_edit', {'id': categoria.id}) }}"
-                           class="btn btn-modern btn-warning-modern">
-                            <i class="fas fa-edit me-2"></i>Editar Categoría
-                        </a>
+            <h3 class="section-title">
+                <i class="fas fa-cogs me-2"></i>Acciones
+            </h3>
+            <div class="form-section">
+                <div class="action-buttons">
+                    <a href="{{ path('app_categoria_edit', {'id': categoria.id}) }}"
+                       class="btn btn-modern btn-warning-modern">
+                        <i class="fas fa-edit me-2"></i>Editar Categoría
+                    </a>
 
-                        <a href="{{ path('app_categoria_index') }}"
-                           class="btn btn-modern btn-primary-modern">
-                            <i class="fas fa-list me-2"></i>Volver al Listado
-                        </a>
+                    <a href="{{ path('app_categoria_index') }}"
+                       class="btn btn-modern btn-primary-modern">
+                        <i class="fas fa-list me-2"></i>Volver al Listado
+                    </a>
 
-                        <!-- Botón de eliminar con confirmación -->
-                        <button type="button"
-                                class="btn btn-modern btn-danger-modern"
-                                data-bs-toggle="modal"
-                                data-bs-target="#deleteModal">
-                            <i class="fas fa-trash me-2"></i>Eliminar Categoría
-                        </button>
-                    </div>
+                    <!-- Botón de eliminar con confirmación -->
+                    <button type="button"
+                            class="btn btn-modern btn-danger-modern"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteModal">
+                        <i class="fas fa-trash me-2"></i>Eliminar Categoría
+                    </button>
                 </div>
             </div>
         </div>

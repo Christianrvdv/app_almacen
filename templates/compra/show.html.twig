@@ -4,259 +4,7 @@
 
 {% block stylesheets %}
     {{ parent() }}
-    <style>
-        :root {
-            --primary-color: #4361ee;
-            --success-color: #06d6a0;
-            --danger-color: #ef476f;
-            --warning-color: #ffd166;
-            --info-color: #118ab2;
-            --dark-color: #2b2d42;
-            --light-color: #f8f9fa;
-        }
-
-        .page-header {
-            background: linear-gradient(135deg, var(--primary-color), #3a56d4);
-            color: white;
-            padding: 2rem 0;
-            margin-bottom: 2rem;
-            border-radius: 0 0 20px 20px;
-        }
-
-        .stats-card {
-            transition: all 0.3s ease;
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            background: white;
-            overflow: hidden;
-            margin-bottom: 1.5rem;
-        }
-
-        .stats-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-
-        .card-header-modern {
-            background: linear-gradient(135deg, var(--primary-color), #3a56d4);
-            color: white;
-            border: none;
-            font-weight: 600;
-            padding: 1.5rem;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .detalle-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .info-label {
-            font-size: 0.85rem;
-            color: #6c757d;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.5rem;
-        }
-
-        .info-value {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--dark-color);
-            margin-bottom: 0;
-        }
-
-        .price-highlight {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--success-color);
-        }
-
-        .badge-modern {
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            border: none;
-        }
-
-        .btn-modern {
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-modern:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .btn-primary-modern {
-            background: linear-gradient(135deg, var(--primary-color), #3a56d4);
-            color: white;
-        }
-
-        .btn-warning-modern {
-            background: linear-gradient(135deg, var(--warning-color), #ffb74d);
-            color: #000;
-        }
-
-        .btn-danger-modern {
-            background: linear-gradient(135deg, var(--danger-color), #e91e63);
-            color: white;
-        }
-
-        .btn-outline-modern {
-            background: transparent;
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        .btn-outline-modern:hover {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .section-title {
-            position: relative;
-            padding-left: 1rem;
-            margin: 2rem 0 1rem 0;
-            font-weight: 700;
-            color: var(--dark-color);
-        }
-
-        .section-title::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 4px;
-            height: 24px;
-            background: linear-gradient(135deg, var(--primary-color), #3a56d4);
-            border-radius: 2px;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .table-show {
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-        }
-
-        .table-show thead {
-            background: linear-gradient(135deg, var(--primary-color), #3a56d4);
-            color: white;
-        }
-
-        .table-show th {
-            border: none;
-            font-weight: 600;
-            padding: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.85rem;
-        }
-
-        .table-show td {
-            padding: 1rem;
-            border-bottom: 1px solid #f1f3f4;
-            vertical-align: middle;
-        }
-
-        .table-show tbody tr {
-            transition: all 0.3s ease;
-        }
-
-        .table-show tbody tr:hover {
-            background-color: rgba(67, 97, 238, 0.05);
-            transform: translateX(5px);
-        }
-
-        .product-name {
-            font-weight: 600;
-            color: var(--dark-color);
-        }
-
-        .product-category {
-            font-size: 0.8rem;
-            color: #6c757d;
-        }
-
-        .metadata {
-            background: rgba(67, 97, 238, 0.05);
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-top: 1.5rem;
-        }
-
-        .metadata-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .metadata-item:last-child {
-            border-bottom: none;
-        }
-
-        .metadata-label {
-            color: #6c757d;
-            font-weight: 500;
-        }
-
-        .metadata-value {
-            color: var(--dark-color);
-            font-weight: 600;
-        }
-
-        @media (max-width: 768px) {
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-
-            .btn-modern {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .table-responsive {
-                border-radius: 12px;
-            }
-
-            .table-show th,
-            .table-show td {
-                padding: 0.75rem 0.5rem;
-                font-size: 0.8rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
 {% endblock %}
 
 {% block body %}
@@ -375,7 +123,9 @@
             </div>
 
             <!-- Detalles de la Compra -->
-            <h4 class="section-title">📦 Detalles de la Compra</h4>
+            <h3 class="section-title">
+                <i class="fas fa-box me-2"></i>Detalles de la Compra
+            </h3>
             <div class="stats-card">
                 <div class="card-header-modern">
                     <i class="fas fa-list me-2"></i>Productos Comprados
@@ -466,30 +216,28 @@
             </div>
 
             <!-- Acciones -->
-            <div class="stats-card">
-                <div class="card-header-modern">
-                    <i class="fas fa-cogs me-2"></i>Acciones
-                </div>
-                <div class="card-body p-4">
-                    <div class="action-buttons">
-                        <a href="{{ path('app_compra_edit', {'id': compra.id}) }}"
-                           class="btn btn-modern btn-warning-modern">
-                            <i class="fas fa-edit me-2"></i>Editar Compra
-                        </a>
+            <h3 class="section-title">
+                <i class="fas fa-cogs me-2"></i>Acciones
+            </h3>
+            <div class="form-section">
+                <div class="action-buttons">
+                    <a href="{{ path('app_compra_edit', {'id': compra.id}) }}"
+                       class="btn btn-modern btn-warning-modern">
+                        <i class="fas fa-edit me-2"></i>Editar Compra
+                    </a>
 
-                        <a href="{{ path('app_compra_index') }}"
-                           class="btn btn-modern btn-primary-modern">
-                            <i class="fas fa-list me-2"></i>Volver al Listado
-                        </a>
+                    <a href="{{ path('app_compra_index') }}"
+                       class="btn btn-modern btn-primary-modern">
+                        <i class="fas fa-list me-2"></i>Volver al Listado
+                    </a>
 
-                        <!-- Botón de eliminar con confirmación -->
-                        <button type="button"
-                                class="btn btn-modern btn-danger-modern"
-                                data-bs-toggle="modal"
-                                data-bs-target="#deleteModal">
-                            <i class="fas fa-trash me-2"></i>Eliminar Compra
-                        </button>
-                    </div>
+                    <!-- Botón de eliminar con confirmación -->
+                    <button type="button"
+                            class="btn btn-modern btn-danger-modern"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteModal">
+                        <i class="fas fa-trash me-2"></i>Eliminar Compra
+                    </button>
                 </div>
             </div>
         </div>
@@ -524,7 +272,7 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Animación suave para las tarjetas
             const cards = document.querySelectorAll('.stats-card, .detalle-card');
             cards.forEach((card, index) => {
