@@ -19,8 +19,6 @@ class HistorialPreciosType extends AbstractType
                 'choices' => [
                     'Compra' => 'compra',
                     'Venta' => 'venta',
-                    'Promoción' => 'promocion',
-                    'Ajuste' => 'ajuste',
                 ],
                 'required' => true,
                 'placeholder' => 'Seleccione una opción',
@@ -29,11 +27,6 @@ class HistorialPreciosType extends AbstractType
             ->add('precio_nuevo')
             ->add('fecha_cambio')
             ->add('motivo')
-            ->add('producto', EntityType::class, [
-                'class' => Producto::class,
-                'choice_label' => 'nombre',
-                'placeholder' => 'Sin definir',
-            ])
         ;
     }
 

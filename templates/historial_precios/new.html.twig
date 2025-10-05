@@ -14,8 +14,9 @@
             <div class="container">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <a href="{{ path('app_historial_precios_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
-                            <i class="fas fa-arrow-left me-2"></i>Volver al Historial
+                        <a href="{{ path('app_producto_show', {'id':producto.id}) }}"
+                           class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Regresar
                         </a>
                     </div>
                     <div class="text-center text-white">
@@ -70,24 +71,49 @@
                     <div class="form-section">
                         <div class="row g-3">
                             <div class="col-md-6">
+
                                 <div class="form-group-modern">
-                                    {{ form_label(form.tipo, 'Tipo de Cambio', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
-                                    {{ form_widget(form.tipo, {'attr': {
-                                        'class': 'form-control form-control-modern form-select-modern',
-                                        'required': 'required'
-                                    }}) }}
-                                    {{ form_errors(form.tipo) }}
-                                    <div class="form-help-text">Selecciona el tipo de cambio de precio</div>
+                                    <div class="bg-light rounded p-3 me-3">
+                                        <i class="fas fa-cube text-primary fa-2x"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h5 class="fw-bold mb-1">{{ producto.nombre }}</h5>
+                                        <div class="d-flex flex-wrap gap-3">
+                                            {% if producto.codigoBarras %}
+                                                <small class="text-muted">
+                                                    <i class="fas fa-barcode me-1"></i>{{ producto.codigoBarras }}
+                                                </small>
+                                            {% endif %}
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>
+                                                Actualizado: {{ producto.fechaActualizacion ? producto.fechaActualizacion|date('d/m/Y') : 'N/A' }}
+                                            </small>
+                                            <small>
+                                                {% if producto.activo %}
+                                                    <span class="badge-modern text-success">
+                                            <i class="fas fa-check me-1"></i>Activo
+                                        </span>
+                                                {% else %}
+                                                    <span class="badge-modern text-secondary">
+                                            <i class="fas fa-times me-1"></i>Inactivo
+                                        </span>
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group-modern">
-                                    {{ form_label(form.producto, 'Producto', {'label_attr': {'class': 'form-label-modern'}}) }}
-                                    {{ form_widget(form.producto, {'attr': {
-                                        'class': 'form-control form-control-modern form-select-modern'
+                                    {{ form_label(form.tipo, 'Tipo de Cambio', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                    {{ form_widget(form.tipo, {'attr': {
+                                        'class': 'form-control form-control-modern form-select-modern',
+                                        'required': 'required',
+                                        'id': 'tipo_cambio'
                                     }}) }}
-                                    {{ form_errors(form.producto) }}
-                                    <div class="form-help-text">Producto asociado al cambio (opcional)</div>
+                                    {{ form_errors(form.tipo) }}
+                                    <div class="form-help-text">Selecciona el tipo de cambio de precio</div>
                                 </div>
                             </div>
                         </div>
@@ -110,7 +136,10 @@
                                             'step': '0.01',
                                             'min': '0',
                                             'required': 'required',
-                                            'placeholder': '0.00'
+                                            'placeholder': '0.00',
+                                            'id':'precio_anterior',
+                                            'readonly': 'readonly'
+
                                         }}) }}
                                     </div>
                                     {{ form_errors(form.precio_anterior) }}
@@ -161,7 +190,7 @@
                                     {{ form_label(form.fecha_cambio, 'Fecha del Cambio', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
                                     {{ form_widget(form.fecha_cambio, {'attr': {
                                         'class': 'form-control form-control-modern',
-                                        'required': 'required'
+                                        'readonly': 'readonly'
                                     }}) }}
                                     {{ form_errors(form.fecha_cambio) }}
                                     <div class="form-help-text">Fecha y hora en que se realizó el cambio</div>
@@ -212,7 +241,8 @@
                     <!-- Botones de Acción -->
                     <div class="form-section">
                         <div class="action-buttons">
-                            <a href="{{ path('app_historial_precios_index') }}" class="btn btn-modern btn-outline-modern">
+                            <a href="{{ path('app_producto_show', {'id':producto.id}) }}"
+                               class="btn btn-modern btn-outline-modern">
                                 <i class="fas fa-times me-2"></i>Cancelar
                             </a>
                             <button type="submit" class="btn btn-modern btn-primary-modern">
@@ -226,9 +256,8 @@
             </div>
         </div>
     </div>
-
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const tipoSelect = document.getElementById('{{ form.tipo.vars.id }}');
             const precioAnteriorInput = document.getElementById('{{ form.precio_anterior.vars.id }}');
             const precioNuevoInput = document.getElementById('{{ form.precio_nuevo.vars.id }}');
@@ -242,12 +271,68 @@
             const resumenNuevo = document.getElementById('resumenNuevo');
             const resumenDiferencia = document.getElementById('resumenDiferencia');
 
+            // Precios del producto desde el objeto producto pasado por el controlador
+            const preciosProducto = {
+                compra: {{ producto.getPrecioCompra() ?? 0 }},
+                venta: {{ producto.getPrecioVentaActual() ?? 0 }}
+            };
+
+            console.log('Precios del producto:', preciosProducto);
+
             // Establecer fecha actual por defecto si está vacía
             if (!fechaCambioInput.value) {
                 const now = new Date();
-                const localDateTime = now.toISOString().slice(0, 16);
-                fechaCambioInput.value = localDateTime;
+
+                // Convertir a zona horaria de Toronto
+                const torontoTime = now.toLocaleString("en-CA", {
+                    timeZone: "America/Toronto",
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                }).replace(', ', 'T').replace(/\//g, '-');
+
+                fechaCambioInput.value = torontoTime;
             }
+
+            // Función para actualizar el precio según el tipo seleccionado
+            function actualizarPrecio() {
+                const valorTipo = tipoSelect.value;
+                const helpText = document.querySelector('#{{ form.precio_anterior.vars.id }}').closest('.form-group-modern').querySelector('.form-help-text');
+
+                console.log('Actualizando precio para tipo:', valorTipo);
+
+                if (valorTipo === 'compra') {
+                    precioAnteriorInput.value = preciosProducto.compra;
+                    precioAnteriorInput.placeholder = preciosProducto.compra.toFixed(2);
+                    if (helpText) {
+                        helpText.textContent = 'Precio de compra actual del producto';
+                    }
+                } else if (valorTipo === 'venta') {
+                    precioAnteriorInput.value = preciosProducto.venta;
+                    precioAnteriorInput.placeholder = preciosProducto.venta.toFixed(2);
+                    if (helpText) {
+                        helpText.textContent = 'Precio de venta actual del producto';
+                    }
+                } else {
+                    precioAnteriorInput.value = '0.00';
+                    precioAnteriorInput.placeholder = '0.00';
+                    if (helpText) {
+                        helpText.textContent = 'Precio anterior del producto';
+                    }
+                }
+
+                // Recalcular el cambio después de actualizar el precio
+                calcularCambio();
+            }
+
+            // Asignar el evento change
+            tipoSelect.addEventListener('change', actualizarPrecio);
+
+            // Llamar a la función al cargar la página
+            actualizarPrecio();
 
             function calcularCambio() {
                 const precioAnterior = parseFloat(precioAnteriorInput.value) || 0;
@@ -293,8 +378,7 @@
                 }
             }
 
-            // Calcular cuando cambien los precios o el tipo
-            tipoSelect.addEventListener('change', calcularCambio);
+            // Calcular cuando cambien los precios
             precioAnteriorInput.addEventListener('input', calcularCambio);
             precioNuevoInput.addEventListener('input', calcularCambio);
 
@@ -303,7 +387,7 @@
 
             // Validación de formulario
             const form = document.querySelector('form');
-            form.addEventListener('submit', function(event) {
+            form.addEventListener('submit', function (event) {
                 if (!form.checkValidity()) {
                     event.preventDefault();
                     event.stopPropagation();
@@ -322,7 +406,7 @@
             // Remover clase de error cuando se complete el campo
             const requiredFields = form.querySelectorAll('[required]');
             requiredFields.forEach(field => {
-                field.addEventListener('input', function() {
+                field.addEventListener('input', function () {
                     if (this.value) {
                         this.classList.remove('is-invalid');
                     }
@@ -345,10 +429,10 @@
             // Efecto hover para la tarjeta de resumen
             const resumenCard = document.querySelector('.detalle-card');
             if (resumenCard) {
-                resumenCard.addEventListener('mouseenter', function() {
+                resumenCard.addEventListener('mouseenter', function () {
                     this.style.transform = 'translateY(-2px)';
                 });
-                resumenCard.addEventListener('mouseleave', function() {
+                resumenCard.addEventListener('mouseleave', function () {
                     this.style.transform = 'translateY(0)';
                 });
             }

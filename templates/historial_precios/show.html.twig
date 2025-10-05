@@ -225,12 +225,12 @@
             {% endif %}
 
             <!-- Acciones -->
-                <h3 class="section-title">
-                    <i class="fas fa-cogs me-2"></i>Acciones
-                </h3>
-                <div class="stat-item p-4">
-                    <div class="action-buttons">
-
+            <h3 class="section-title">
+                <i class="fas fa-cogs me-2"></i>Acciones
+            </h3>
+            <div class="stat-item p-4">
+                <div class="action-buttons">
+                    {% if ultimo_compra %}
                         <a href="{{ path('app_historial_precios_edit', {'id': historial_precio.id}) }}"
                            class="btn btn-modern btn-warning-modern">
                             <i class="fas fa-edit me-2"></i>Editar Registro
@@ -248,8 +248,15 @@
                                 data-bs-target="#deleteModal">
                             <i class="fas fa-trash me-2"></i>Eliminar Registro
                         </button>
-                    </div>
+                    {% else %}
+                        <a href="{{ path('app_historial_precios_index') }}"
+                           class="btn btn-modern btn-primary-modern">
+                            <i class="fas fa-list me-2"></i>Volver al Listado
+                        </a>
+                    {% endif %}
+
                 </div>
+            </div>
 
 
             <!-- Modal de Confirmación para Eliminar -->

@@ -141,7 +141,8 @@
                                             'class': 'form-control form-control-modern',
                                             'step': '0.01',
                                             'min': '0',
-                                            'required': 'required'
+                                            'required': 'required',
+                                            'readonly':'readonly'
                                         }}) }}
                                     </div>
                                     {{ form_errors(form.precio_compra) }}
@@ -157,7 +158,8 @@
                                             'class': 'form-control form-control-modern',
                                             'step': '0.01',
                                             'min': '0',
-                                            'required': 'required'
+                                            'required': 'required',
+                                            'readonly':'readonly'
                                         }}) }}
                                     </div>
                                     {{ form_errors(form.precio_venta_actual) }}
@@ -237,6 +239,11 @@
                         <div class="action-buttons">
                             <a href="{{ path('app_producto_index') }}" class="btn btn-modern btn-outline-modern">
                                 <i class="fas fa-times me-2"></i>Cancelar
+                            </a>
+
+                            <a href="{{ path('app_historial_precios_new', {'id': producto.id}) }}"
+                               class="btn btn-modern btn-warning-modern">
+                                <i class="fas fa-edit me-2"></i>Editar historial precio
                             </a>
                             <button type="submit" class="btn btn-modern btn-primary-modern">
                                 <i class="fas fa-save me-2"></i>Actualizar Producto

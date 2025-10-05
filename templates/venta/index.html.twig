@@ -14,7 +14,8 @@
             <div class="container">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <a href="{{ path('app_dashboard_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                        <a href="{{ path('app_dashboard_index') }}"
+                           class="btn btn-outline-light btn-sm rounded-pill px-3">
                             <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
                         </a>
                     </div>
@@ -92,7 +93,8 @@
             <div class="search-filter">
                 <div class="row align-items-center">
                     <div class="col-md-12">
-                        <input type="text" class="form-control form-control-modern" placeholder="🔍 Buscar ventas por ID, estado o tipo...">
+                        <input type="text" class="form-control form-control-modern"
+                               placeholder="🔍 Buscar ventas por ID, estado o tipo...">
                     </div>
                 </div>
             </div>
@@ -160,15 +162,11 @@
                                         </span>
                                     {% endif %}
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center text-muted">
                                     {% if venta.tipoVeenta %}
-                                        <span class="badge-modern text-info">
-                                            {{ venta.tipoVeenta|capitalize }}
-                                        </span>
+                                        {{ venta.tipoVeenta|capitalize }}
                                     {% else %}
-                                        <span class="badge-modern text-secondary">
-                                            No especificado
-                                        </span>
+                                        No especificado
                                     {% endif %}
                                 </td>
                                 <td class="text-center">
@@ -229,12 +227,12 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Funcionalidad básica de búsqueda
             const searchInput = document.querySelector('input[type="text"]');
             const tableRows = document.querySelectorAll('tbody tr');
 
-            searchInput.addEventListener('input', function(e) {
+            searchInput.addEventListener('input', function (e) {
                 const searchTerm = e.target.value.toLowerCase();
 
                 tableRows.forEach(row => {

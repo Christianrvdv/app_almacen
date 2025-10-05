@@ -74,10 +74,35 @@ final class ProductoController extends AbstractController
 
         if (!$producto) {
             throw $this->createNotFoundException('Producto no encontrado');
+        } else {
+            $detalles_ventas = $producto->getDetalleVentas();
+            $detalles_compras = $producto->getDetalleCompras();
+
+            $stock = 0;
+            $ingresos = 0;
+            $ventas = 0;
+
+            foreach ($detalles_compras as $detalle_compra) {
+                $stock = $stock + $detalle_compra->getCantidad();
+            }
+
+            foreach ($detalles_ventas as $detalle_venta) {
+                $stock = $stock - $detalle_venta->getCantidad();
+                $ventas = $ventas + $detalle_venta->getCantidad();
+                $ingresos = $ingresos + ($detalle_venta->getPrecioUnitario() * $detalle_venta->getCantidad());;
+            }
+            $margen = ($producto->getPrecioVentaActual() - $producto->getPrecioCompra()) / $producto->getPrecioCompra() * 100;
+
+            $modificaciones = $producto->getHistorialPrecios()->count();
         }
 
         return $this->render('producto/show.html.twig', [
             'producto' => $producto,
+            'stok' => $stock,
+            'ingresos' => $ingresos,
+            'ventas' => $ventas,
+            'margen' => $margen,
+            'modificaciones' => $modificaciones,
         ]);
     }
 
