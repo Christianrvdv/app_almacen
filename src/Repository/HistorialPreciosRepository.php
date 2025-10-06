@@ -30,5 +30,4 @@ class HistorialPreciosRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-
 }

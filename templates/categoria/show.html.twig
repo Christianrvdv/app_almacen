@@ -77,8 +77,8 @@
                                 <div class="stat-number text-success">...</div>
                                 <div class="stat-label">Productos Activos</div>
                             </div>
-                            <div class="stat-item loading" id="stat-ingresos">
-                                <div class="stat-number text-warning">...</div>
+                            <div class="stat-item loading">
+                                <div class="stat-number text-warning">$ {{ ingresos }}</div>
                                 <div class="stat-label">Ingresos Generados</div>
                             </div>
                         </div>
@@ -126,85 +126,83 @@
                     <i class="fas fa-cubes me-2"></i>Productos en esta Categoría ({{ categoria.productos|length }})
                 </h3>
                 <div class="table-modern">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead>
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Descripción</th>
+                            <th class="text-center">Estado</th>
+                            <th class="text-center">Actualizado</th>
+                            <th class="text-center">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for producto in  categoria.productos %}
                             <tr>
-                                <th>Producto</th>
-                                <th>Descripción</th>
-                                <th class="text-center">Estado</th>
-                                <th class="text-center">Actualizado</th>
-                                <th class="text-center">Acciones</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for producto in  categoria.productos %}
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="bg-light rounded p-2 me-3">
-                                                <i class="fas fa-cube text-primary"></i>
-                                            </div>
-                                            <div>
-                                                <div class="product-name">{{ producto.nombre }}</div>
-                                                <small class="text-muted">
-                                                    {% if producto.codigoBarras %}
-                                                        📋 {{ producto.codigoBarras }}
-                                                    {% else %}
-                                                        📋 Sin código
-                                                    {% endif %}
-                                                </small>
-                                            </div>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded p-2 me-3">
+                                            <i class="fas fa-cube text-primary"></i>
                                         </div>
-                                    </td>
-                                    <td>
+                                        <div>
+                                            <div class="product-name">{{ producto.nombre }}</div>
+                                            <small class="text-muted">
+                                                {% if producto.codigoBarras %}
+                                                    📋 {{ producto.codigoBarras }}
+                                                {% else %}
+                                                    📋 Sin código
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
                                         <span class="text-muted">
                                             {{ producto.descipcion ? (producto.descipcion|slice(0, 40) ~ (producto.descipcion|length > 40 ? '...' : '')) : 'Sin descripción' }}
                                         </span>
-                                    </td>
-                                    <td class="text-center">
-                                        {% if producto.activo %}
-                                            <span class="badge-modern text-success">
+                                </td>
+                                <td class="text-center">
+                                    {% if producto.activo %}
+                                        <span class="badge-modern text-success">
                                                 <i class="fas fa-check me-1"></i>Activo
                                             </span>
-                                        {% else %}
-                                            <span class="badge-modern text-secondary">
+                                    {% else %}
+                                        <span class="badge-modern text-secondary">
                                                 <i class="fas fa-times me-1"></i>Inactivo
                                             </span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center text-muted">
-                                        <small>{{ producto.fechaActualizacion ? producto.fechaActualizacion|date('d/m/Y') : 'N/A' }}</small>
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="action-buttons">
-                                            <a href="{{ path('app_producto_show', {'id': producto.id}) }}"
-                                               class="btn btn-modern btn-outline-modern" title="Ver detalles">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <a href="{{ path('app_producto_edit', {'id': producto.id}) }}"
-                                               class="btn btn-modern btn-primary-modern" title="Editar">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% else %}
-                                <tr>
-                                    <td colspan="7" class="empty-state">
-                                        <i class="fas fa-inbox"></i>
-                                        <h4 class="mt-3">No se encontraron productos</h4>
-                                        <p class="text-muted mb-3">Comienza agregando tu primer producto al catálogo</p>
-                                        <a href="{{ path('app_producto_new') }}"
-                                           class="btn btn-primary-modern btn-modern">
-                                            <i class="fas fa-plus-circle me-2"></i>Crear Primer Producto
+                                    {% endif %}
+                                </td>
+                                <td class="text-center text-muted">
+                                    <small>{{ producto.fechaActualizacion ? producto.fechaActualizacion|date('d/m/Y') : 'N/A' }}</small>
+                                </td>
+                                <td class="text-center">
+                                    <div class="action-buttons">
+                                        <a href="{{ path('app_producto_show', {'id': producto.id}) }}"
+                                           class="btn btn-modern btn-outline-modern" title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
                                         </a>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                                        <a href="{{ path('app_producto_edit', {'id': producto.id}) }}"
+                                           class="btn btn-modern btn-primary-modern" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="empty-state">
+                                    <i class="fas fa-inbox"></i>
+                                    <h4 class="mt-3">No se encontraron productos</h4>
+                                    <p class="text-muted mb-3">Comienza agregando tu primer producto al catálogo</p>
+                                    <a href="{{ path('app_producto_new') }}"
+                                       class="btn btn-primary-modern btn-modern">
+                                        <i class="fas fa-plus-circle me-2"></i>Crear Primer Producto
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
 
             {% endif %}
@@ -301,7 +299,6 @@
                 // Actualizar las estadísticas
                 document.getElementById('stat-productos').querySelector('.stat-number').textContent = stats.productos;
                 document.getElementById('stat-activos').querySelector('.stat-number').textContent = stats.activos;
-                document.getElementById('stat-ingresos').querySelector('.stat-number').textContent = '$' + stats.ingresos.toLocaleString('es-ES', {minimumFractionDigits: 2});
 
                 // Remover clase de loading
                 document.querySelectorAll('.stat-item').forEach(item => {

@@ -230,15 +230,15 @@
             </h3>
             <div class="stat-item p-4">
                 <div class="action-buttons">
-                    {% if ultimo_compra %}
+                    {% if ultimo_venta or ultimo_compra %}
                         <a href="{{ path('app_historial_precios_edit', {'id': historial_precio.id}) }}"
                            class="btn btn-modern btn-warning-modern">
                             <i class="fas fa-edit me-2"></i>Editar Registro
                         </a>
 
-                        <a href="{{ path('app_historial_precios_index') }}"
+                        <a href="{{ path('app_producto_show', {'id': historial_precio.producto.id})  }}"
                            class="btn btn-modern btn-primary-modern">
-                            <i class="fas fa-list me-2"></i>Volver al Listado
+                            <i class="fas fa-list me-2"></i>Regresar
                         </a>
 
                         <!-- Botón de eliminar con confirmación -->
@@ -249,9 +249,9 @@
                             <i class="fas fa-trash me-2"></i>Eliminar Registro
                         </button>
                     {% else %}
-                        <a href="{{ path('app_historial_precios_index') }}"
+                        <a href="{{ path('app_producto_show', {'id': historial_precio.producto.id})  }}"
                            class="btn btn-modern btn-primary-modern">
-                            <i class="fas fa-list me-2"></i>Volver al Listado
+                            <i class="fas fa-list me-2"></i>Regresar
                         </a>
                     {% endif %}
 

@@ -45,7 +45,9 @@ final class HistorialPreciosController extends AbstractController
                 $entityManager->flush();
 
 
-                return $this->redirectToRoute('app_historial_precios_index', [], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('app_producto_show', [
+                    'id' => $producto->getId()
+                ], Response::HTTP_SEE_OTHER);
 
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Error al actualizar el precio: ' . $e->getMessage());
@@ -62,16 +64,11 @@ final class HistorialPreciosController extends AbstractController
     #[Route('/{id}', name: 'app_historial_precios_show', methods: ['GET'])]
     public function show(HistorialPrecios $historialPrecio, HistorialPreciosRepository $historialPreciosRepository): Response
     {
-        $esUltimoVenta = false;
-        $esUltimoCompra = false;
+        $ultimoVenta = $historialPreciosRepository->findLastByProductAndType($historialPrecio->getProducto(), 'venta');
+        $ultimoCompra = $historialPreciosRepository->findLastByProductAndType($historialPrecio->getProducto(), 'compra');
+        $esUltimoVenta = $ultimoVenta && $ultimoVenta->getId() === $historialPrecio->getId();
+        $esUltimoCompra = $ultimoCompra && $ultimoCompra->getId() === $historialPrecio->getId();
 
-        if ($historialPrecio->getProducto()) {
-            $ultimoVenta = $historialPreciosRepository->findLastByProductAndType($historialPrecio->getProducto(), "venta");
-            $ultimoCompra = $historialPreciosRepository->findLastByProductAndType($historialPrecio->getProducto(), "compra");
-
-            $esUltimoVenta = $ultimoVenta && $ultimoVenta->getId() === $historialPrecio->getId();
-            $esUltimoCompra = $ultimoCompra && $ultimoCompra->getId() === $historialPrecio->getId();
-        }
         return $this->render('historial_precios/show.html.twig', [
             'historial_precio' => $historialPrecio,
             'ultimo_venta' => $esUltimoVenta,
@@ -104,17 +101,6 @@ final class HistorialPreciosController extends AbstractController
             'historial_precio' => $historialPrecio,
             'form' => $form,
         ]);
-    }
-
-    #[Route('/{id}', name: 'app_historial_precios_delete', methods: ['POST'])]
-    public function delete(Request $request, HistorialPrecios $historialPrecio, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete' . $historialPrecio->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($historialPrecio);
-            $entityManager->flush();
-        }
-
-        return $this->redirectToRoute('app_historial_precios_index', [], Response::HTTP_SEE_OTHER);
     }
 
     #[Route('/{id}', name: 'app_historial_precios_delete_new', methods: ['POST'])]

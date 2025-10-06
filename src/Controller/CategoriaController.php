@@ -45,8 +45,17 @@ final class CategoriaController extends AbstractController
     #[Route('/{id}', name: 'app_categoria_show', methods: ['GET'])]
     public function show(Categoria $categoria): Response
     {
+        $productos = $categoria->getProductos();
+        $ingresos = 0;
+        foreach ($productos as $producto) {
+            foreach ($producto->getDetalleVentas() as $detalleVenta) {
+                $ingresos = $ingresos + ($detalleVenta->getPrecioUnitario() * $detalleVenta->getCantidad());
+            }
+        }
+
         return $this->render('categoria/show.html.twig', [
             'categoria' => $categoria,
+            'ingresos' => $ingresos,
         ]);
     }
 
@@ -59,7 +68,9 @@ final class CategoriaController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_categoria_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_categoria_show', [
+                'id' => $categoria->getId(),
+            ], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('categoria/edit.html.twig', [

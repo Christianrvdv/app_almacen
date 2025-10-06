@@ -52,7 +52,7 @@
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <div class="metric-value text-success">
-                                {% set pagadas = compras|filter(c => c.estado|lower == 'pagada') %}
+                                {% set pagadas = compras|filter(c => c.estado|lower == 'completada') %}
                                 {{ pagadas|length }}
                             </div>
                             <div class="metric-label">Compras Pagadas</div>

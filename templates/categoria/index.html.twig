@@ -65,8 +65,7 @@
                                 <i class="fas fa-boxes"></i>
                             </div>
                             <div class="metric-value text-info">
-                                <!-- Aquí podrías mostrar el número de categorías con productos si tienes esa relación -->
-                                {{ categorias|length }}
+                                {{ categorias|filter(c => c.productos is not empty)|length }}
                             </div>
                             <div class="metric-label">En Uso</div>
                         </div>
