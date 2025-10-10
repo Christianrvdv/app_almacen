@@ -50,8 +50,16 @@ final class ClienteController extends AbstractController
     #[Route('/{id}', name: 'app_cliente_show', methods: ['GET'])]
     public function show(Cliente $cliente): Response
     {
+        $ventas = $cliente->getVentas();
+        $deuda = 0;
+        foreach ($ventas as $venta) {
+            if ($venta->getEstado() != 'completada') {
+                $deuda += $venta->getTotal();
+            }
+        }
         return $this->render('cliente/show.html.twig', [
             'cliente' => $cliente,
+            'deuda' => $deuda,
         ]);
     }
 
@@ -76,7 +84,7 @@ final class ClienteController extends AbstractController
     #[Route('/{id}', name: 'app_cliente_delete', methods: ['POST'])]
     public function delete(Request $request, Cliente $cliente, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$cliente->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $cliente->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($cliente);
             $entityManager->flush();
         }

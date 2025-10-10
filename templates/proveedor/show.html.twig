@@ -160,7 +160,6 @@
                                     <th>Producto</th>
                                     <th class="text-center">Precio Compra</th>
                                     <th class="text-center">Precio Venta</th>
-                                    <th class="text-center">Stock Mínimo</th>
                                     <th class="text-center">Estado</th>
                                     <th class="text-center">Acciones</th>
                                 </tr>
@@ -191,9 +190,7 @@
                                         <td class="text-center price-cell text-success">
                                             ${{ producto.precioVentaActual|number_format(2, ',', '.') }}
                                         </td>
-                                        <td class="text-center">
-                                            {{ producto.stockMinimo }} und.
-                                        </td>
+
                                         <td class="text-center">
                                             {% if producto.activo %}
                                                 <span class="badge-modern text-success">

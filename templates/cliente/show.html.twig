@@ -13,7 +13,8 @@
             <div class="container">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <a href="{{ path('app_cliente_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                        <a href="{{ path('app_cliente_index') }}"
+                           class="btn btn-outline-light btn-sm rounded-pill px-3">
                             <i class="fas fa-arrow-left me-2"></i>Volver al Listado
                         </a>
                     </div>
@@ -85,11 +86,18 @@
                         <i class="fas fa-chart-line me-2"></i>Información de Compras
                     </div>
                     <div class="card-body p-4">
+
                         <div class="detalle-card">
                             <div class="info-label">Compras Totales</div>
-                            <div class="info-value price-highlight">${{ cliente.compraTotales|number_format(2, ',', '.') }}</div>
+                            <div class="info-value price-highlight">
+                                ${{ cliente.compraTotales|number_format(2, ',', '.') }}</div>
                         </div>
-
+                        {% if deuda != 0 %}
+                            <div class="detalle-card">
+                                <div class="info-label">Deuda</div>
+                                <div class="text-danger price-highlight">${{ deuda|number_format(2, ',', '.') }}</div>
+                            </div>
+                        {% endif %}
                         <div class="detalle-card">
                             <div class="info-label">Total de Ventas</div>
                             <div class="info-value">
@@ -103,20 +111,6 @@
                             <div class="info-label">Cliente desde</div>
                             <div class="info-value">
                                 {{ cliente.fechaRegistro ? cliente.fechaRegistro|date('d/m/Y') : 'Fecha no disponible' }}
-                            </div>
-                        </div>
-
-                        <div class="detalle-card">
-                            <div class="info-label">Promedio por Venta</div>
-                            <div class="info-value">
-                                {% if cliente.ventas|length > 0 %}
-                                    {% set promedio = cliente.compraTotales / cliente.ventas|length %}
-                                    <span class="text-info fw-bold">
-                                        ${{ promedio|number_format(2, ',', '.') }}
-                                    </span>
-                                {% else %}
-                                    <span class="text-muted">Sin ventas</span>
-                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -264,9 +258,7 @@
                                             <div>
                                                 <div class="product-name">Venta #{{ venta.id }}</div>
                                                 <small class="text-muted">
-                                                    {# Comentado temporalmente hasta que definamos la relación correcta #}
-                                                    {# {{ venta.detalles|length }} productos #}
-                                                    Venta registrada
+                                                    Productos comprados: {{ venta.detalleVentas|length }}
                                                 </small>
                                             </div>
                                         </div>
@@ -285,9 +277,12 @@
                                         </span>
                                     </td>
                                     <td class="text-center">
-                                        <a href="#" class="btn btn-modern btn-outline-modern" title="Ver venta">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
+                                        <div class="action-buttons">
+                                            <a href="{{ path('app_venta_show', {'id': venta.id}) }}"
+                                               class="btn btn-modern btn-outline-modern" title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -359,7 +354,8 @@
                         <i class="fas fa-info-circle me-1"></i>
                         Esta acción no se puede deshacer y se perderán todos los datos asociados al cliente.
                         {% if cliente.ventas|length > 0 %}
-                            <br><strong>Advertencia:</strong> Este cliente tiene {{ cliente.ventas|length }} ventas asociadas.
+                            <br>
+                            <strong>Advertencia:</strong> Este cliente tiene {{ cliente.ventas|length }} ventas asociadas.
                         {% endif %}
                     </p>
                 </div>
@@ -375,7 +371,7 @@
 {% block javascripts %}
     {{ parent() }}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Animación suave para las tarjetas
             const cards = document.querySelectorAll('.stats-card, .detalle-card, .stat-item');
             cards.forEach((card, index) => {

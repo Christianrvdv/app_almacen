@@ -78,7 +78,7 @@
                                 <div class="stat-label">Productos Activos</div>
                             </div>
                             <div class="stat-item loading">
-                                <div class="stat-number text-warning">$ {{ ingresos }}</div>
+                                <div class="stat-number text-warning">$ {{ ingresos|number_format(2, ',', '.') }}</div>
                                 <div class="stat-label">Ingresos Generados</div>
                             </div>
                         </div>

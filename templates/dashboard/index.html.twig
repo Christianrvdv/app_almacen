@@ -18,7 +18,7 @@
                     <div class="mt-2">
                         <span class="badge-modern bg-light text-dark">
                             <i class="fas fa-clock me-1"></i>
-                            Actualizado al {{ "now"|date("d/m/Y H:i") }}
+                            Actualizado al {{ "now"|date("d/m/Y h:i A", "America/Toronto") }}
                         </span>
                     </div>
                 </div>
@@ -112,9 +112,6 @@
             <div class="module-grid">
                 <!-- Productos -->
                 <div class="module-card card-with-badge">
-                    {% if productosAgotados > 0 or productosStockBajo > 0 %}
-                        <div class="stat-badge">{{ productosAgotados + productosStockBajo }}</div>
-                    {% endif %}
                     <div class="module-header">
                         <div class="module-icon">
                             <i class="fas fa-boxes"></i>

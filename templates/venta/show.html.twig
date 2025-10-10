@@ -23,28 +23,28 @@
                         <p class="mb-0 opacity-75">Detalles completos de la venta</p>
                     </div>
                     <div>
-                        {% set statusClass = '' %}
-                        {% if venta.estado == 'completada' %}
-                            {% set statusClass = 'status-completed' %}
-                        {% elseif venta.estado == 'pendiente' %}
-                            {% set statusClass = 'status-pending' %}
-                        {% elseif venta.estado == 'cancelada' %}
-                            {% set statusClass = 'status-cancelled' %}
-                        {% endif %}
-                        <span class="status-badge {{ statusClass }}">
-                            <i class="fas
-                                {% if venta.estado == 'completada' %}fa-check-circle
-                                {% elseif venta.estado == 'pendiente' %}fa-clock
-                                {% elseif venta.estado == 'cancelada' %}fa-times-circle
-                                {% endif %} me-1"></i>
-                            {{ venta.estado|capitalize }}
-                        </span>
+                        <div class="btn-group">
+                            <a href="{{ path('app_venta_generate_pdf', {'id': venta.id}) }}"
+                               class="btn btn-modern btn-primary-modern">
+                                <i class="fas fa-file-pdf"></i> Generar PDF
+                            </a>
+                            <a href="{{ path('app_venta_download_pdf', {'id': venta.id}) }}"
+                               class="btn btn-modern btn-primary-modern">
+                                <i class="fas fa-download"></i> Descargar PDF
+                            </a>
+                            <a href="{{ path('app_venta_view_pdf', {'id': venta.id}) }}"
+                               target="_blank"
+                               class="btn btn-modern btn-primary-modern">
+                                <i class="fas fa-eye"></i> Ver PDF
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="container">
+
             <!-- Información Principal de la Venta -->
             <div class="info-grid">
                 <!-- Información General -->
@@ -158,7 +158,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for detalle in detalle_venta %}
+                            {% for detalle in venta.detalleVentas %}
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center">
@@ -191,10 +191,6 @@
                                                class="btn btn-modern btn-outline-modern" title="Ver detalles">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="{{ path('app_producto_edit', {'id': detalle.id}) }}"
-                                               class="btn btn-modern btn-primary-modern" title="Editar">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -209,7 +205,7 @@
                                 </tr>
                             {% endfor %}
                             </tbody>
-                            {% if detalle_venta is not empty %}
+                            {% if  venta.detalleVentas is not empty %}
                                 <tfoot>
                                 <tr class="table-active">
                                     <td colspan="3" class="text-end fw-bold">Total de Venta:</td>
