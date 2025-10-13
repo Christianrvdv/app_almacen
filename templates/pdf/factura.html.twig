@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Factura #{{ venta.id }}</title>
+    <style>
+        /* ===== ESTILOS GENERALES ===== */
+        body {
+            font-family: DejaVu Sans, Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+        }
+
+        .invoice-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            border: 1px solid #dddddd;
+            padding: 20px;
+            background-color: #ffffff;
+        }
+
+        h1, h2, h3, h4 {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ===== CABECERA ===== */
+        .header {
+            border-bottom: 2px solid #4361ee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .company-info, .invoice-info {
+            display: inline-block;
+            vertical-align: top;
+            width: 48%;
+        }
+
+        .invoice-info {
+            text-align: right;
+        }
+
+        .invoice-title {
+            font-size: 22px;
+            color: #4361ee;
+            font-weight: bold;
+        }
+
+        .invoice-number {
+            font-size: 16px;
+            margin-top: 4px;
+        }
+
+        /* ===== CLIENTE ===== */
+        .client-section {
+            background-color: #f2f4ff;
+            padding: 10px;
+            border-left: 4px solid #4361ee;
+            margin-bottom: 20px;
+        }
+
+        /* ===== TABLA DE ITEMS ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: #4361ee;
+            color: #ffffff;
+            padding: 8px;
+            border: 1px solid #4361ee;
+            text-align: left;
+        }
+
+        td {
+            border: 1px solid #dddddd;
+            padding: 8px;
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        /* ===== SECCIÓN DE TOTALES ===== */
+        .total-section {
+            margin-top: 20px;
+            border-top: 2px solid #4361ee;
+            padding-top: 10px;
+        }
+
+        .total-row {
+            width: 100%;
+            clear: both;
+            margin-bottom: 4px;
+        }
+
+        .total-label {
+            width: 70%;
+            float: left;
+            text-align: right;
+            padding-right: 10px;
+        }
+
+        .total-value {
+            width: 25%;
+            float: right;
+            text-align: right;
+        }
+
+        .grand-total {
+            font-weight: bold;
+            font-size: 14px;
+            color: #4361ee;
+        }
+
+        /* ===== ESTADOS ===== */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .status-completed {
+            background-color: #06d6a0;
+        }
+
+        .status-pending {
+            background-color: #ffd166;
+            color: #000000;
+        }
+
+        .status-cancelled {
+            background-color: #ef476f;
+        }
+
+        /* ===== FIRMAS ===== */
+        .signatures {
+            margin-top: 50px;
+            width: 100%;
+        }
+
+        .signature-box {
+            width: 45%;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .signature-line {
+            border-top: 1px solid #333333;
+            margin-top: 60px;
+            padding-top: 5px;
+        }
+
+        .signature-label {
+            font-size: 10px;
+            color: #6c757d;
+        }
+
+        /* ===== PIE DE PÁGINA ===== */
+        .footer {
+            margin-top: 40px;
+            padding-top: 10px;
+            border-top: 1px solid #dddddd;
+            text-align: center;
+            font-size: 10px;
+            color: #6c757d;
+        }
+
+        /* ===== LIMPIEZA FLOATS ===== */
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+    </style>
+</head>
+<body>
+<div class="invoice-container">
+    <!-- ENCABEZADO -->
+    <div class="header clearfix">
+        <div class="company-info">
+            <h2>EMPRESA XYZ</h2>
+            <p>Calle Principal #123</p>
+            <p>Teléfono: (123) 456-7890</p>
+            <p>RFC: XYZ123456789</p>
+        </div>
+        <div class="invoice-info">
+            <h1 class="invoice-title">FACTURA</h1>
+            <p class="invoice-number">#{{ venta.id }}</p>
+            <p>Fecha: {{ venta.fecha ? venta.fecha|date('d/m/Y') : 'N/A' }}</p>
+            <p>
+                Estado:
+                <span class="status-badge
+                        {% if venta.estado == 'completada' %}status-completed
+                        {% elseif venta.estado == 'pendiente' %}status-pending
+                        {% else %}status-cancelled{% endif %}">
+                        {{ venta.estado|capitalize }}
+                    </span>
+            </p>
+            <p>Método: {{ tipoVenta|capitalize }}</p>
+        </div>
+    </div>
+
+    <!-- CLIENTE -->
+    <div class="client-section">
+        <h3>Cliente: {{ clienteNombre }}</h3>
+        {% if venta.cliente and venta.cliente.telefono %}
+            <p>Teléfono: {{ venta.cliente.telefono }}</p>
+        {% endif %}
+        {% if venta.cliente and venta.cliente.direccion %}
+            <p>Dirección: {{ venta.cliente.direccion }}</p>
+        {% endif %}
+    </div>
+
+    <!-- TABLA DE PRODUCTOS -->
+    <table>
+        <thead>
+        <tr>
+            <th>Producto</th>
+            <th class="text-center">Cantidad</th>
+            <th class="text-right">Precio Unitario</th>
+            <th class="text-right">Subtotal</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for detalle in detalleVentas %}
+            <tr>
+                <td>{{ detalle.productoNombre }}</td>
+                <td class="text-center">{{ detalle.cantidad }}</td>
+                <td class="text-right">${{ detalle.precioUnitario|number_format(2, '.', ',') }}</td>
+                <td class="text-right">${{ detalle.subtotal|number_format(2, '.', ',') }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- TOTALES -->
+    <div class="total-section clearfix">
+        <div class="total-row">
+            <div class="total-label">Subtotal:</div>
+            <div class="total-value">${{ subtotal|number_format(2, '.', ',') }}</div>
+        </div>
+        <div class="total-row">
+            <div class="total-label">IVA (16%):</div>
+            <div class="total-value">${{ iva|number_format(2, '.', ',') }}</div>
+        </div>
+        <div class="total-row grand-total">
+            <div class="total-label">TOTAL:</div>
+            <div class="total-value">${{ total|number_format(2, '.', ',') }}</div>
+        </div>
+    </div>
+
+    <!-- FIRMAS -->
+    <div class="signatures">
+        <div class="signature-box">
+            <div class="signature-line">{{ clienteNombre }}</div>
+            <div class="signature-label">Firma del Cliente</div>
+        </div>
+        <div class="signature-box" style="float: right;">
+            <div class="signature-line">{{ vendedorNombre }}</div>
+            <div class="signature-label">Firma del Vendedor</div>
+        </div>
+    </div>
+
+    <!-- PIE DE PÁGINA -->
+    <div class="footer">
+        <p>¡Gracias por su compra!</p>
+        <p>Este documento es una factura generada electrónicamente</p>
+        <p>Fecha de generación: {{ "now"|date('d/m/Y H:i:s') }}</p>
+    </div>
+</div>
+</body>
+</html>
