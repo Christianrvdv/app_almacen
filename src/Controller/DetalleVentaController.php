@@ -25,35 +25,35 @@ final class DetalleVentaController extends AbstractController
     #[Route('/new', name: 'app_detalle_venta_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $detalleVentum = new DetalleVenta();
-        $form = $this->createForm(DetalleVentaType::class, $detalleVentum);
+        $detalleVenta = new DetalleVenta();
+        $form = $this->createForm(DetalleVentaType::class, $detalleVenta);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($detalleVentum);
+            $entityManager->persist($detalleVenta);
             $entityManager->flush();
 
             return $this->redirectToRoute('app_detalle_venta_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('detalle_venta/new.html.twig', [
-            'detalle_ventas' => $detalleVentum,
+            'detalle_ventas' => $detalleVenta,
             'form' => $form,
         ]);
     }
 
     #[Route('/{id}', name: 'app_detalle_venta_show', methods: ['GET'])]
-    public function show(DetalleVenta $detalleVentum): Response
+    public function show(DetalleVenta $detalleVenta): Response
     {
         return $this->render('detalle_venta/show.html.twig', [
-            'detalle_ventas' => $detalleVentum,
+            'detalle_ventas' => $detalleVenta,
         ]);
     }
 
     #[Route('/{id}/edit', name: 'app_detalle_venta_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, DetalleVenta $detalleVentum, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, DetalleVenta $detalleVenta, EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(DetalleVentaType::class, $detalleVentum);
+        $form = $this->createForm(DetalleVentaType::class, $detalleVenta);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -63,16 +63,16 @@ final class DetalleVentaController extends AbstractController
         }
 
         return $this->render('detalle_venta/edit.html.twig', [
-            'detalle_ventas' => $detalleVentum,
+            'detalle_ventas' => $detalleVenta,
             'form' => $form,
         ]);
     }
 
     #[Route('/{id}', name: 'app_detalle_venta_delete', methods: ['POST'])]
-    public function delete(Request $request, DetalleVenta $detalleVentum, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, DetalleVenta $detalleVenta, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$detalleVentum->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($detalleVentum);
+        if ($this->isCsrfTokenValid('delete'.$detalleVenta->getId(), $request->getPayload()->getString('_token'))) {
+            $entityManager->remove($detalleVenta);
             $entityManager->flush();
         }
 

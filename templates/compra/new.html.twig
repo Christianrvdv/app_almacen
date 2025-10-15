@@ -180,17 +180,17 @@
                                         </div>
                                         <div class="col-md-3 mb-3">
                                             <div class="form-group-modern">
-                                                {{ form_label(detalle.precio_compra, 'Precio Compra', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
+                                                {{ form_label(detalle.precioUnitario, 'Precio Compra', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
                                                 <div class="input-group input-group-modern">
                                                     <span class="input-group-text input-group-text-modern">$</span>
-                                                    {{ form_widget(detalle.precio_compra, {'attr': {
+                                                    {{ form_widget(detalle.precioUnitario, {'attr': {
                                                         'class': 'form-control form-control-modern',
                                                         'step': '0.01',
                                                         'min': '0',
                                                         'required': 'required'
                                                     }}) }}
                                                 </div>
-                                                {{ form_errors(detalle.precio_compra) }}
+                                                {{ form_errors(detalle.precioUnitario) }}
                                             </div>
                                         </div>
                                         <div class="col-md-3 mb-3">
@@ -257,7 +257,7 @@
 
                 document.querySelectorAll('.detalle-card').forEach(card => {
                     const cantidad = parseFloat(card.querySelector('[id$="_cantidad"]').value) || 0;
-                    const precio = parseFloat(card.querySelector('[id$="_precio_compra"]').value) || 0;
+                    const precio = parseFloat(card.querySelector('[id$="_precioUnitario"]').value) || 0;
                     const subtotal = cantidad * precio;
 
                     // Actualizar subtotal
@@ -349,7 +349,7 @@
             // Función para asignar eventos a los campos de un detalle
             function asignarEventosDetalle(detalleCard) {
                 const cantidadInput = detalleCard.querySelector('[id$="_cantidad"]');
-                const precioInput = detalleCard.querySelector('[id$="_precio_compra"]');
+                const precioInput = detalleCard.querySelector('[id$="_precioUnitario"]');
 
                 if (cantidadInput) {
                     cantidadInput.addEventListener('input', calcularTotales);
@@ -393,7 +393,7 @@
 
             // Auto-calcular total cuando cambian los detalles
             document.addEventListener('input', function(e) {
-                if (e.target.matches('[id$="_cantidad"], [id$="_precio_compra"]')) {
+                if (e.target.matches('[id$="_cantidad"], [id$="_precioUnitario"]')) {
                     calcularTotales();
                 }
             });

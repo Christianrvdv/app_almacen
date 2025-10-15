@@ -23,10 +23,10 @@
                         <p class="mb-0 opacity-75">Detalles completos del producto</p>
                     </div>
                     <div>
-                        <span class="badge-modern {% if producto.activo %}bg-success{% else %}bg-secondary{% endif %}">
-                            <i class="fas {% if producto.activo %}fa-check-circle{% else %}fa-times-circle{% endif %} me-1"></i>
-                            {% if producto.activo %}Activo{% else %}Inactivo{% endif %}
-                        </span>
+                        <a href="{{ path('app_compra_new_by_id',  {'id':producto.id}) }}"
+                           class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas me-2"></i>Nueva Compra
+                        </a>
                     </div>
                 </div>
             </div>

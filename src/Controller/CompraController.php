@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Compra;
 use App\Entity\DetalleCompra;
+use App\Entity\Producto;
 use App\Form\CompraType;
 use App\Form\DetalleCompraType;
 use App\Repository\CompraRepository;
@@ -58,6 +59,51 @@ final class CompraController extends AbstractController
             'compra' => $compra,
             'form' => $form,
             'formDetalle' => $formDetalle,
+        ]);
+    }
+
+
+    #[Route('/new/{id}', name: 'app_compra_new_by_id', methods: ['GET', 'POST'])]
+    public function newByID(Request $request, EntityManagerInterface $entityManager, Producto $producto): Response
+    {
+        $fecha_actual = new \DateTime('now', new \DateTimeZone('America/Toronto'));
+        $compra = new Compra();
+        $compra->setFecha($fecha_actual);
+        $compra->setProveedor($producto->getProveedor());
+
+        // Crear y agregar el detalle a la compra
+        $detalleCompra = new DetalleCompra();
+        $detalleCompra->setProducto($producto);
+        $detalleCompra->setPrecioUnitario($producto->getPrecioCompra());
+        $detalleCompra->setCantidad(0);
+        $detalleCompra->setSubtotal(0); // También establecer subtotal en 0
+
+        // AGREGAR EL DETALLE A LA COMPRA
+        $compra->addDetalleCompra($detalleCompra);
+
+        $form = $this->createForm(CompraType::class, $compra);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            foreach ($compra->getDetalleCompras() as $detalle) {
+                $detalle->setSubtotal(
+                    $detalle->getCantidad() * $detalle->getPrecioUnitario());
+                $entityManager->persist($detalle);
+            }
+
+            $entityManager->persist($compra);
+            $entityManager->flush();
+
+            return $this->redirectToRoute(
+                'app_compra_show',
+                ['id' => $compra->getId()],
+                Response::HTTP_SEE_OTHER);
+        }
+
+        // El formDetalle separado ya no es necesario si el detalle está en la compra
+        return $this->render('compra/new.html.twig', [
+            'compra' => $compra,
+            'form' => $form,
         ]);
     }
 
