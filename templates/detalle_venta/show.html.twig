@@ -1,42 +1,317 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Detalle de Venta #{{ detalle_ventas.id }}{% endblock %}
+{% block title %}Detalle de Venta #{{ detalle_ventas.id }} - Sistema de Ventas{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="fw-bold text-primary">Detalle de Venta #{{ detalle_ventas.id }}</h1>
-            <a href="{{ path('app_detalle_venta_index') }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1"></i>Regresar al listado
-            </a>
-        </div>
-
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Cantidad</div>
-                    <div class="col-sm-9">{{ detalle_ventas.cantidad }}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Precio unitario</div>
-                    <div class="col-sm-9">$ {{ detalle_ventas.precioUnitario|number_format(2, ',', '.') }}</div>
-                </div>
-                <div class="row mb-2">
-                    <div class="col-sm-3 fw-bold text-muted">Precio costo</div>
-                    <div class="col-sm-9">$ {{ detalle_ventas.precioCosto|number_format(2, ',', '.') }}</div>
-                </div>
-                <div class="row mb-0">
-                    <div class="col-sm-3 fw-bold text-muted">Subtotal</div>
-                    <div class="col-sm-9 h5 mb-0 text-success">$ {{ detalle_ventas.subtotal|number_format(2, ',', '.') }}</div>
+    <div class="container-fluid py-4">
+        <!-- Header con gradiente -->
+        <div class="page-header">
+            <div class="container">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <a href="{{ path('app_detalle_venta_index') }}"
+                           class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-arrow-left me-2"></i>Volver al Listado
+                        </a>
+                    </div>
+                    <div class="text-center text-white">
+                        <h1 class="fw-bold mb-1">💰 Detalle de Venta #{{ detalle_ventas.id }}</h1>
+                        <p class="mb-0 opacity-75">Información completa del detalle de venta</p>
+                    </div>
+                    <div>
+                        <a href="{{ path('app_detalle_venta_edit', {'id': detalle_ventas.id}) }}"
+                           class="btn btn-outline-light btn-sm rounded-pill px-3">
+                            <i class="fas fa-edit me-2"></i>Editar
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center">
-            <a href="{{ path('app_detalle_venta_edit', {'id': detalle_ventas.id}) }}" class="btn btn-warning btn-sm">
-                <i class="fas fa-edit me-1"></i>Editar
-            </a>
-            {{ include('detalle_venta/_delete_form.html.twig') }}
+        <div class="container">
+            <!-- Información Principal -->
+            <div class="info-grid">
+                <!-- Información de la Venta -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-receipt me-2"></i>Información de la Venta
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="product-image">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">ID del Detalle</div>
+                            <div class="info-value">#{{ detalle_ventas.id }}</div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Cantidad Vendida</div>
+                            <div class="info-value">
+                                <span class="badge-modern bg-primary fs-6">{{ detalle_ventas.cantidad }} unidades</span>
+                            </div>
+                        </div>
+
+                        {% if detalle_ventas.producto %}
+                            <div class="detalle-card">
+                                <div class="info-label">Producto</div>
+                                <div class="info-value">
+                                <span class="badge-modern bg-info">
+                                    <i class="fas fa-cube me-1"></i>{{ detalle_ventas.producto.nombre }}
+                                </span>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Información Financiera -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-chart-line me-2"></i>Información Financiera
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="detalle-card">
+                            <div class="info-label">Precio Unitario</div>
+                            <div class="info-value price-highlight">
+                                ${{ detalle_ventas.precioUnitario|number_format(2, ',', '.') }}
+                            </div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Precio de Costo</div>
+                            <div class="info-value price-cost">
+                                ${{ detalle_ventas.producto.precioCompra|number_format(2, ',', '.') }}
+                            </div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Subtotal</div>
+                            <div class="info-value total-highlight">
+                                ${{ detalle_ventas.subtotal|number_format(2, ',', '.') }}
+                            </div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Margen de Ganancia</div>
+                            <div class="info-value">
+                                {% set ganancia = detalle_ventas.precioUnitario - detalle_ventas.producto.precioCompra %}
+                                {% set margenPorcentaje = detalle_ventas.producto.precioCompra > 0 ? (ganancia / detalle_ventas.producto.precioCompra * 100) : 0 %}
+                                <span class="{% if margenPorcentaje > 0 %}text-success{% else %}text-danger{% endif %} fw-bold">
+                                    {{ margenPorcentaje|number_format(2) }}%
+                                </span>
+                                <small class="text-muted d-block">
+                                    (${{ ganancia|number_format(2, ',', '.') }} por unidad)
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información Adicional -->
+            <div class="info-grid">
+                <!-- Relaciones -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-network-wired me-2"></i>Relaciones
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="detalle-card">
+                            <div class="info-label">Venta Principal</div>
+                            <div class="info-value">
+                                {% if detalle_ventas.venta %}
+                                    <span class="badge-modern bg-warning text-dark">
+                                        <i class="fas fa-file-invoice-dollar me-1"></i>
+                                        Venta #{{ detalle_ventas.venta.id }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">Sin venta asociada</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="detalle-card">
+                            <div class="info-label">Producto Relacionado</div>
+                            <div class="info-value">
+                                {% if detalle_ventas.producto %}
+                                    <span class="badge-modern bg-success">
+                                        <i class="fas fa-box me-1"></i>
+                                        {{ detalle_ventas.producto.nombre }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">Sin producto asociado</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metadatos -->
+                <div class="stats-card">
+                    <div class="card-header-modern">
+                        <i class="fas fa-history me-2"></i>Metadatos
+                    </div>
+                    <div class="card-body">
+                        <div class="metadata">
+                            <div class="metadata-item">
+                                <span class="metadata-label">Estado</span>
+                                <span class="metadata-value">
+                                    <span class="badge-modern bg-success">
+                                        <i class="fas fa-check me-1"></i>Activo
+                                    </span>
+                                </span>
+                            </div>
+
+                            <div class="metadata-item">
+                                <span class="metadata-label">Total de la Venta</span>
+                                <span class="metadata-value text-success fw-bold">
+                                    ${{ detalle_ventas.subtotal|number_format(2, ',', '.') }}
+                                </span>
+                            </div>
+
+                            <div class="metadata-item">
+                                <span class="metadata-label">Unidades Vendidas</span>
+                                <span class="metadata-value fw-bold">
+                                    {{ detalle_ventas.cantidad }}
+                                </span>
+                            </div>
+
+                            <div class="metadata-item">
+                                <span class="metadata-label">ID del Detalle</span>
+                                <span class="metadata-value">
+                                    <code>#{{ detalle_ventas.id }}</code>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resumen Financiero -->
+            <h3 class="section-title">
+                <i class="fas fa-calculator me-2"></i>Resumen Financiero
+            </h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number text-primary">{{ detalle_ventas.cantidad }}</div>
+                    <div class="stat-label">Unidades Vendidas</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number text-success">${{ detalle_ventas.precioUnitario|number_format(2, ',', '.') }}</div>
+                    <div class="stat-label">Precio Unitario</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number text-warning">${{ detalle_ventas.producto.precioCompra|number_format(2, ',', '.') }}</div>
+                    <div class="stat-label">Precio de Costo</div>
+                </div>
+                <div class="stat-item">
+                    {% set gananciaTotal = (detalle_ventas.precioUnitario - detalle_ventas.producto.precioCompra) * detalle_ventas.cantidad %}
+                    <div class="stat-number {% if gananciaTotal > 0 %}text-success{% else %}text-danger{% endif %}">
+                        ${{ gananciaTotal|number_format(2, ',', '.') }}
+                    </div>
+                    <div class="stat-label">Ganancia Total</div>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <h3 class="section-title">
+                <i class="fas fa-cogs me-2"></i>Acciones
+            </h3>
+            <div class="form-section">
+                <div class="action-buttons">
+                    <a href="{{ path('app_detalle_venta_edit', {'id': detalle_ventas.id}) }}"
+                       class="btn btn-modern btn-warning-modern">
+                        <i class="fas fa-edit me-2"></i>Editar Detalle
+                    </a>
+
+                    <!-- Botón de eliminar con confirmación -->
+                    <button type="button"
+                            class="btn btn-modern btn-danger-modern"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteModal">
+                        <i class="fas fa-trash me-2"></i>Eliminar Detalle
+                    </button>
+
+                    {% if detalle_ventas.venta %}
+                        <a href="{{ path('app_venta_show', {'id': detalle_ventas.venta.id}) }}"
+                           class="btn btn-modern btn-outline-modern">
+                            <i class="fas fa-external-link-alt me-2"></i>Ver Venta Principal
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Modal de Confirmación para Eliminar -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Confirmar Eliminación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar el detalle de venta <strong>#{{ detalle_ventas.id }}</strong>?</p>
+                    <p class="text-danger small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Esta acción no se puede deshacer y se perderán todos los datos asociados a este detalle.
+                    </p>
+                    <div class="alert alert-warning mt-3">
+                        <strong>Información a eliminar:</strong><br>
+                        • {{ detalle_ventas.cantidad }} unidades de {{ detalle_ventas.producto ? detalle_ventas.producto.nombre : 'producto' }}<br>
+                        • Subtotal: ${{ detalle_ventas.subtotal|number_format(2, ',', '.') }}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    {{ include('detalle_venta/_delete_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Animación suave para las tarjetas
+            const cards = document.querySelectorAll('.stats-card, .detalle-card, .stat-item');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // Calculadora de ganancia en tiempo real
+            const precioUnitario = {{ detalle_ventas.precioUnitario }};
+            const precioCosto = {{ detalle_ventas.producto.precioCompra }};
+            const cantidad = {{ detalle_ventas.cantidad }};
+
+            const gananciaUnidad = precioUnitario - precioCosto;
+            const gananciaTotal = gananciaUnidad * cantidad;
+            const margenPorcentaje = precioCosto > 0 ? (gananciaUnidad / precioCosto * 100) : 0;
+
+            console.log('Resumen financiero:', {
+                gananciaPorUnidad: gananciaUnidad,
+                gananciaTotal: gananciaTotal,
+                margenPorcentaje: margenPorcentaje
+            });
+        });
+    </script>
 {% endblock %}

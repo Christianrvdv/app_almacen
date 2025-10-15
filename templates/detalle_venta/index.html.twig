@@ -32,7 +32,7 @@
                             <tr>
                                 <td>{{ detalle.cantidad }}</td>
                                 <td>$ {{ detalle.precioUnitario|number_format(2, ',', '.') }}</td>
-                                <td>$ {{ detalle.precioCosto|number_format(2, ',', '.') }}</td>
+                                <td>$ {{ detalle.precioUnitario|number_format(2, ',', '.') }}</td>
                                 <td><strong>$ {{ detalle.subtotal|number_format(2, ',', '.') }}</strong></td>
                                 <td class="text-center">
                                     <a href="{{ path('app_detalle_venta_show', {'id': detalle.id}) }}" class="btn btn-sm btn-outline-info me-1" title="Ver">
