@@ -31,8 +31,6 @@ class VentaType extends AbstractType
                 'choices' => [
                     'Completada' => 'completada',
                     'Pendiente' => 'pendiente',
-                    'Cancelada' => 'cancelada',
-                    'En proceso' => 'en_proceso',
                 ],
                 'required' => true,
                 'placeholder' => 'Selecciona un estado',
