@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\AjusteInventario;
+use App\Entity\Producto;
 use App\Form\AjusteInventarioType;
 use App\Repository\AjusteInventarioRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -41,6 +42,33 @@ final class AjusteInventarioController extends AbstractController
         // Establecer valores por defecto
         $ajusteInventario->setFecha(new \DateTime());
         $ajusteInventario->setUsuario($this->getUser() ? $this->getUser()->getUsername() : 'Sistema');
+
+        $form = $this->createForm(AjusteInventarioType::class, $ajusteInventario);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($ajusteInventario);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_ajuste_inventario_index', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('ajuste_inventario/new.html.twig', [
+            'ajuste_inventario' => $ajusteInventario,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/new/{id}', name: 'app_ajuste_inventario_new_by_id', methods: ['GET', 'POST'])]
+    public function newById(Request $request, EntityManagerInterface $entityManager, Producto $producto): Response
+    {
+        $ajusteInventario = new AjusteInventario();
+
+        // Establecer valores por defecto
+        $ajusteInventario->setFecha(new \DateTime());
+        $ajusteInventario->setUsuario($this->getUser() ? $this->getUser()->getUsername() : 'Sistema');
+        $ajusteInventario->setProducto($producto);
 
         $form = $this->createForm(AjusteInventarioType::class, $ajusteInventario);
 

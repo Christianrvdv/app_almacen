@@ -2,8 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\AjusteInventario;
 use App\Entity\Producto;
 use App\Form\ProductoType;
+use App\Repository\AjusteInventarioRepository;
 use App\Repository\ProductoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -77,6 +79,7 @@ final class ProductoController extends AbstractController
         } else {
             $detalles_ventas = $producto->getDetalleVentas();
             $detalles_compras = $producto->getDetalleCompras();
+            $ajustes_inventario = $producto->getAjusteInventarios();
 
             $stock = 0;
             $ingresos = 0;
@@ -90,6 +93,14 @@ final class ProductoController extends AbstractController
                 $stock = $stock - $detalle_venta->getCantidad();
                 $ventas = $ventas + $detalle_venta->getCantidad();
                 $ingresos = $ingresos + ($detalle_venta->getPrecioUnitario() * $detalle_venta->getCantidad());;
+            }
+
+            foreach ($ajustes_inventario as $ajuste_inventario) {
+                if ($ajuste_inventario -> getTipo() == "salida"){
+                    $stock = $stock - $ajuste_inventario->getCantidad();
+                }else{
+                    $stock = $stock + $ajuste_inventario->getCantidad();
+                }
             }
             $margen = ($producto->getPrecioVentaActual() - $producto->getPrecioCompra()) / $producto->getPrecioCompra() * 100;
 

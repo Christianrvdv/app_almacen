@@ -23,12 +23,7 @@
                         <h1 class="fw-bold mb-1">💰 Detalle de Venta #{{ detalle_ventas.id }}</h1>
                         <p class="mb-0 opacity-75">Información completa del detalle de venta</p>
                     </div>
-                    <div>
-                        <a href="{{ path('app_detalle_venta_edit', {'id': detalle_ventas.id}) }}"
-                           class="btn btn-outline-light btn-sm rounded-pill px-3">
-                            <i class="fas fa-edit me-2"></i>Editar
-                        </a>
-                    </div>
+                    <div style="width: 130px;"></div>
                 </div>
             </div>
         </div>
@@ -226,19 +221,6 @@
             </h3>
             <div class="form-section">
                 <div class="action-buttons">
-                    <a href="{{ path('app_detalle_venta_edit', {'id': detalle_ventas.id}) }}"
-                       class="btn btn-modern btn-warning-modern">
-                        <i class="fas fa-edit me-2"></i>Editar Detalle
-                    </a>
-
-                    <!-- Botón de eliminar con confirmación -->
-                    <button type="button"
-                            class="btn btn-modern btn-danger-modern"
-                            data-bs-toggle="modal"
-                            data-bs-target="#deleteModal">
-                        <i class="fas fa-trash me-2"></i>Eliminar Detalle
-                    </button>
-
                     {% if detalle_ventas.venta %}
                         <a href="{{ path('app_venta_show', {'id': detalle_ventas.venta.id}) }}"
                            class="btn btn-modern btn-outline-modern">
