@@ -642,6 +642,277 @@
         </div>
     </div>
 
+    <!-- Sección de Eficiencia de Inventario -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <h4 class="section-title">📦 Eficiencia de Inventario</h4>
+            <div class="stats-grid">
+                <div class="stats-card">
+                    <div class="metric-card">
+                        <div class="metric-icon text-success">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="metric-value text-success">{{ eficienciaInventario.porcentaje_optimo|number_format(1) }}%</div>
+                        <div class="metric-label">Stock Óptimo</div>
+                        <div class="progress progress-thin">
+                            <div class="progress-bar bg-success" style="width: {{ eficienciaInventario.porcentaje_optimo }}%"></div>
+                        </div>
+                        <small class="text-muted">{{ eficienciaInventario.stock_optimo }} de {{ eficienciaInventario.total_productos }} productos</small>
+                    </div>
+                </div>
+
+                <div class="stats-card">
+                    <div class="metric-card">
+                        <div class="metric-icon text-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="metric-value text-warning">{{ eficienciaInventario.stock_bajo }}</div>
+                        <div class="metric-label">Stock Bajo</div>
+                        <div class="progress progress-thin">
+                            <div class="progress-bar bg-warning" style="width: {{ (eficienciaInventario.stock_bajo / eficienciaInventario.total_productos * 100)|number_format(1) }}%"></div>
+                        </div>
+                        <small class="text-muted">{{ (eficienciaInventario.stock_bajo / eficienciaInventario.total_productos * 100)|number_format(1) }}% del inventario</small>
+                    </div>
+                </div>
+
+                <div class="stats-card">
+                    <div class="metric-card">
+                        <div class="metric-icon text-danger">
+                            <i class="fas fa-times-circle"></i>
+                        </div>
+                        <div class="metric-value text-danger">{{ eficienciaInventario.agotados }}</div>
+                        <div class="metric-label">Productos Agotados</div>
+                        <div class="progress progress-thin">
+                            <div class="progress-bar bg-danger" style="width: {{ (eficienciaInventario.agotados / eficienciaInventario.total_productos * 100)|number_format(1) }}%"></div>
+                        </div>
+                        <small class="text-muted">{{ (eficienciaInventario.agotados / eficienciaInventario.total_productos * 100)|number_format(1) }}% del inventario</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de Rotación y Rendimiento -->
+    <div class="row mt-4">
+        <div class="col-lg-6 mb-4">
+            <h4 class="section-title">🔄 Rotación de Productos</h4>
+            <div class="chart-container">
+                <div class="metric-card">
+                    <div class="metric-icon text-info">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <div class="metric-value text-info">{{ rotacionProductos.tasa_rotacion|number_format(1) }}%</div>
+                    <div class="metric-label">Tasa de Rotación</div>
+                    <div class="progress progress-thin">
+                        <div class="progress-bar bg-info" style="width: {{ rotacionProductos.tasa_rotacion }}%"></div>
+                    </div>
+                    <div class="row mt-3 text-center">
+                        <div class="col-6">
+                            <div class="fw-bold text-primary">{{ rotacionProductos.productos_vendidos }}</div>
+                            <small class="text-muted">Productos Vendidos</small>
+                        </div>
+                        <div class="col-6">
+                            <div class="fw-bold text-secondary">{{ rotacionProductos.productos_activos }}</div>
+                            <small class="text-muted">Productos Activos</small>
+                        </div>
+                    </div>
+                    <small class="text-muted mt-2">Últimos 30 días</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <h4 class="section-title">👥 Comportamiento de Clientes</h4>
+            <div class="chart-container">
+                <div class="metric-card">
+                    <div class="metric-icon text-purple" style="color: #6f42c1;">
+                        <i class="fas fa-user-friends"></i>
+                    </div>
+                    <div class="metric-value" style="color: #6f42c1;">{{ metricasClientes.tasa_recurrencia|number_format(1) }}%</div>
+                    <div class="metric-label">Tasa de Recurrencia</div>
+                    <div class="progress progress-thin">
+                        <div class="progress-bar" style="background-color: #6f42c1; width: {{ metricasClientes.tasa_recurrencia }}%"></div>
+                    </div>
+                    <div class="row mt-3 text-center">
+                        <div class="col-4">
+                            <div class="fw-bold text-primary">{{ metricasClientes.total_clientes }}</div>
+                            <small class="text-muted">Total Clientes</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="fw-bold text-success">{{ metricasClientes.clientes_recurrentes }}</div>
+                            <small class="text-muted">Recurrentes</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="fw-bold text-info">{{ metricasClientes.promedio_ventas_por_cliente|number_format(1) }}</div>
+                            <small class="text-muted">Promedio Ventas</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Productos con Mejor Rendimiento -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <h4 class="section-title">🚀 Productos con Mejor Rendimiento</h4>
+            <div class="table-modern">
+                <table class="table table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th class="text-center">Unidades Vendidas</th>
+                        <th class="text-center">Margen</th>
+                        <th class="text-end">Ingresos Totales</th>
+                        <th class="text-end">Ganancia Total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for producto in productosMejorRendimiento %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-light rounded p-2 me-3">
+                                        <i class="fas fa-star text-warning"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold">{{ producto.nombre|length > 30 ? producto.nombre|slice(0, 30) ~ '...' : producto.nombre }}</div>
+                                        <small class="text-muted">Costo: ${{ producto.precio_compra|number_format(2) }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge-modern bg-primary">{{ producto.unidades_vendidas }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge-modern bg-success">{{ producto.margen_porcentual|number_format(1) }}%</span>
+                            </td>
+                            <td class="text-end fw-bold text-info">
+                                ${{ producto.ingresos_totales|number_format(2) }}
+                            </td>
+                            <td class="text-end fw-bold text-success">
+                                ${{ producto.ganancia_total|number_format(2) }}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                <i class="fas fa-chart-bar fa-2x mb-2"></i><br>
+                                No hay datos disponibles
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ventas por Categoría -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <h4 class="section-title">📊 Ventas por Categoría</h4>
+            <div class="table-modern">
+                <table class="table table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th>Categoría</th>
+                        <th class="text-center">Total Ventas</th>
+                        <th class="text-center">Productos Vendidos</th>
+                        <th class="text-end">Ingresos Totales</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for categoria in ventasPorCategoria %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-light rounded p-2 me-3">
+                                        <i class="fas fa-folder text-primary"></i>
+                                    </div>
+                                    <div class="fw-semibold">{{ categoria.categoria }}</div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge-modern bg-info">{{ categoria.total_ventas }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge-modern bg-secondary">{{ categoria.productos_vendidos }}</span>
+                            </td>
+                            <td class="text-end fw-bold text-success">
+                                ${{ categoria.total_ingresos|number_format(2) }}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">
+                                <i class="fas fa-folder-open fa-2x mb-2"></i><br>
+                                No hay datos disponibles por categoría
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Análisis de Margen por Categoría -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <h4 class="section-title">💹 Margen por Categoría</h4>
+            <div class="table-modern">
+                <table class="table table-hover mb-0">
+                    <thead>
+                    <tr>
+                        <th>Categoría</th>
+                        <th class="text-center">Total Productos</th>
+                        <th class="text-center">Margen Promedio</th>
+                        <th class="text-center">Productos con Problemas</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for categoria in margenPorCategoria %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-light rounded p-2 me-3">
+                                        <i class="fas fa-chart-pie text-warning"></i>
+                                    </div>
+                                    <div class="fw-semibold">{{ categoria.categoria }}</div>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge-modern bg-primary">{{ categoria.total_productos }}</span>
+                            </td>
+                            <td class="text-center">
+                                {% set margen = categoria.margen_promedio %}
+                                <span class="badge-modern {{ margen > 30 ? 'bg-success' : (margen > 15 ? 'bg-warning' : 'bg-danger') }}">
+                                {{ margen|number_format(1) }}%
+                            </span>
+                            </td>
+                            <td class="text-center">
+                                {% if categoria.productos_problema > 0 %}
+                                    <span class="badge-modern bg-danger">{{ categoria.productos_problema }}</span>
+                                {% else %}
+                                    <span class="badge-modern bg-success">0</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">
+                                <i class="fas fa-chart-line fa-2x mb-2"></i><br>
+                                No hay datos de margen por categoría
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Esperar a que todo el DOM esté listo
