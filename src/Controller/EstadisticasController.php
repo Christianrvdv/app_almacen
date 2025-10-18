@@ -234,168 +234,168 @@ class EstadisticasController extends AbstractController
             $metricasAdicionales['productos_problema_margen'] = $productosConProblema;
 
 
-// 14. Ventas por categoría
+            // 14. Ventas por categoría
             $sqlVentasPorCategoria = "
-    SELECT
-        c.nombre as categoria,
-        COUNT(DISTINCT v.id) as total_ventas,
-        COALESCE(SUM(v.total), 0) as total_ingresos,
-        COUNT(DISTINCT dv.producto_id) as productos_vendidos
-    FROM categoria c
-    LEFT JOIN producto p ON c.id = p.categoria_id
-    LEFT JOIN detalle_venta dv ON p.id = dv.producto_id
-    LEFT JOIN venta v ON dv.venta_id = v.id AND v.estado = 'completada'
-    GROUP BY c.id, c.nombre
-    HAVING total_ingresos > 0
-    ORDER BY total_ingresos DESC
-    LIMIT 8
-";
+                SELECT
+                    c.nombre as categoria,
+                    COUNT(DISTINCT v.id) as total_ventas,
+                    COALESCE(SUM(v.total), 0) as total_ingresos,
+                    COUNT(DISTINCT dv.producto_id) as productos_vendidos
+                FROM categoria c
+                LEFT JOIN producto p ON c.id = p.categoria_id
+                LEFT JOIN detalle_venta dv ON p.id = dv.producto_id
+                LEFT JOIN venta v ON dv.venta_id = v.id AND v.estado = 'completada'
+                GROUP BY c.id, c.nombre
+                HAVING total_ingresos > 0
+                ORDER BY total_ingresos DESC
+                LIMIT 8
+            ";
             $ventasPorCategoria = $connection->executeQuery($sqlVentasPorCategoria)->fetchAllAssociative();
 
-// 15. Eficiencia de inventario
+            // 15. Eficiencia de inventario
             $sqlEficienciaInventario = "
-    SELECT
-        COUNT(*) as total_productos,
-        SUM(CASE WHEN stock_actual <= 0 THEN 1 ELSE 0 END) as agotados,
-        SUM(CASE WHEN stock_actual > 0 AND stock_actual <= p.stock_minimo THEN 1 ELSE 0 END) as stock_bajo,
-        SUM(CASE WHEN stock_actual > p.stock_minimo THEN 1 ELSE 0 END) as stock_optimo,
-        ROUND((SUM(CASE WHEN stock_actual > p.stock_minimo THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 2) as porcentaje_optimo
-    FROM (
-        SELECT
-            p.id,
-            p.stock_minimo,
-            GREATEST(0,
-                COALESCE(dc.total_comprado, 0) -
-                COALESCE(dv.total_vendido, 0) +
-                COALESCE(ai.neto_ajustado, 0)
-            ) as stock_actual
-        FROM producto p
-        LEFT JOIN (
-            SELECT producto_id, SUM(cantidad) as total_comprado
-            FROM detalle_compra dc
-            JOIN compra c ON dc.compra_id = c.id
-            WHERE c.estado = 'completada'
-            GROUP BY producto_id
-        ) dc ON p.id = dc.producto_id
-        LEFT JOIN (
-            SELECT producto_id, SUM(cantidad) as total_vendido
-            FROM detalle_venta dv
-            JOIN venta v ON dv.venta_id = v.id
-            WHERE v.estado = 'completada'
-            GROUP BY producto_id
-        ) dv ON p.id = dv.producto_id
-        LEFT JOIN (
-            SELECT producto_id,
-                   SUM(CASE WHEN tipo = 'entrada' THEN cantidad ELSE -cantidad END) as neto_ajustado
-            FROM ajuste_inventario
-            GROUP BY producto_id
-        ) ai ON p.id = ai.producto_id
-        WHERE p.activo = true
-    ) stock_calc
-    JOIN producto p ON stock_calc.id = p.id
-";
+                SELECT
+                    COUNT(*) as total_productos,
+                    SUM(CASE WHEN stock_actual <= 0 THEN 1 ELSE 0 END) as agotados,
+                    SUM(CASE WHEN stock_actual > 0 AND stock_actual <= p.stock_minimo THEN 1 ELSE 0 END) as stock_bajo,
+                    SUM(CASE WHEN stock_actual > p.stock_minimo THEN 1 ELSE 0 END) as stock_optimo,
+                    ROUND((SUM(CASE WHEN stock_actual > p.stock_minimo THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 2) as porcentaje_optimo
+                FROM (
+                    SELECT
+                        p.id,
+                        p.stock_minimo,
+                        GREATEST(0,
+                            COALESCE(dc.total_comprado, 0) -
+                            COALESCE(dv.total_vendido, 0) +
+                            COALESCE(ai.neto_ajustado, 0)
+                        ) as stock_actual
+                    FROM producto p
+                    LEFT JOIN (
+                        SELECT producto_id, SUM(cantidad) as total_comprado
+                        FROM detalle_compra dc
+                        JOIN compra c ON dc.compra_id = c.id
+                        WHERE c.estado = 'completada'
+                        GROUP BY producto_id
+                    ) dc ON p.id = dc.producto_id
+                    LEFT JOIN (
+                        SELECT producto_id, SUM(cantidad) as total_vendido
+                        FROM detalle_venta dv
+                        JOIN venta v ON dv.venta_id = v.id
+                        WHERE v.estado = 'completada'
+                        GROUP BY producto_id
+                    ) dv ON p.id = dv.producto_id
+                    LEFT JOIN (
+                        SELECT producto_id,
+                               SUM(CASE WHEN tipo = 'entrada' THEN cantidad ELSE -cantidad END) as neto_ajustado
+                        FROM ajuste_inventario
+                        GROUP BY producto_id
+                    ) ai ON p.id = ai.producto_id
+                    WHERE p.activo = true
+                ) stock_calc
+                JOIN producto p ON stock_calc.id = p.id
+            ";
             $eficienciaInventario = $connection->executeQuery($sqlEficienciaInventario)->fetchAssociative();
 
-// 16. Tendencias de precios
+            // 16. Tendencias de precios
             $sqlTendenciasPrecios = "
-    SELECT
-        COUNT(*) as total_cambios,
-        AVG(CASE WHEN tipo = 'venta' THEN (precio_nuevo - precio_anterior) / precio_anterior * 100 ELSE NULL END) as avg_incremento_venta,
-        AVG(CASE WHEN tipo = 'compra' THEN (precio_nuevo - precio_anterior) / precio_anterior * 100 ELSE NULL END) as avg_incremento_compra,
-        MAX(fecha_cambio) as ultimo_cambio
-    FROM historial_precios
-    WHERE fecha_cambio >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-";
-            $tendenciasPrecios = $connection->executeQuery($sqlTendenciasPrecios)->fetchAssociative();
+                SELECT
+                    COUNT(*) as total_cambios,
+                    AVG(CASE WHEN tipo = 'venta' THEN (precio_nuevo - precio_anterior) / precio_anterior * 100 ELSE NULL END) as avg_incremento_venta,
+                    AVG(CASE WHEN tipo = 'compra' THEN (precio_nuevo - precio_anterior) / precio_anterior * 100 ELSE NULL END) as avg_incremento_compra,
+                    MAX(fecha_cambio) as ultimo_cambio
+                FROM historial_precios
+                WHERE fecha_cambio >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            ";
+                        $tendenciasPrecios = $connection->executeQuery($sqlTendenciasPrecios)->fetchAssociative();
 
-// 17. Rotación de productos
-            $sqlRotacionProductos = "
-    SELECT
-        COUNT(*) as productos_activos,
-        SUM(CASE WHEN dv.total_vendido > 0 THEN 1 ELSE 0 END) as productos_vendidos,
-        ROUND((SUM(CASE WHEN dv.total_vendido > 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 2) as tasa_rotacion,
-        AVG(CASE WHEN dv.total_vendido > 0 THEN dv.total_vendido ELSE 0 END) as ventas_promedio_por_producto
-    FROM producto p
-    LEFT JOIN (
-        SELECT producto_id, SUM(cantidad) as total_vendido
-        FROM detalle_venta dv
-        JOIN venta v ON dv.venta_id = v.id
-        WHERE v.estado = 'completada'
-        AND v.fecha >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-        GROUP BY producto_id
-    ) dv ON p.id = dv.producto_id
-    WHERE p.activo = true
-";
+            // 17. Rotación de productos
+                        $sqlRotacionProductos = "
+                SELECT
+                    COUNT(*) as productos_activos,
+                    SUM(CASE WHEN dv.total_vendido > 0 THEN 1 ELSE 0 END) as productos_vendidos,
+                    ROUND((SUM(CASE WHEN dv.total_vendido > 0 THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 2) as tasa_rotacion,
+                    AVG(CASE WHEN dv.total_vendido > 0 THEN dv.total_vendido ELSE 0 END) as ventas_promedio_por_producto
+                FROM producto p
+                LEFT JOIN (
+                    SELECT producto_id, SUM(cantidad) as total_vendido
+                    FROM detalle_venta dv
+                    JOIN venta v ON dv.venta_id = v.id
+                    WHERE v.estado = 'completada'
+                    AND v.fecha >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                    GROUP BY producto_id
+                ) dv ON p.id = dv.producto_id
+                WHERE p.activo = true
+            ";
             $rotacionProductos = $connection->executeQuery($sqlRotacionProductos)->fetchAssociative();
 
-// 18. Métricas de clientes recurrentes
+            // 18. Métricas de clientes recurrentes
             $sqlClientesRecurrentes = "
-    SELECT
-        COUNT(DISTINCT c.id) as total_clientes,
-        COUNT(DISTINCT CASE WHEN ventas_por_cliente.total_ventas > 1 THEN c.id END) as clientes_recurrentes,
-        ROUND((COUNT(DISTINCT CASE WHEN ventas_por_cliente.total_ventas > 1 THEN c.id END) * 100.0 / COUNT(DISTINCT c.id)), 2) as tasa_recurrencia,
-        AVG(ventas_por_cliente.total_ventas) as promedio_ventas_por_cliente
-    FROM cliente c
-    LEFT JOIN (
-        SELECT cliente_id, COUNT(*) as total_ventas
-        FROM venta
-        WHERE estado = 'completada'
-        GROUP BY cliente_id
-    ) ventas_por_cliente ON c.id = ventas_por_cliente.cliente_id
-";
+                SELECT
+                    COUNT(DISTINCT c.id) as total_clientes,
+                    COUNT(DISTINCT CASE WHEN ventas_por_cliente.total_ventas > 1 THEN c.id END) as clientes_recurrentes,
+                    ROUND((COUNT(DISTINCT CASE WHEN ventas_por_cliente.total_ventas > 1 THEN c.id END) * 100.0 / COUNT(DISTINCT c.id)), 2) as tasa_recurrencia,
+                    AVG(ventas_por_cliente.total_ventas) as promedio_ventas_por_cliente
+                FROM cliente c
+                LEFT JOIN (
+                    SELECT cliente_id, COUNT(*) as total_ventas
+                    FROM venta
+                    WHERE estado = 'completada'
+                    GROUP BY cliente_id
+                ) ventas_por_cliente ON c.id = ventas_por_cliente.cliente_id
+            ";
             $metricasClientes = $connection->executeQuery($sqlClientesRecurrentes)->fetchAssociative();
 
-// 19. Análisis de margen por categoría
+            // 19. Análisis de margen por categoría
             $sqlMargenCategoria = "
-    SELECT
-        c.nombre as categoria,
-        COUNT(p.id) as total_productos,
-        ROUND(AVG(CASE
-            WHEN p.precio_compra > 0 AND p.precio_venta_actual > p.precio_compra
-            THEN ((p.precio_venta_actual - p.precio_compra) / p.precio_venta_actual * 100)
-            ELSE 0
-        END), 2) as margen_promedio,
-        SUM(CASE WHEN p.precio_compra <= 0 OR p.precio_venta_actual <= p.precio_compra THEN 1 ELSE 0 END) as productos_problema
-    FROM categoria c
-    LEFT JOIN producto p ON c.id = p.categoria_id AND p.activo = true
-    GROUP BY c.id, c.nombre
-    HAVING total_productos > 0
-    ORDER BY margen_promedio DESC
-";
+                SELECT
+                    c.nombre as categoria,
+                    COUNT(p.id) as total_productos,
+                    ROUND(AVG(CASE
+                        WHEN p.precio_compra > 0 AND p.precio_venta_actual > p.precio_compra
+                        THEN ((p.precio_venta_actual - p.precio_compra) / p.precio_venta_actual * 100)
+                        ELSE 0
+                    END), 2) as margen_promedio,
+                    SUM(CASE WHEN p.precio_compra <= 0 OR p.precio_venta_actual <= p.precio_compra THEN 1 ELSE 0 END) as productos_problema
+                FROM categoria c
+                LEFT JOIN producto p ON c.id = p.categoria_id AND p.activo = true
+                GROUP BY c.id, c.nombre
+                HAVING total_productos > 0
+                ORDER BY margen_promedio DESC
+            ";
             $margenPorCategoria = $connection->executeQuery($sqlMargenCategoria)->fetchAllAssociative();
 
-// 20. Productos con mejor rendimiento (combinando margen y ventas)
+            // 20. Productos con mejor rendimiento (combinando margen y ventas)
             $sqlProductosRendimiento = "
-    SELECT
-        p.nombre,
-        p.precio_venta_actual,
-        p.precio_compra,
-        COALESCE(dv.total_vendido, 0) as unidades_vendidas,
-        COALESCE(dv.total_vendido * p.precio_venta_actual, 0) as ingresos_totales,
-        ROUND(
-            CASE
-                WHEN p.precio_compra > 0 AND p.precio_venta_actual > p.precio_compra
-                THEN ((p.precio_venta_actual - p.precio_compra) / p.precio_compra * 100)
-                ELSE 0
-            END, 2
-        ) as margen_porcentual,
-        (COALESCE(dv.total_vendido, 0) * (p.precio_venta_actual - p.precio_compra)) as ganancia_total
-    FROM producto p
-    LEFT JOIN (
-        SELECT producto_id, SUM(cantidad) as total_vendido
-        FROM detalle_venta dv
-        JOIN venta v ON dv.venta_id = v.id
-        WHERE v.estado = 'completada'
-        AND v.fecha >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-        GROUP BY producto_id
-    ) dv ON p.id = dv.producto_id
-    WHERE p.activo = true AND p.precio_venta_actual > 0
-    ORDER BY ganancia_total DESC
-    LIMIT 10
-";
+                SELECT
+                    p.nombre,
+                    p.precio_venta_actual,
+                    p.precio_compra,
+                    COALESCE(dv.total_vendido, 0) as unidades_vendidas,
+                    COALESCE(dv.total_vendido * p.precio_venta_actual, 0) as ingresos_totales,
+                    ROUND(
+                        CASE
+                            WHEN p.precio_compra > 0 AND p.precio_venta_actual > p.precio_compra
+                            THEN ((p.precio_venta_actual - p.precio_compra) / p.precio_compra * 100)
+                            ELSE 0
+                        END, 2
+                    ) as margen_porcentual,
+                    (COALESCE(dv.total_vendido, 0) * (p.precio_venta_actual - p.precio_compra)) as ganancia_total
+                FROM producto p
+                LEFT JOIN (
+                    SELECT producto_id, SUM(cantidad) as total_vendido
+                    FROM detalle_venta dv
+                    JOIN venta v ON dv.venta_id = v.id
+                    WHERE v.estado = 'completada'
+                    AND v.fecha >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                    GROUP BY producto_id
+                ) dv ON p.id = dv.producto_id
+                WHERE p.activo = true AND p.precio_venta_actual > 0
+                ORDER BY ganancia_total DESC
+                LIMIT 10
+            ";
             $productosMejorRendimiento = $connection->executeQuery($sqlProductosRendimiento)->fetchAllAssociative();
 
-// Agregar al array de metricasAdicionales
+            // Agregar al array de metricasAdicionales
             $metricasAdicionales['eficiencia_inventario'] = $eficienciaInventario;
             $metricasAdicionales['tendencias_precios'] = $tendenciasPrecios;
             $metricasAdicionales['rotacion_productos'] = $rotacionProductos;
