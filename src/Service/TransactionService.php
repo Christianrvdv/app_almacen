@@ -4,6 +4,8 @@ namespace App\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
+use App\Entity\Compra;
+use App\Entity\Venta;
 
 class TransactionService
 {
@@ -75,8 +77,8 @@ class TransactionService
      */
     public function handleDetailChanges(
         ArrayCollection $originalDetails,
-                        $currentDetails,
-                        $parentEntity,
+        Collection $currentDetails,
+        object $parentEntity,
         string $detailType = 'compra'
     ): void {
         $setterMethod = $detailType === 'compra' ? 'setCompra' : 'setVenta';

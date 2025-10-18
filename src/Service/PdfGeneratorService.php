@@ -121,7 +121,7 @@ class PdfGeneratorService
             'detalleVentas' => $detallesArray,
             'subtotal' => $subtotal,
             'total' => $total,
-            'iva' => 0,
+            'iva' => $iva,
         ]);
     }
 

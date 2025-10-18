@@ -53,19 +53,14 @@ final class ClienteController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_cliente_show', methods: ['GET'])]
-    public function show(Cliente $cliente): Response
+    public function show(Categoria $categoria, ProductoRepository $productoRepository): Response
     {
-        $ventas = $cliente->getVentas();
-        $deuda = 0;
-        foreach ($ventas as $venta) {
-            if ($venta->getEstado() != 'completada') {
-                $deuda += $venta->getTotal();
-            }
-        }
-        return $this->render('cliente/show.html.twig', [
-            'cliente' => $cliente,
-            'deuda' => $deuda,
+        // Usar consulta optimizada en lugar de bucles
+        $ingresos = $productoRepository->getIngresosPorCategoria($categoria->getId());
+
+        return $this->render('categoria/show.html.twig', [
+            'categoria' => $categoria,
+            'ingresos' => $ingresos,
         ]);
     }
 

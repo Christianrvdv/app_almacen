@@ -50,8 +50,12 @@ class StatisticsService
 
     private function getGananciasBrutas(array $condicionesFecha): float
     {
-        $sql = "SELECT COALESCE(SUM(total), 0) as total FROM venta WHERE estado = 'completada' {$condicionesFecha['venta']}";
-        return (float) $this->entityManager->getConnection()->executeQuery($sql)->fetchOne();
+        $sql = "SELECT COALESCE(SUM(total), 0) as total FROM venta
+            WHERE estado = 'completada' {$condicionesFecha['venta']}";
+        $params = $condicionesFecha['params'] ?? [];
+        return (float) $this->entityManager->getConnection()
+            ->executeQuery($sql, $params)
+            ->fetchOne();
     }
 
     private function getGastosBrutos(array $condicionesFecha): float
