@@ -8,6 +8,7 @@ use App\Form\DetalleVentaType;
 use App\Form\VentaEditType;
 use App\Form\VentaType;
 use App\Repository\VentaRepository;
+use App\Service\CommonService;
 use App\Service\PdfGeneratorService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,6 +21,10 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/venta')]
 final class VentaController extends AbstractController
 {
+    public function __construct(
+        private CommonService $commonService
+    ){}
+
     #[Route(name: 'app_venta_index', methods: ['GET'])]
     public function index(VentaRepository $ventaRepository): Response
     {
@@ -31,12 +36,12 @@ final class VentaController extends AbstractController
     #[Route('/new', name: 'app_venta_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $fecha_actual = new \DateTime('now', new \DateTimeZone('America/Toronto'));
+        // Usar CommonService para fecha actual
         $venta = new Venta();
-        $venta->setFecha($fecha_actual);
+        $venta->setFecha($this->commonService->getCurrentDateTime());
+
         $form = $this->createForm(VentaType::class, $venta);
         $form->handleRequest($request);
-
 
         if ($form->isSubmitted() && $form->isValid()) {
             $cliente = $venta->getCliente();

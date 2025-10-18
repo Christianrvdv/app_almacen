@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Cliente;
 use App\Form\ClienteType;
 use App\Repository\ClienteRepository;
+use App\Service\CommonService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,6 +15,10 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/cliente')]
 final class ClienteController extends AbstractController
 {
+    public function __construct(
+        private CommonService $commonService
+    ) {}
+
     #[Route(name: 'app_cliente_index', methods: ['GET'])]
     public function index(ClienteRepository $clienteRepository): Response
     {
@@ -26,8 +31,9 @@ final class ClienteController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $cliente = new Cliente();
-        // Establecer valores por defecto
-        $cliente->setFechaRegistro(new \DateTime('now', new \DateTimeZone('America/Toronto')));
+
+        // Usar CommonService para valores por defecto
+        $cliente->setFechaRegistro($this->commonService->getCurrentDateTime());
         $cliente->setCompraTotales('0.00');
 
         $form = $this->createForm(ClienteType::class, $cliente);

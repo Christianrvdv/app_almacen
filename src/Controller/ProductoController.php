@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Producto;
 use App\Form\ProductoType;
 use App\Repository\ProductoRepository;
+use App\Service\CommonService;
 use App\Service\InventoryService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -17,7 +18,8 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ProductoController extends AbstractController
 {
     public function __construct(
-        private InventoryService $inventoryService
+        private InventoryService $inventoryService,
+        private CommonService $commonService
     ) {}
 
     #[Route('', name: 'app_producto_index', methods: ['GET'])]
@@ -46,10 +48,11 @@ final class ProductoController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         try {
-            $fecha_actual = new \DateTime('now', new \DateTimeZone('America/Toronto'));
+            // Usar CommonService para fecha actual
             $producto = new Producto();
-            $producto->setFechaCreaccion($fecha_actual);
-            $producto->setFechaActualizacion($fecha_actual);
+            $currentDateTime = $this->commonService->getCurrentDateTime();
+            $producto->setFechaCreaccion($currentDateTime);
+            $producto->setFechaActualizacion($currentDateTime);
 
             $form = $this->createForm(ProductoType::class, $producto);
             $form->handleRequest($request);
@@ -97,8 +100,8 @@ final class ProductoController extends AbstractController
     public function edit(Request $request, Producto $producto, EntityManagerInterface $entityManager): Response
     {
         try {
-            $fecha_actual = new \DateTime('now', new \DateTimeZone('America/Toronto'));
-            $producto->setFechaActualizacion($fecha_actual);
+            // Usar CommonService para fecha actual
+            $producto->setFechaActualizacion($this->commonService->getCurrentDateTime());
 
             $form = $this->createForm(ProductoType::class, $producto);
             $form->handleRequest($request);

@@ -8,6 +8,7 @@ use App\Entity\Producto;
 use App\Form\CompraType;
 use App\Form\DetalleCompraType;
 use App\Repository\CompraRepository;
+use App\Service\CommonService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -18,6 +19,10 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/compra')]
 final class CompraController extends AbstractController
 {
+    public function __construct(
+        private CommonService $commonService
+    ) {}
+
     #[Route(name: 'app_compra_index', methods: ['GET'])]
     public function index(CompraRepository $compraRepository): Response
     {
@@ -29,14 +34,14 @@ final class CompraController extends AbstractController
     #[Route('/new', name: 'app_compra_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $fecha_actual = new \DateTime('now',new \DateTimeZone('America/Toronto'));
+        // Usar CommonService para fecha actual
         $compra = new Compra();
-        $compra->setFecha($fecha_actual);
+        $compra->setFecha($this->commonService->getCurrentDateTime());
+
         $form = $this->createForm(CompraType::class, $compra);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             foreach ($compra->getDetalleCompras() as $detalle) {
                 $detalle->setSubtotal(
                     $detalle->getCantidad() * $detalle->getPrecioUnitario());
@@ -62,13 +67,12 @@ final class CompraController extends AbstractController
         ]);
     }
 
-
     #[Route('/new/{id}', name: 'app_compra_new_by_id', methods: ['GET', 'POST'])]
     public function newByID(Request $request, EntityManagerInterface $entityManager, Producto $producto): Response
     {
-        $fecha_actual = new \DateTime('now', new \DateTimeZone('America/Toronto'));
+        // Usar CommonService para fecha actual
         $compra = new Compra();
-        $compra->setFecha($fecha_actual);
+        $compra->setFecha($this->commonService->getCurrentDateTime());
         $compra->setProveedor($producto->getProveedor());
 
         // Crear y agregar el detalle a la compra
@@ -76,9 +80,8 @@ final class CompraController extends AbstractController
         $detalleCompra->setProducto($producto);
         $detalleCompra->setPrecioUnitario($producto->getPrecioCompra());
         $detalleCompra->setCantidad(0);
-        $detalleCompra->setSubtotal(0); // También establecer subtotal en 0
+        $detalleCompra->setSubtotal(0);
 
-        // AGREGAR EL DETALLE A LA COMPRA
         $compra->addDetalleCompra($detalleCompra);
 
         $form = $this->createForm(CompraType::class, $compra);
@@ -100,12 +103,12 @@ final class CompraController extends AbstractController
                 Response::HTTP_SEE_OTHER);
         }
 
-        // El formDetalle separado ya no es necesario si el detalle está en la compra
         return $this->render('compra/new.html.twig', [
             'compra' => $compra,
             'form' => $form,
         ]);
     }
+
 
     #[Route('/{id}', name: 'app_compra_show', methods: ['GET'])]
     public function show(Compra $compra): Response

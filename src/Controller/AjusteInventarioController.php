@@ -6,6 +6,7 @@ use App\Entity\AjusteInventario;
 use App\Entity\Producto;
 use App\Form\AjusteInventarioType;
 use App\Repository\AjusteInventarioRepository;
+use App\Service\CommonService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +16,9 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/ajuste/inventario')]
 final class AjusteInventarioController extends AbstractController
 {
+    public function __construct(
+        private CommonService $commonService
+    ) {}
 
     #[Route(name: 'app_ajuste_inventario_index', methods: ['GET'])]
     public function index(AjusteInventarioRepository $ajusteInventarioRepository): Response
@@ -30,7 +34,7 @@ final class AjusteInventarioController extends AbstractController
 
         return $this->render('ajuste_inventario/index.html.twig', [
             'ajuste_inventarios' => $ajuste_inventarios,
-            'cantidad_usuarios_unicos' => $cantidadUsuariosUnicos, // Pasar el cálculo
+            'cantidad_usuarios_unicos' => $cantidadUsuariosUnicos,
         ]);
     }
 
@@ -39,12 +43,11 @@ final class AjusteInventarioController extends AbstractController
     {
         $ajusteInventario = new AjusteInventario();
 
-        // Establecer valores por defecto
-        $ajusteInventario->setFecha(new \DateTime());
-        $ajusteInventario->setUsuario($this->getUser() ? $this->getUser()->getUsername() : 'Sistema');
+        // Usar CommonService para valores por defecto
+        $ajusteInventario->setFecha($this->commonService->getCurrentDateTime());
+        $ajusteInventario->setUsuario($this->commonService->getCurrentUsername());
 
         $form = $this->createForm(AjusteInventarioType::class, $ajusteInventario);
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -65,13 +68,12 @@ final class AjusteInventarioController extends AbstractController
     {
         $ajusteInventario = new AjusteInventario();
 
-        // Establecer valores por defecto
-        $ajusteInventario->setFecha(new \DateTime());
-        $ajusteInventario->setUsuario($this->getUser() ? $this->getUser()->getUsername() : 'Sistema');
+        // Usar CommonService para valores por defecto
+        $ajusteInventario->setFecha($this->commonService->getCurrentDateTime());
+        $ajusteInventario->setUsuario($this->commonService->getCurrentUsername());
         $ajusteInventario->setProducto($producto);
 
         $form = $this->createForm(AjusteInventarioType::class, $ajusteInventario);
-
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
