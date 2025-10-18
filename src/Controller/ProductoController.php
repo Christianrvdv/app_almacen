@@ -2,11 +2,10 @@
 
 namespace App\Controller;
 
-use App\Entity\AjusteInventario;
 use App\Entity\Producto;
 use App\Form\ProductoType;
-use App\Repository\AjusteInventarioRepository;
 use App\Repository\ProductoRepository;
+use App\Service\InventoryService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,6 +16,10 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/producto')]
 final class ProductoController extends AbstractController
 {
+    public function __construct(
+        private InventoryService $inventoryService
+    ) {}
+
     #[Route('', name: 'app_producto_index', methods: ['GET'])]
     public function index(Request $request, ProductoRepository $productoRepository, PaginatorInterface $paginator): Response
     {
@@ -25,7 +28,7 @@ final class ProductoController extends AbstractController
             ->addSelect('c')
             ->leftJoin('p.proveedor', 'prov')
             ->addSelect('prov')
-            ->orderBy('p.fecha_actualizacion', 'DESC') // Cambiado a snake_case
+            ->orderBy('p.fecha_actualizacion', 'DESC')
             ->getQuery();
 
         $productos = $paginator->paginate(
@@ -76,44 +79,17 @@ final class ProductoController extends AbstractController
 
         if (!$producto) {
             throw $this->createNotFoundException('Producto no encontrado');
-        } else {
-            $detalles_ventas = $producto->getDetalleVentas();
-            $detalles_compras = $producto->getDetalleCompras();
-            $ajustes_inventario = $producto->getAjusteInventarios();
-
-            $stock = 0;
-            $ingresos = 0;
-            $ventas = 0;
-
-            foreach ($detalles_compras as $detalle_compra) {
-                $stock = $stock + $detalle_compra->getCantidad();
-            }
-
-            foreach ($detalles_ventas as $detalle_venta) {
-                $stock = $stock - $detalle_venta->getCantidad();
-                $ventas = $ventas + $detalle_venta->getCantidad();
-                $ingresos = $ingresos + ($detalle_venta->getPrecioUnitario() * $detalle_venta->getCantidad());;
-            }
-
-            foreach ($ajustes_inventario as $ajuste_inventario) {
-                if ($ajuste_inventario -> getTipo() == "salida"){
-                    $stock = $stock - $ajuste_inventario->getCantidad();
-                }else{
-                    $stock = $stock + $ajuste_inventario->getCantidad();
-                }
-            }
-            $margen = ($producto->getPrecioVentaActual() - $producto->getPrecioCompra()) / $producto->getPrecioCompra() * 100;
-
-            $modificaciones = $producto->getHistorialPrecios()->count();
         }
+
+        $stats = $this->inventoryService->calculateProductStats($producto);
 
         return $this->render('producto/show.html.twig', [
             'producto' => $producto,
-            'stok' => $stock,
-            'ingresos' => $ingresos,
-            'ventas' => $ventas,
-            'margen' => $margen,
-            'modificaciones' => $modificaciones,
+            'stok' => $stats['stock'],
+            'ingresos' => $stats['ingresos'],
+            'ventas' => $stats['ventas'],
+            'margen' => $stats['margen'],
+            'modificaciones' => $stats['modificaciones'],
         ]);
     }
 
@@ -165,13 +141,13 @@ final class ProductoController extends AbstractController
     #[Route('/{id}/stats', name: 'app_producto_stats', methods: ['GET'])]
     public function getStats(Producto $producto): Response
     {
-        $stats = [
-            'ventas_totales' => rand(0, 100),
-            'stock_actual' => rand(0, 500),
-            'ingresos_generados' => $producto->getPrecioVentaActual() * rand(10, 100),
-            'veces_modificado' => rand(1, 20),
-        ];
+        $stats = $this->inventoryService->calculateProductStats($producto);
 
-        return $this->json($stats);
+        return $this->json([
+            'ventas_totales' => $stats['ventas'],
+            'stock_actual' => $stats['stock'],
+            'ingresos_generados' => $stats['ingresos'],
+            'veces_modificado' => $stats['modificaciones'],
+        ]);
     }
 }
