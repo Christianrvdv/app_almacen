@@ -9,6 +9,7 @@ use App\Form\VentaEditType;
 use App\Form\VentaType;
 use App\Repository\VentaRepository;
 use App\Service\CommonService;
+use App\Service\TransactionService;
 use App\Service\PdfGeneratorService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,8 +23,56 @@ use Symfony\Component\Routing\Attribute\Route;
 final class VentaController extends AbstractController
 {
     public function __construct(
-        private CommonService $commonService
+        private CommonService $commonService,
+        private TransactionService $transactionService
     ){}
+
+    /**
+     * Método privado para inicializar una venta
+     */
+    private function initializeVenta(): Venta
+    {
+        $venta = new Venta();
+        $venta->setFecha($this->commonService->getCurrentDateTime());
+        return $venta;
+    }
+
+    /**
+     * Método privado para manejar el formulario de venta
+     */
+    private function handleVentaForm(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        Venta $venta
+    ): Response {
+        $form = $this->createForm(VentaType::class, $venta);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                // Usar el servicio para procesar la venta
+                $this->transactionService->processVenta($venta);
+
+                $entityManager->persist($venta);
+                $entityManager->flush();
+
+                $this->addFlash('success', 'Venta registrada exitosamente');
+                return $this->redirectToRoute('app_venta_show', ['id' => $venta->getId()], Response::HTTP_SEE_OTHER);
+
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al procesar la venta: ' . $e->getMessage());
+            }
+        }
+
+        $detalleVenta = new DetalleVenta();
+        $formDetalle = $this->createForm(DetalleVentaType::class, $detalleVenta);
+
+        return $this->render('venta/new.html.twig', [
+            'venta' => $venta,
+            'form' => $form,
+            'formDetalle' => $formDetalle,
+        ]);
+    }
 
     #[Route(name: 'app_venta_index', methods: ['GET'])]
     public function index(VentaRepository $ventaRepository): Response
@@ -36,42 +85,8 @@ final class VentaController extends AbstractController
     #[Route('/new', name: 'app_venta_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        // Usar CommonService para fecha actual
-        $venta = new Venta();
-        $venta->setFecha($this->commonService->getCurrentDateTime());
-
-        $form = $this->createForm(VentaType::class, $venta);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $cliente = $venta->getCliente();
-            $total = $cliente->getCompraTotales();
-            foreach ($venta->getDetalleVentas() as $detalleVenta) {
-                $total += $detalleVenta->getCantidad() * $detalleVenta->getPrecioUnitario();
-                $detalleVenta->setSubtotal(
-                    $detalleVenta->getCantidad() * $detalleVenta->getPrecioUnitario());
-                $entityManager->persist($detalleVenta);
-            }
-
-            $cliente->setCompraTotales($total);
-
-            $entityManager->persist($venta);
-            $entityManager->flush();
-
-            return $this->redirectToRoute(
-                'app_venta_index',
-                ['id' => $venta->getId()],
-                Response::HTTP_SEE_OTHER);
-        }
-
-        $detalleVenta = new DetalleVenta();
-        $formDetalle = $this->createForm(DetalleVentaType::class, $detalleVenta);
-
-        return $this->render('venta/new.html.twig', [
-            'venta' => $venta,
-            'form' => $form,
-            'formDetalle' => $formDetalle,
-        ]);
+        $venta = $this->initializeVenta();
+        return $this->handleVentaForm($request, $entityManager, $venta);
     }
 
     #[Route('/{id}', name: 'app_venta_show', methods: ['GET'])]
@@ -96,47 +111,24 @@ final class VentaController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                $totalVenta = 0;
-                // Manejar nuevos detalles y calcular subtotales
-                foreach ($venta->getDetalleVentas() as $detalle) {
-                    // Calcular subtotal para cada detalle
-                    $subtotal = $detalle->getCantidad() * $detalle->getPrecioUnitario();
-                    $detalle->setSubtotal($subtotal);
+                // Usar el servicio para manejar cambios
+                $this->transactionService->handleDetailChanges(
+                    $originalDetalles,
+                    $venta->getDetalleVentas(),
+                    $venta,
+                    'venta'
+                );
 
-                    $totalVenta += $subtotal; // Acumular al total
-
-                    // Si es un detalle nuevo, persistirlo y establecer la relación
-                    if (!$originalDetalles->contains($detalle)) {
-                        $detalle->setVenta($venta);
-                        $entityManager->persist($detalle);
-                    }
-                }
-
-                // Actualizar el total de la venta
-                $venta->setTotal($totalVenta);
-
-                // Manejar detalles eliminados
-                foreach ($originalDetalles as $detalle) {
-                    if (!$venta->getDetalleVentas()->contains($detalle)) {
-                        $entityManager->remove($detalle);
-                    }
-                }
+                // Procesar detalles actualizados
+                $this->transactionService->processVenta($venta);
 
                 $entityManager->flush();
 
-                $this->addFlash('success', 'Venta actualizada correctamente'); // ✅ Agregado
-                return $this->redirectToRoute('app_venta_show', [
-                    'id' => $venta->getid(),
-                ], Response::HTTP_SEE_OTHER);
+                $this->addFlash('success', 'Venta actualizada correctamente');
+                return $this->redirectToRoute('app_venta_show', ['id' => $venta->getid()], Response::HTTP_SEE_OTHER);
 
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Error al actualizar la venta: ' . $e->getMessage());
-            }
-        } elseif ($form->isSubmitted()) {
-            // Manejo de errores de validación (mantener este buen patrón)
-            $errors = $form->getErrors(true);
-            foreach ($errors as $error) {
-                $this->addFlash('error', $error->getMessage());
             }
         }
 

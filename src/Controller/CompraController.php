@@ -6,6 +6,7 @@ use App\Entity\Compra;
 use App\Entity\DetalleCompra;
 use App\Entity\Producto;
 use App\Form\CompraType;
+use App\Service\TransactionService;
 use App\Form\DetalleCompraType;
 use App\Repository\CompraRepository;
 use App\Service\CommonService;
@@ -19,9 +20,21 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/compra')]
 final class CompraController extends AbstractController
 {
+    // Agregar el servicio al constructor
     public function __construct(
-        private CommonService $commonService
-    ) {}
+        private CommonService      $commonService,
+        private TransactionService $transactionService
+    )
+    {
+    }
+
+    /**
+     * Método privado para procesar detalles de compra
+     */
+    private function processCompraDetails(Compra $compra, EntityManagerInterface $entityManager): void
+    {
+        $this->transactionService->processCompra($compra);
+    }
 
     #[Route(name: 'app_compra_index', methods: ['GET'])]
     public function index(CompraRepository $compraRepository): Response
@@ -31,30 +44,50 @@ final class CompraController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_compra_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    /**
+     * Método privado para inicializar una compra con valores por defecto
+     */
+    private function initializeCompra(?Producto $producto = null): Compra
     {
-        // Usar CommonService para fecha actual
         $compra = new Compra();
         $compra->setFecha($this->commonService->getCurrentDateTime());
 
+        if ($producto) {
+            $compra->setProveedor($producto->getProveedor());
+
+            // Crear y agregar el detalle a la compra
+            $detalleCompra = new DetalleCompra();
+            $detalleCompra->setProducto($producto);
+            $detalleCompra->setPrecioUnitario($producto->getPrecioCompra());
+            $detalleCompra->setCantidad(0);
+            $detalleCompra->setSubtotal(0);
+
+            $compra->addDetalleCompra($detalleCompra);
+        }
+
+        return $compra;
+    }
+
+    /**
+     * Método privado para manejar el formulario de compra (elimina duplicación)
+     */
+    private function handleCompraForm(
+        Request                $request,
+        EntityManagerInterface $entityManager,
+        Compra                 $compra
+    ): Response
+    {
         $form = $this->createForm(CompraType::class, $compra);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            foreach ($compra->getDetalleCompras() as $detalle) {
-                $detalle->setSubtotal(
-                    $detalle->getCantidad() * $detalle->getPrecioUnitario());
-                $entityManager->persist($detalle);
-            }
+            $this->processCompraDetails($compra, $entityManager);
 
             $entityManager->persist($compra);
             $entityManager->flush();
 
-            return $this->redirectToRoute(
-                'app_compra_show',
-                ['id' => $compra->getId()],
-                Response::HTTP_SEE_OTHER);
+            $this->addFlash('success', 'Compra registrada exitosamente');
+            return $this->redirectToRoute('app_compra_show', ['id' => $compra->getId()], Response::HTTP_SEE_OTHER);
         }
 
         $detalleCompra = new DetalleCompra();
@@ -67,48 +100,19 @@ final class CompraController extends AbstractController
         ]);
     }
 
-    #[Route('/new/{id}', name: 'app_compra_new_by_id', methods: ['GET', 'POST'])]
-    public function newByID(Request $request, EntityManagerInterface $entityManager, Producto $producto): Response
+    #[Route('/new', name: 'app_compra_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        // Usar CommonService para fecha actual
-        $compra = new Compra();
-        $compra->setFecha($this->commonService->getCurrentDateTime());
-        $compra->setProveedor($producto->getProveedor());
-
-        // Crear y agregar el detalle a la compra
-        $detalleCompra = new DetalleCompra();
-        $detalleCompra->setProducto($producto);
-        $detalleCompra->setPrecioUnitario($producto->getPrecioCompra());
-        $detalleCompra->setCantidad(0);
-        $detalleCompra->setSubtotal(0);
-
-        $compra->addDetalleCompra($detalleCompra);
-
-        $form = $this->createForm(CompraType::class, $compra);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            foreach ($compra->getDetalleCompras() as $detalle) {
-                $detalle->setSubtotal(
-                    $detalle->getCantidad() * $detalle->getPrecioUnitario());
-                $entityManager->persist($detalle);
-            }
-
-            $entityManager->persist($compra);
-            $entityManager->flush();
-
-            return $this->redirectToRoute(
-                'app_compra_show',
-                ['id' => $compra->getId()],
-                Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('compra/new.html.twig', [
-            'compra' => $compra,
-            'form' => $form,
-        ]);
+        $compra = $this->initializeCompra();
+        return $this->handleCompraForm($request, $entityManager, $compra);
     }
 
+    #[Route('/new/{id}', name: 'app_compra_new_by_id', methods: ['GET', 'POST'])]
+    public function newById(Request $request, EntityManagerInterface $entityManager, Producto $producto): Response
+    {
+        $compra = $this->initializeCompra($producto);
+        return $this->handleCompraForm($request, $entityManager, $compra);
+    }
 
     #[Route('/{id}', name: 'app_compra_show', methods: ['GET'])]
     public function show(Compra $compra): Response
@@ -121,6 +125,7 @@ final class CompraController extends AbstractController
         ]);
     }
 
+    // En el método edit, actualizar para usar el servicio
     #[Route('/{id}/edit', name: 'app_compra_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Compra $compra, EntityManagerInterface $entityManager): Response
     {
@@ -135,32 +140,16 @@ final class CompraController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                $totalCompra = 0;
+                // Usar el servicio para manejar cambios
+                $this->transactionService->handleDetailChanges(
+                    $originalDetalles,
+                    $compra->getDetalleCompras(),
+                    $compra,
+                    'compra'
+                );
 
-                // Manejar nuevos detalles y calcular subtotales
-                foreach ($compra->getDetalleCompras() as $detalle) {
-                    // Calcular subtotal para cada detalle
-                    $subtotal = $detalle->getCantidad() * $detalle->getPrecioUnitario();
-                    $detalle->setSubtotal($subtotal);
-
-                    $totalCompra += $subtotal; // Acumular al total
-
-                    // Si es un detalle nuevo, persistirlo y establecer la relación
-                    if (!$originalDetalles->contains($detalle)) {
-                        $detalle->setCompra($compra);
-                        $entityManager->persist($detalle);
-                    }
-                }
-
-                // Actualizar el total de la compra
-                $compra->setTotal($totalCompra);
-
-                // Manejar detalles eliminados
-                foreach ($originalDetalles as $detalle) {
-                    if (!$compra->getDetalleCompras()->contains($detalle)) {
-                        $entityManager->remove($detalle);
-                    }
-                }
+                // Procesar detalles actualizados
+                $this->transactionService->processCompra($compra);
 
                 $entityManager->flush();
 

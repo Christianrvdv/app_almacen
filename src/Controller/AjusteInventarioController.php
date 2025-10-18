@@ -38,15 +38,14 @@ final class AjusteInventarioController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_ajuste_inventario_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $ajusteInventario = new AjusteInventario();
-
-        // Usar CommonService para valores por defecto
-        $ajusteInventario->setFecha($this->commonService->getCurrentDateTime());
-        $ajusteInventario->setUsuario($this->commonService->getCurrentUsername());
-
+    /**
+     * Método privado para manejar el formulario de ajuste (elimina duplicación)
+     */
+    private function handleAjusteForm(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        AjusteInventario $ajusteInventario
+    ): Response {
         $form = $this->createForm(AjusteInventarioType::class, $ajusteInventario);
         $form->handleRequest($request);
 
@@ -54,6 +53,7 @@ final class AjusteInventarioController extends AbstractController
             $entityManager->persist($ajusteInventario);
             $entityManager->flush();
 
+            $this->addFlash('success', 'Ajuste de inventario procesado exitosamente');
             return $this->redirectToRoute('app_ajuste_inventario_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -63,30 +63,25 @@ final class AjusteInventarioController extends AbstractController
         ]);
     }
 
+    #[Route('/new', name: 'app_ajuste_inventario_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $ajusteInventario = new AjusteInventario();
+        $ajusteInventario->setFecha($this->commonService->getCurrentDateTime());
+        $ajusteInventario->setUsuario($this->commonService->getCurrentUsername());
+
+        return $this->handleAjusteForm($request, $entityManager, $ajusteInventario);
+    }
+
     #[Route('/new/{id}', name: 'app_ajuste_inventario_new_by_id', methods: ['GET', 'POST'])]
     public function newById(Request $request, EntityManagerInterface $entityManager, Producto $producto): Response
     {
         $ajusteInventario = new AjusteInventario();
-
-        // Usar CommonService para valores por defecto
         $ajusteInventario->setFecha($this->commonService->getCurrentDateTime());
         $ajusteInventario->setUsuario($this->commonService->getCurrentUsername());
         $ajusteInventario->setProducto($producto);
 
-        $form = $this->createForm(AjusteInventarioType::class, $ajusteInventario);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($ajusteInventario);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_ajuste_inventario_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('ajuste_inventario/new.html.twig', [
-            'ajuste_inventario' => $ajusteInventario,
-            'form' => $form,
-        ]);
+        return $this->handleAjusteForm($request, $entityManager, $ajusteInventario);
     }
 
     #[Route('/{id}', name: 'app_ajuste_inventario_show', methods: ['GET'])]
