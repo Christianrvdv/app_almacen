@@ -4,33 +4,41 @@ namespace App\Controller;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class EstadisticasController extends AbstractController
 {
     #[Route('/estadisticas', name: 'app_estadisticas_index')]
-    public function index(EntityManagerInterface $entityManager): Response
+    public function index(Request $request, EntityManagerInterface $entityManager): Response
     {
         $connection = $entityManager->getConnection();
 
+        // Obtener parámetros de filtro
+        $filtro = $request->query->get('filtro', 'mes_actual');
+        $fechaEspecifica = $request->query->get('fecha_especifica', date('Y-m-d'));
+
+        // Construir condiciones WHERE basadas en el filtro
+        $condicionesFecha = $this->construirCondicionesFecha($filtro, $fechaEspecifica);
+
         try {
-            // 1. Ganancias brutas (ventas totales) - solo ventas completadas
-            $sqlVentasTotales = "SELECT COALESCE(SUM(total), 0) as total FROM venta WHERE estado = 'completada'";
+            // 1. Ganancias brutas (ventas totales) - con filtro de fecha
+            $sqlVentasTotales = "SELECT COALESCE(SUM(total), 0) as total FROM venta WHERE estado = 'completada' {$condicionesFecha['venta']}";
             $gananciasBrutas = $connection->executeQuery($sqlVentasTotales)->fetchOne();
 
-            // 2. Gastos brutos (compras totales) - solo compras completadas
-            $sqlComprasTotales = "SELECT COALESCE(SUM(total), 0) as total FROM compra WHERE estado = 'completada'";
+            // 2. Gastos brutos (compras totales) - con filtro de fecha
+            $sqlComprasTotales = "SELECT COALESCE(SUM(total), 0) as total FROM compra WHERE estado = 'completada' {$condicionesFecha['compra']}";
             $gastosBrutos = $connection->executeQuery($sqlComprasTotales)->fetchOne();
 
-            // 3. Dinero pendiente (ventas pendientes)
-            $sqlVentasPendientes = "SELECT COALESCE(SUM(total), 0) as total FROM venta WHERE estado = 'pendiente'";
+            // 3. Dinero pendiente (ventas pendientes) - con filtro de fecha
+            $sqlVentasPendientes = "SELECT COALESCE(SUM(total), 0) as total FROM venta WHERE estado = 'pendiente' {$condicionesFecha['venta']}";
             $dineroPendiente = $connection->executeQuery($sqlVentasPendientes)->fetchOne();
 
             // 4. Dinero actual (gananciasBrutas - gastosBrutos)
             $dineroActual = $gananciasBrutas - $gastosBrutos;
 
-            // 5. Valor del inventario - CORREGIDO: campo activo como boolean
+            // 5. Valor del inventario (no se filtra por fecha - estado actual)
             $sqlInventario = "
                 SELECT
                     COALESCE(SUM(p.precio_compra *
@@ -65,7 +73,7 @@ class EstadisticasController extends AbstractController
             ";
             $valorInventario = $connection->executeQuery($sqlInventario)->fetchOne();
 
-            // 6. Margen bruto promedio - MEJORADO: excluye productos con problemas de precio
+            // 6. Margen bruto promedio
             $sqlMargen = "
                 SELECT
                     ROUND(
@@ -89,15 +97,15 @@ class EstadisticasController extends AbstractController
             $totalProductosAnalizados = $resultadoMargen['total_productos'];
             $productosConProblema = $resultadoMargen['productos_problema'];
 
-            // 7. Ticket promedio
+            // 7. Ticket promedio - con filtro de fecha
             $sqlTicket = "
                 SELECT COALESCE(AVG(total), 0) as ticket
                 FROM venta
-                WHERE estado = 'completada' AND total > 0
+                WHERE estado = 'completada' AND total > 0 {$condicionesFecha['venta']}
             ";
             $ticketPromedio = $connection->executeQuery($sqlTicket)->fetchOne();
 
-            // 8. Productos agotados y stock bajo - CORREGIDO: campo activo como boolean
+            // 8. Productos agotados y stock bajo
             $sqlStock = "
                 SELECT
                     p.id,
@@ -143,7 +151,7 @@ class EstadisticasController extends AbstractController
                 }
             }
 
-            // 9. Top 10 productos más rentables - MEJORADO: solo productos con margen válido
+            // 9. Top 10 productos más rentables
             $sqlProductosRentables = "
                 SELECT
                     p.nombre,
@@ -164,14 +172,14 @@ class EstadisticasController extends AbstractController
             ";
             $topProductosRentables = $connection->executeQuery($sqlProductosRentables)->fetchAllAssociative();
 
-            // 10. Top 10 clientes (por total gastado)
+            // 10. Top 10 clientes (por total gastado) - con filtro de fecha
             $sqlClientes = "
                 SELECT
                     c.nombre,
                     COALESCE(SUM(v.total), 0) as total_gastado,
                     COUNT(v.id) as total_compras
                 FROM cliente c
-                LEFT JOIN venta v ON c.id = v.cliente_id AND v.estado = 'completada'
+                LEFT JOIN venta v ON c.id = v.cliente_id AND v.estado = 'completada' {$condicionesFecha['venta_join']}
                 GROUP BY c.id, c.nombre
                 HAVING total_gastado > 0
                 ORDER BY total_gastado DESC
@@ -179,14 +187,14 @@ class EstadisticasController extends AbstractController
             ";
             $topClientes = $connection->executeQuery($sqlClientes)->fetchAllAssociative();
 
-            // 11. Top 10 proveedores (por total comprado)
+            // 11. Top 10 proveedores (por total comprado) - con filtro de fecha
             $sqlProveedores = "
                 SELECT
                     pr.nombre,
                     COALESCE(SUM(c.total), 0) as total_comprado,
                     COUNT(c.id) as total_compras
                 FROM proveedor pr
-                LEFT JOIN compra c ON pr.id = c.proveedor_id AND c.estado = 'completada'
+                LEFT JOIN compra c ON pr.id = c.proveedor_id AND c.estado = 'completada' {$condicionesFecha['compra_join']}
                 GROUP BY pr.id, pr.nombre
                 HAVING total_comprado > 0
                 ORDER BY total_comprado DESC
@@ -194,14 +202,13 @@ class EstadisticasController extends AbstractController
             ";
             $topProveedores = $connection->executeQuery($sqlProveedores)->fetchAllAssociative();
 
-            // 12. Ventas y compras diarias (para el gráfico) - últimos 30 días
+            // 12. Ventas y compras diarias (para el gráfico) - con filtro de fecha
             $sqlVentasDiarias = "
                 SELECT
                     DATE(v.fecha) as dia,
                     COALESCE(SUM(v.total), 0) as total
                 FROM venta v
-                WHERE v.estado = 'completada'
-                AND v.fecha >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                WHERE v.estado = 'completada' {$condicionesFecha['venta']}
                 GROUP BY DATE(v.fecha)
                 ORDER BY dia ASC
             ";
@@ -212,19 +219,18 @@ class EstadisticasController extends AbstractController
                     DATE(c.fecha) as dia,
                     COALESCE(SUM(c.total), 0) as total
                 FROM compra c
-                WHERE c.estado = 'completada'
-                AND c.fecha >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                WHERE c.estado = 'completada' {$condicionesFecha['compra']}
                 GROUP BY DATE(c.fecha)
                 ORDER BY dia ASC
             ";
             $comprasDiarias = $connection->executeQuery($sqlComprasDiarias)->fetchAllAssociative();
 
-            // 13. Métricas adicionales para insights - CORREGIDO: campo activo como boolean
+            // 13. Métricas adicionales para insights
             $sqlMetricasAdicionales = "
                 SELECT
                     (SELECT COUNT(*) FROM producto WHERE activo = true) as total_productos,
-                    (SELECT COUNT(*) FROM venta WHERE estado = 'completada') as total_ventas,
-                    (SELECT COUNT(*) FROM compra WHERE estado = 'completada') as total_compras,
+                    (SELECT COUNT(*) FROM venta WHERE estado = 'completada' {$condicionesFecha['venta']}) as total_ventas,
+                    (SELECT COUNT(*) FROM compra WHERE estado = 'completada' {$condicionesFecha['compra']}) as total_compras,
                     (SELECT COUNT(*) FROM cliente) as total_clientes
             ";
             $metricasAdicionales = $connection->executeQuery($sqlMetricasAdicionales)->fetchAssociative();
@@ -233,8 +239,7 @@ class EstadisticasController extends AbstractController
             $metricasAdicionales['productos_analizados_margen'] = $totalProductosAnalizados;
             $metricasAdicionales['productos_problema_margen'] = $productosConProblema;
 
-
-            // 14. Ventas por categoría
+            // 14. Ventas por categoría - con filtro de fecha
             $sqlVentasPorCategoria = "
                 SELECT
                     c.nombre as categoria,
@@ -244,7 +249,7 @@ class EstadisticasController extends AbstractController
                 FROM categoria c
                 LEFT JOIN producto p ON c.id = p.categoria_id
                 LEFT JOIN detalle_venta dv ON p.id = dv.producto_id
-                LEFT JOIN venta v ON dv.venta_id = v.id AND v.estado = 'completada'
+                LEFT JOIN venta v ON dv.venta_id = v.id AND v.estado = 'completada' {$condicionesFecha['venta_join']}
                 GROUP BY c.id, c.nombre
                 HAVING total_ingresos > 0
                 ORDER BY total_ingresos DESC
@@ -252,7 +257,7 @@ class EstadisticasController extends AbstractController
             ";
             $ventasPorCategoria = $connection->executeQuery($sqlVentasPorCategoria)->fetchAllAssociative();
 
-            // 15. Eficiencia de inventario
+            // 15. Eficiencia de inventario (no se filtra por fecha)
             $sqlEficienciaInventario = "
                 SELECT
                     COUNT(*) as total_productos,
@@ -296,7 +301,7 @@ class EstadisticasController extends AbstractController
             ";
             $eficienciaInventario = $connection->executeQuery($sqlEficienciaInventario)->fetchAssociative();
 
-            // 16. Tendencias de precios
+            // 16. Tendencias de precios - con filtro de fecha
             $sqlTendenciasPrecios = "
                 SELECT
                     COUNT(*) as total_cambios,
@@ -304,12 +309,12 @@ class EstadisticasController extends AbstractController
                     AVG(CASE WHEN tipo = 'compra' THEN (precio_nuevo - precio_anterior) / precio_anterior * 100 ELSE NULL END) as avg_incremento_compra,
                     MAX(fecha_cambio) as ultimo_cambio
                 FROM historial_precios
-                WHERE fecha_cambio >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                WHERE 1=1 {$condicionesFecha['historial_precios']}
             ";
-                        $tendenciasPrecios = $connection->executeQuery($sqlTendenciasPrecios)->fetchAssociative();
+            $tendenciasPrecios = $connection->executeQuery($sqlTendenciasPrecios)->fetchAssociative();
 
-            // 17. Rotación de productos
-                        $sqlRotacionProductos = "
+            // 17. Rotación de productos - con filtro de fecha
+            $sqlRotacionProductos = "
                 SELECT
                     COUNT(*) as productos_activos,
                     SUM(CASE WHEN dv.total_vendido > 0 THEN 1 ELSE 0 END) as productos_vendidos,
@@ -320,15 +325,14 @@ class EstadisticasController extends AbstractController
                     SELECT producto_id, SUM(cantidad) as total_vendido
                     FROM detalle_venta dv
                     JOIN venta v ON dv.venta_id = v.id
-                    WHERE v.estado = 'completada'
-                    AND v.fecha >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                    WHERE v.estado = 'completada' {$condicionesFecha['venta_subquery']}
                     GROUP BY producto_id
                 ) dv ON p.id = dv.producto_id
                 WHERE p.activo = true
             ";
             $rotacionProductos = $connection->executeQuery($sqlRotacionProductos)->fetchAssociative();
 
-            // 18. Métricas de clientes recurrentes
+            // 18. Métricas de clientes recurrentes - con filtro de fecha
             $sqlClientesRecurrentes = "
                 SELECT
                     COUNT(DISTINCT c.id) as total_clientes,
@@ -339,13 +343,13 @@ class EstadisticasController extends AbstractController
                 LEFT JOIN (
                     SELECT cliente_id, COUNT(*) as total_ventas
                     FROM venta
-                    WHERE estado = 'completada'
+                    WHERE estado = 'completada' {$condicionesFecha['venta']}
                     GROUP BY cliente_id
                 ) ventas_por_cliente ON c.id = ventas_por_cliente.cliente_id
             ";
             $metricasClientes = $connection->executeQuery($sqlClientesRecurrentes)->fetchAssociative();
 
-            // 19. Análisis de margen por categoría
+            // 19. Análisis de margen por categoría (no se filtra por fecha)
             $sqlMargenCategoria = "
                 SELECT
                     c.nombre as categoria,
@@ -364,7 +368,7 @@ class EstadisticasController extends AbstractController
             ";
             $margenPorCategoria = $connection->executeQuery($sqlMargenCategoria)->fetchAllAssociative();
 
-            // 20. Productos con mejor rendimiento (combinando margen y ventas)
+            // 20. Productos con mejor rendimiento (combinando margen y ventas) - con filtro de fecha
             $sqlProductosRendimiento = "
                 SELECT
                     p.nombre,
@@ -385,8 +389,7 @@ class EstadisticasController extends AbstractController
                     SELECT producto_id, SUM(cantidad) as total_vendido
                     FROM detalle_venta dv
                     JOIN venta v ON dv.venta_id = v.id
-                    WHERE v.estado = 'completada'
-                    AND v.fecha >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                    WHERE v.estado = 'completada' {$condicionesFecha['venta_subquery']}
                     GROUP BY producto_id
                 ) dv ON p.id = dv.producto_id
                 WHERE p.activo = true AND p.precio_venta_actual > 0
@@ -423,7 +426,31 @@ class EstadisticasController extends AbstractController
                 'total_compras' => 0,
                 'total_clientes' => 0,
                 'productos_analizados_margen' => 0,
-                'productos_problema_margen' => 0
+                'productos_problema_margen' => 0,
+                'eficiencia_inventario' => [
+                    'total_productos' => 0,
+                    'agotados' => 0,
+                    'stock_bajo' => 0,
+                    'stock_optimo' => 0,
+                    'porcentaje_optimo' => 0
+                ],
+                'tendencias_precios' => [
+                    'total_cambios' => 0,
+                    'avg_incremento_venta' => 0,
+                    'avg_incremento_compra' => 0
+                ],
+                'rotacion_productos' => [
+                    'productos_activos' => 0,
+                    'productos_vendidos' => 0,
+                    'tasa_rotacion' => 0,
+                    'ventas_promedio_por_producto' => 0
+                ],
+                'metricas_clientes' => [
+                    'total_clientes' => 0,
+                    'clientes_recurrentes' => 0,
+                    'tasa_recurrencia' => 0,
+                    'promedio_ventas_por_cliente' => 0
+                ]
             ];
             $ventasPorCategoria = [];
             $eficienciaInventario = [
@@ -479,50 +506,107 @@ class EstadisticasController extends AbstractController
             'metricasClientes' => $metricasClientes,
             'margenPorCategoria' => $margenPorCategoria,
             'productosMejorRendimiento' => $productosMejorRendimiento,
+            'filtro_actual' => $filtro,
+            'fecha_especifica' => $fechaEspecifica,
         ]);
     }
 
-    #[Route('/estadisticas/exportar', name: 'app_estadisticas_exportar')]
-    public function exportar(EntityManagerInterface $entityManager): Response
+    // ... (otros métodos se mantienen igual)
+
+    private function construirCondicionesFecha(string $filtro, string $fechaEspecifica): array
     {
-        $this->addFlash('info', 'Función de exportación en desarrollo');
-        return $this->redirectToRoute('app_estadisticas_index');
-    }
+        $condiciones = [
+            'venta' => '',
+            'compra' => '',
+            'venta_join' => '',
+            'compra_join' => '',
+            'venta_subquery' => '',
+            'historial_precios' => ''
+        ];
 
-    #[Route('/estadisticas/actualizar', name: 'app_estadisticas_actualizar')]
-    public function actualizar(): Response
-    {
-        $this->addFlash('success', 'Estadísticas actualizadas correctamente');
-        return $this->redirectToRoute('app_estadisticas_index');
-    }
+        // Si el filtro es "todo", no aplicamos condiciones
+        if ($filtro === 'todo') {
+            return $condiciones;
+        }
 
-    #[Route('/estadisticas/diagnostico-margen', name: 'app_estadisticas_diagnostico_margen')]
-    public function diagnosticoMargen(EntityManagerInterface $entityManager): Response
-    {
-        $connection = $entityManager->getConnection();
+        // Construir las fechas según el filtro
+        $fechaInicio = null;
+        $fechaFin = null;
 
-        $sqlDiagnostico = "
-            SELECT
-                nombre,
-                precio_compra,
-                precio_venta_actual,
-                ROUND(((precio_venta_actual - precio_compra) / precio_venta_actual * 100), 2) as margen_porcentual,
-                CASE
-                    WHEN precio_compra <= 0 THEN 'PRECIO_COMPRA_INVALIDO'
-                    WHEN precio_venta_actual <= precio_compra THEN 'SIN_MARGEN'
-                    WHEN ((precio_venta_actual - precio_compra) / precio_venta_actual * 100) < 20 THEN 'MARGEN_BAJO'
-                    WHEN ((precio_venta_actual - precio_compra) / precio_venta_actual * 100) BETWEEN 20 AND 40 THEN 'MARGEN_MEDIO'
-                    ELSE 'MARGEN_ALTO'
-                END as categoria_margen
-            FROM producto
-            WHERE activo = true AND precio_venta_actual > 0
-            ORDER BY margen_porcentual ASC;
-        ";
+        switch ($filtro) {
+            case 'hoy':
+                $fechaInicio = (new \DateTime())->format('Y-m-d 00:00:00');
+                $fechaFin = (new \DateTime())->format('Y-m-d 23:59:59');
+                break;
 
-        $diagnostico = $connection->executeQuery($sqlDiagnostico)->fetchAllAssociative();
+            case 'ayer':
+                $fechaInicio = (new \DateTime('-1 day'))->format('Y-m-d 00:00:00');
+                $fechaFin = (new \DateTime('-1 day'))->format('Y-m-d 23:59:59');
+                break;
 
-        return $this->render('estadisticas/diagnostico_margen.html.twig', [
-            'diagnostico' => $diagnostico,
-        ]);
+            case 'fecha_especifica':
+                if ($fechaEspecifica) {
+                    $fechaInicio = (new \DateTime($fechaEspecifica))->format('Y-m-d 00:00:00');
+                    $fechaFin = (new \DateTime($fechaEspecifica))->format('Y-m-d 23:59:59');
+                }
+                break;
+
+            case 'semana_actual':
+                $fechaInicio = (new \DateTime('monday this week'))->format('Y-m-d 00:00:00');
+                $fechaFin = (new \DateTime())->format('Y-m-d 23:59:59');
+                break;
+
+            case 'semana_pasada':
+                $fechaInicio = (new \DateTime('monday last week'))->format('Y-m-d 00:00:00');
+                $fechaFin = (new \DateTime('sunday last week'))->format('Y-m-d 23:59:59');
+                break;
+
+            case 'mes_actual':
+                $fechaInicio = (new \DateTime('first day of this month'))->format('Y-m-d 00:00:00');
+                $fechaFin = (new \DateTime())->format('Y-m-d 23:59:59');
+                break;
+
+            case 'mes_pasado':
+                $fechaInicio = (new \DateTime('first day of last month'))->format('Y-m-d 00:00:00');
+                $fechaFin = (new \DateTime('last day of last month'))->format('Y-m-d 23:59:59');
+                break;
+
+            case 'ultimos_3_meses':
+                $fechaInicio = (new \DateTime('-3 months'))->format('Y-m-d 00:00:00');
+                $fechaFin = (new \DateTime())->format('Y-m-d 23:59:59');
+                break;
+
+            case 'ultimos_6_meses':
+                $fechaInicio = (new \DateTime('-6 months'))->format('Y-m-d 00:00:00');
+                $fechaFin = (new \DateTime())->format('Y-m-d 23:59:59');
+                break;
+
+            case 'ano_actual':
+                $year = date('Y');
+                $fechaInicio = $year . '-01-01 00:00:00';
+                $fechaFin = $year . '-12-31 23:59:59';
+                break;
+
+            case 'ano_pasado':
+                $year = date('Y') - 1;
+                $fechaInicio = $year . '-01-01 00:00:00';
+                $fechaFin = $year . '-12-31 23:59:59';
+                break;
+
+            default:
+                return $condiciones;
+        }
+
+        // Construir las condiciones para cada tipo
+        if ($fechaInicio && $fechaFin) {
+            $condiciones['venta'] = " AND fecha >= '{$fechaInicio}' AND fecha <= '{$fechaFin}'";
+            $condiciones['compra'] = " AND fecha >= '{$fechaInicio}' AND fecha <= '{$fechaFin}'";
+            $condiciones['venta_join'] = " AND v.fecha >= '{$fechaInicio}' AND v.fecha <= '{$fechaFin}'";
+            $condiciones['compra_join'] = " AND c.fecha >= '{$fechaInicio}' AND c.fecha <= '{$fechaFin}'";
+            $condiciones['venta_subquery'] = " AND v.fecha >= '{$fechaInicio}' AND v.fecha <= '{$fechaFin}'";
+            $condiciones['historial_precios'] = " AND fecha_cambio >= '{$fechaInicio}' AND fecha_cambio <= '{$fechaFin}'";
+        }
+
+        return $condiciones;
     }
 }

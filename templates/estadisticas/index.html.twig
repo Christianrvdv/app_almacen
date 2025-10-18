@@ -168,6 +168,76 @@
                 </div>
             {% endif %}
 
+            <!-- Filtros por Período -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card-modern">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">🕒 Filtros de Período</h5>
+                            <form method="get" action="{{ path('app_estadisticas_index') }}" class="row g-3 align-items-end">
+                                <div class="col-md-4">
+                                    <label for="filtro" class="form-label">Período:</label>
+                                    <select class="form-select" id="filtro" name="filtro" onchange="this.form.submit()">
+                                        <option value="hoy" {{ filtro_actual == 'hoy' ? 'selected' : '' }}>Hoy</option>
+                                        <option value="ayer" {{ filtro_actual == 'ayer' ? 'selected' : '' }}>Ayer</option>
+                                        <option value="fecha_especifica" {{ filtro_actual == 'fecha_especifica' ? 'selected' : '' }}>Fecha Específica</option>
+                                        <option value="semana_actual" {{ filtro_actual == 'semana_actual' ? 'selected' : '' }}>Esta Semana</option>
+                                        <option value="semana_pasada" {{ filtro_actual == 'semana_pasada' ? 'selected' : '' }}>Semana Pasada</option>
+                                        <option value="mes_actual" {{ filtro_actual == 'mes_actual' ? 'selected' : '' }}>Este Mes</option>
+                                        <option value="mes_pasado" {{ filtro_actual == 'mes_pasado' ? 'selected' : '' }}>Mes Pasado</option>
+                                        <option value="ultimos_3_meses" {{ filtro_actual == 'ultimos_3_meses' ? 'selected' : '' }}>Últimos 3 Meses</option>
+                                        <option value="ultimos_6_meses" {{ filtro_actual == 'ultimos_6_meses' ? 'selected' : '' }}>Últimos 6 Meses</option>
+                                        <option value="ano_actual" {{ filtro_actual == 'ano_actual' ? 'selected' : '' }}>Este Año</option>
+                                        <option value="ano_pasado" {{ filtro_actual == 'ano_pasado' ? 'selected' : '' }}>Año Pasado</option>
+                                        <option value="todo" {{ filtro_actual == 'todo' ? 'selected' : '' }}>Todo el Historial</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-4" id="fecha-especifica-container" style="{{ filtro_actual == 'fecha_especifica' ? '' : 'display: none;' }}">
+                                    <label for="fecha_especifica" class="form-label">Fecha Específica:</label>
+                                    <input type="date" class="form-control" id="fecha_especifica" name="fecha_especifica"
+                                           value="{{ fecha_especifica }}" onchange="this.form.submit()">
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-filter me-2"></i>Aplicar Filtros
+                                        </button>
+                                        <a href="{{ path('app_estadisticas_index') }}" class="btn btn-outline-secondary">
+                                            <i class="fas fa-times me-2"></i>Limpiar
+                                        </a>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <!-- Indicador del período activo -->
+                            {% if filtro_actual != 'todo' %}
+                                <div class="mt-3">
+                        <span class="badge-modern bg-info">
+                            <i class="fas fa-calendar me-1"></i>
+                            Período activo:
+                            {% if filtro_actual == 'hoy' %}Hoy
+                            {% elseif filtro_actual == 'ayer' %}Ayer
+                            {% elseif filtro_actual == 'fecha_especifica' %}Fecha específica: {{ fecha_especifica|date('d/m/Y') }}
+                            {% elseif filtro_actual == 'semana_actual' %}Esta semana
+                            {% elseif filtro_actual == 'semana_pasada' %}Semana pasada
+                            {% elseif filtro_actual == 'mes_actual' %}Este mes
+                            {% elseif filtro_actual == 'mes_pasado' %}Mes pasado
+                            {% elseif filtro_actual == 'ultimos_3_meses' %}Últimos 3 meses
+                            {% elseif filtro_actual == 'ultimos_6_meses' %}Últimos 6 meses
+                            {% elseif filtro_actual == 'ano_actual' %}Este año
+                            {% elseif filtro_actual == 'ano_pasado' %}Año pasado
+                            {% else %}Todo el historial
+                            {% endif %}
+                        </span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Grid de Métricas Principales -->
             <div class="dashboard-stats">
                 <!-- Ganancias Totales -->
@@ -224,7 +294,7 @@
                         <div class="metric-value text-info">{{ margenBrutoPromedio|number_format(1) }}%</div>
                         <div class="metric-label">Margen Bruto</div>
                         <div class="progress progress-thin">
-                            <div class="progress-bar bg-info" style="width: {{ margenBrutoPromedio > 100 ? 100 : margenBrutoPromedio }}%"></div>
+                            <div class="progress-bar bg-info" style="width: {{ (margenBrutoPromedio > 100 ? 100 : margenBrutoPromedio)|default(0) }}%"></div>
                         </div>
                         <small class="text-muted mt-2">
                             {{ metricasAdicionales.productos_analizados_margen }} productos analizados
@@ -316,14 +386,6 @@
             <div class="chart-container">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="mb-0 fw-bold">📈 Evolución de Ventas vs Compras (Últimos 30 días)</h4>
-                    <div class="d-flex align-items-center">
-                        <span class="me-2 small text-muted">Barras</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="toggleChartType">
-                            <span class="toggle-slider"></span>
-                        </label>
-                        <span class="ms-2 small text-muted">Líneas</span>
-                    </div>
                 </div>
 
                 <div class="chart-wrapper">
@@ -533,12 +595,12 @@
                                 <div class="metric-icon text-success mb-3">
                                     <i class="fas fa-check-circle fa-2x"></i>
                                 </div>
-                                <div class="metric-value text-success">{{ eficienciaInventario.porcentaje_optimo|number_format(1) }}%</div>
+                                <div class="metric-value text-success">{{ eficienciaInventario.porcentaje_optimo|default(0)|number_format(1) }}%</div>
                                 <div class="metric-label">Stock Óptimo</div>
                                 <div class="progress progress-thin">
-                                    <div class="progress-bar bg-success" style="width: {{ eficienciaInventario.porcentaje_optimo }}%"></div>
+                                    <div class="progress-bar bg-success" style="width: {{ eficienciaInventario.porcentaje_optimo|default(0) }}%"></div>
                                 </div>
-                                <small class="text-muted mt-2">{{ eficienciaInventario.stock_optimo }} de {{ eficienciaInventario.total_productos }} productos</small>
+                                <small class="text-muted mt-2">{{ eficienciaInventario.stock_optimo|default(0) }} de {{ eficienciaInventario.total_productos|default(0) }} productos</small>
                             </div>
                         </div>
 
@@ -547,12 +609,13 @@
                                 <div class="metric-icon text-warning mb-3">
                                     <i class="fas fa-exclamation-triangle fa-2x"></i>
                                 </div>
-                                <div class="metric-value text-warning">{{ eficienciaInventario.stock_bajo }}</div>
+                                <div class="metric-value text-warning">{{ eficienciaInventario.stock_bajo|default(0) }}</div>
                                 <div class="metric-label">Stock Bajo</div>
                                 <div class="progress progress-thin">
-                                    <div class="progress-bar bg-warning" style="width: {{ (eficienciaInventario.stock_bajo / eficienciaInventario.total_productos * 100)|number_format(1) }}%"></div>
+                                    {% set porcentaje_stock_bajo = eficienciaInventario.total_productos > 0 ? (eficienciaInventario.stock_bajo / eficienciaInventario.total_productos * 100) : 0 %}
+                                    <div class="progress-bar bg-warning" style="width: {{ porcentaje_stock_bajo|number_format(1) }}%"></div>
                                 </div>
-                                <small class="text-muted mt-2">{{ (eficienciaInventario.stock_bajo / eficienciaInventario.total_productos * 100)|number_format(1) }}% del inventario</small>
+                                <small class="text-muted mt-2">{{ porcentaje_stock_bajo|number_format(1) }}% del inventario</small>
                             </div>
                         </div>
 
@@ -561,12 +624,13 @@
                                 <div class="metric-icon text-danger mb-3">
                                     <i class="fas fa-times-circle fa-2x"></i>
                                 </div>
-                                <div class="metric-value text-danger">{{ eficienciaInventario.agotados }}</div>
+                                <div class="metric-value text-danger">{{ eficienciaInventario.agotados|default(0) }}</div>
                                 <div class="metric-label">Productos Agotados</div>
                                 <div class="progress progress-thin">
-                                    <div class="progress-bar bg-danger" style="width: {{ (eficienciaInventario.agotados / eficienciaInventario.total_productos * 100)|number_format(1) }}%"></div>
+                                    {% set porcentaje_agotados = eficienciaInventario.total_productos > 0 ? (eficienciaInventario.agotados / eficienciaInventario.total_productos * 100) : 0 %}
+                                    <div class="progress-bar bg-danger" style="width: {{ porcentaje_agotados|number_format(1) }}%"></div>
                                 </div>
-                                <small class="text-muted mt-2">{{ (eficienciaInventario.agotados / eficienciaInventario.total_productos * 100)|number_format(1) }}% del inventario</small>
+                                <small class="text-muted mt-2">{{ porcentaje_agotados|number_format(1) }}% del inventario</small>
                             </div>
                         </div>
                     </div>
@@ -582,18 +646,18 @@
                             <div class="metric-icon text-info mb-3">
                                 <i class="fas fa-sync-alt fa-2x"></i>
                             </div>
-                            <div class="metric-value text-info">{{ rotacionProductos.tasa_rotacion|number_format(1) }}%</div>
+                            <div class="metric-value text-info">{{ rotacionProductos.tasa_rotacion|default(0)|number_format(1) }}%</div>
                             <div class="metric-label">Tasa de Rotación</div>
                             <div class="progress progress-thin">
-                                <div class="progress-bar bg-info" style="width: {{ rotacionProductos.tasa_rotacion }}%"></div>
+                                <div class="progress-bar bg-info" style="width: {{ rotacionProductos.tasa_rotacion|default(0) }}%"></div>
                             </div>
                             <div class="row mt-3 text-center">
                                 <div class="col-6">
-                                    <div class="fw-bold text-primary">{{ rotacionProductos.productos_vendidos }}</div>
+                                    <div class="fw-bold text-primary">{{ rotacionProductos.productos_vendidos|default(0) }}</div>
                                     <small class="text-muted">Productos Vendidos</small>
                                 </div>
                                 <div class="col-6">
-                                    <div class="fw-bold text-secondary">{{ rotacionProductos.productos_activos }}</div>
+                                    <div class="fw-bold text-secondary">{{ rotacionProductos.productos_activos|default(0) }}</div>
                                     <small class="text-muted">Productos Activos</small>
                                 </div>
                             </div>
@@ -609,22 +673,22 @@
                             <div class="metric-icon text-purple mb-3" style="color: #6f42c1;">
                                 <i class="fas fa-user-friends fa-2x"></i>
                             </div>
-                            <div class="metric-value" style="color: #6f42c1;">{{ metricasClientes.tasa_recurrencia|number_format(1) }}%</div>
+                            <div class="metric-value" style="color: #6f42c1;">{{ metricasClientes.tasa_recurrencia|default(0)|number_format(1) }}%</div>
                             <div class="metric-label">Tasa de Recurrencia</div>
                             <div class="progress progress-thin">
-                                <div class="progress-bar" style="background-color: #6f42c1; width: {{ metricasClientes.tasa_recurrencia }}%"></div>
+                                <div class="progress-bar" style="background-color: #6f42c1; width: {{ metricasClientes.tasa_recurrencia|default(0) }}%"></div>
                             </div>
                             <div class="row mt-3 text-center">
                                 <div class="col-4">
-                                    <div class="fw-bold text-primary">{{ metricasClientes.total_clientes }}</div>
+                                    <div class="fw-bold text-primary">{{ metricasClientes.total_clientes|default(0) }}</div>
                                     <small class="text-muted">Total Clientes</small>
                                 </div>
                                 <div class="col-4">
-                                    <div class="fw-bold text-success">{{ metricasClientes.clientes_recurrentes }}</div>
+                                    <div class="fw-bold text-success">{{ metricasClientes.clientes_recurrentes|default(0) }}</div>
                                     <small class="text-muted">Recurrentes</small>
                                 </div>
                                 <div class="col-4">
-                                    <div class="fw-bold text-info">{{ metricasClientes.promedio_ventas_por_cliente|number_format(1) }}</div>
+                                    <div class="fw-bold text-info">{{ metricasClientes.promedio_ventas_por_cliente|default(0)|number_format(1) }}</div>
                                     <small class="text-muted">Promedio Ventas</small>
                                 </div>
                             </div>
@@ -962,5 +1026,24 @@
                 });
             }, 300);
         }
+
+        // Mostrar/ocultar campo de fecha específica
+        document.getElementById('filtro').addEventListener('change', function() {
+            const fechaContainer = document.getElementById('fecha-especifica-container');
+            if (this.value === 'fecha_especifica') {
+                fechaContainer.style.display = 'block';
+            } else {
+                fechaContainer.style.display = 'none';
+            }
+        });
+
+        // Inicializar visibilidad del campo fecha específica
+        document.addEventListener('DOMContentLoaded', function() {
+            const filtro = document.getElementById('filtro');
+            const fechaContainer = document.getElementById('fecha-especifica-container');
+            if (filtro.value === 'fecha_especifica') {
+                fechaContainer.style.display = 'block';
+            }
+        });
     </script>
 {% endblock %}
