@@ -29,6 +29,19 @@ class ProductoRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    public function getIngresosPorCategoria(int $categoriaId): float
+    {
+        $result = $this->createQueryBuilder('p')
+            ->select('COALESCE(SUM(dv.subtotal), 0) as ingresos')
+            ->join('p.detalleVentas', 'dv')
+            ->where('p.categoria = :categoriaId')
+            ->setParameter('categoriaId', $categoriaId)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return (float) $result;
+    }
+
     /*
     public function findAllWithRelations(): array
     {
