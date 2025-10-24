@@ -6,7 +6,6 @@ use App\Entity\HistorialPrecios;
 use App\Entity\Producto;
 use App\Form\HistorialPreciosType;
 use App\Repository\HistorialPreciosRepository;
-use App\Repository\ProductoRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,7 +43,6 @@ final class HistorialPreciosController extends AbstractController
                 $entityManager->persist($historialPrecio);
                 $entityManager->flush();
 
-
                 return $this->redirectToRoute('app_producto_show', [
                     'id' => $producto->getId()
                 ], Response::HTTP_SEE_OTHER);
@@ -66,8 +64,8 @@ final class HistorialPreciosController extends AbstractController
     {
         $ultimoVenta = $historialPreciosRepository->findLastByProductAndType($historialPrecio->getProducto(), 'venta');
         $ultimoCompra = $historialPreciosRepository->findLastByProductAndType($historialPrecio->getProducto(), 'compra');
-        $esUltimoVenta = $ultimoVenta && $ultimoVenta->getId() === $historialPrecio->getId();
-        $esUltimoCompra = $ultimoCompra && $ultimoCompra->getId() === $historialPrecio->getId();
+        $esUltimoVenta = $ultimoVenta && $ultimoVenta->getId()->equals($historialPrecio->getId());
+        $esUltimoCompra = $ultimoCompra && $ultimoCompra->getId()->equals($historialPrecio->getId());
 
         return $this->render('historial_precios/show.html.twig', [
             'historial_precio' => $historialPrecio,
@@ -111,7 +109,7 @@ final class HistorialPreciosController extends AbstractController
         HistorialPreciosRepository $historialPreciosRepository
     ): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $historialPrecio->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $historialPrecio->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
             $producto = $historialPrecio->getProducto();
             $tipo = $historialPrecio->getTipo();
 

@@ -11,7 +11,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-
 #[Route('/detalle/compra')]
 final class DetalleCompraController extends AbstractController
 {
@@ -58,7 +57,6 @@ final class DetalleCompraController extends AbstractController
         return $this->render('detalle_compra/index.html.twig', [
             'detalle_compras' => $detalleCompras,
         ]);
-
     }
 
     #[Route('/{id}/edit', name: 'app_detalle_compra_edit', methods: ['GET', 'POST'])]
@@ -82,7 +80,7 @@ final class DetalleCompraController extends AbstractController
     #[Route('/{id}', name: 'app_detalle_compra_delete', methods: ['POST'])]
     public function delete(Request $request, DetalleCompra $detalleCompra, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $detalleCompra->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $detalleCompra->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($detalleCompra);
             $entityManager->flush();
         }

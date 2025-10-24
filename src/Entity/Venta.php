@@ -7,14 +7,17 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: VentaRepository::class)]
 class Venta
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    private ?Uuid $id = null;
 
     #[ORM\Column]
     private ?\DateTime $fecha = null;
@@ -40,9 +43,10 @@ class Venta
     public function __construct()
     {
         $this->detalleVentas = new ArrayCollection();
+        $this->id = Uuid::v6(); // Generar UUID automáticamente
     }
 
-    public function getId(): ?int
+    public function getId(): ?Uuid
     {
         return $this->id;
     }
@@ -135,5 +139,10 @@ class Venta
         $this->estado = $estado;
 
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->id ? $this->id->toRfc4122() : 'Nueva Venta';
     }
 }

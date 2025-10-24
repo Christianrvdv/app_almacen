@@ -77,7 +77,7 @@ final class CategoriaController extends AbstractController
     #[Route('/{id}', name: 'app_categoria_delete', methods: ['POST'])]
     public function delete(Request $request, Categoria $categoria, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $categoria->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $categoria->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($categoria);
             $entityManager->flush();
         }

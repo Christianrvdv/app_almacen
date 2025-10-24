@@ -48,7 +48,6 @@ final class ProductoController extends AbstractController
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         try {
-            // Usar CommonService para fecha actual
             $producto = new Producto();
             $currentDateTime = $this->commonService->getCurrentDateTime();
             $producto->setFechaCreaccion($currentDateTime);
@@ -76,14 +75,8 @@ final class ProductoController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_producto_show', methods: ['GET'])]
-    public function show(int $id, ProductoRepository $productoRepository): Response
+    public function show(Producto $producto): Response
     {
-        $producto = $productoRepository->findWithRelations($id);
-
-        if (!$producto) {
-            throw $this->createNotFoundException('Producto no encontrado');
-        }
-
         $stats = $this->inventoryService->calculateProductStats($producto);
 
         return $this->render('producto/show.html.twig', [
@@ -100,7 +93,6 @@ final class ProductoController extends AbstractController
     public function edit(Request $request, Producto $producto, EntityManagerInterface $entityManager): Response
     {
         try {
-            // Usar CommonService para fecha actual
             $producto->setFechaActualizacion($this->commonService->getCurrentDateTime());
 
             $form = $this->createForm(ProductoType::class, $producto);

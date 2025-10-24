@@ -71,7 +71,7 @@ final class DetalleVentaController extends AbstractController
     #[Route('/{id}', name: 'app_detalle_venta_delete', methods: ['POST'])]
     public function delete(Request $request, DetalleVenta $detalleVenta, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$detalleVenta->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$detalleVenta->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($detalleVenta);
             $entityManager->flush();
         }

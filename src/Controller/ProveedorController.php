@@ -10,7 +10,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use function Sodium\add;
 
 #[Route('/proveedor')]
 final class ProveedorController extends AbstractController
@@ -72,7 +71,7 @@ final class ProveedorController extends AbstractController
     #[Route('/{id}', name: 'app_proveedor_delete', methods: ['POST'])]
     public function delete(Request $request, Proveedor $proveedor, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $proveedor->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $proveedor->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($proveedor);
             $entityManager->flush();
         }

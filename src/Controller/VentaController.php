@@ -5,7 +5,6 @@ namespace App\Controller;
 use App\Entity\DetalleVenta;
 use App\Entity\Venta;
 use App\Form\DetalleVentaType;
-use App\Form\VentaEditType;
 use App\Form\VentaType;
 use App\Repository\VentaRepository;
 use App\Service\CommonService;
@@ -125,7 +124,7 @@ final class VentaController extends AbstractController
                 $entityManager->flush();
 
                 $this->addFlash('success', 'Venta actualizada correctamente');
-                return $this->redirectToRoute('app_venta_show', ['id' => $venta->getid()], Response::HTTP_SEE_OTHER);
+                return $this->redirectToRoute('app_venta_show', ['id' => $venta->getId()], Response::HTTP_SEE_OTHER);
 
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Error al actualizar la venta: ' . $e->getMessage());
@@ -142,7 +141,7 @@ final class VentaController extends AbstractController
     #[Route('/{id}', name: 'app_venta_delete', methods: ['POST'])]
     public function delete(Request $request, Venta $venta, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $venta->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $venta->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($venta);
             $entityManager->flush();
         }
@@ -170,7 +169,7 @@ final class VentaController extends AbstractController
     public function downloadPdf(Venta $venta, PdfGeneratorService $pdfGenerator): Response
     {
         try {
-            $filename = 'factura_venta_' . $venta->getId() . '_' . date('Y-m-d') . '.pdf';
+            $filename = 'factura_venta_' . $venta->getId()->toRfc4122() . '_' . date('Y-m-d') . '.pdf';
             $filePath = $pdfGenerator->getPdfFilePath($filename);
 
             if (!file_exists($filePath)) {
@@ -199,7 +198,7 @@ final class VentaController extends AbstractController
     public function viewPdf(Venta $venta, PdfGeneratorService $pdfGenerator): Response
     {
         try {
-            $filename = 'factura_venta_' . $venta->getId() . '_' . date('Y-m-d') . '.pdf';
+            $filename = 'factura_venta_' . $venta->getId()->toRfc4122() . '_' . date('Y-m-d') . '.pdf';
             $filePath = $pdfGenerator->getPdfFilePath($filename);
 
             if (!file_exists($filePath)) {

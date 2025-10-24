@@ -5,14 +5,17 @@ namespace App\Entity;
 use App\Repository\DetalleCompraRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: DetalleCompraRepository::class)]
 class DetalleCompra
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    private ?Uuid $id = null;
 
     #[ORM\Column]
     private ?int $cantidad = null;
@@ -36,8 +39,9 @@ class DetalleCompra
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
     private ?string $producto_codigo_barras_historico = null;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $producto_categoria_id_historico = null;
+    #[ORM\Column(type: 'string', length: 36, nullable: true)]
+    private ?string $producto_categoria_id_historico = null;
+
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $categoria_nombre_historico  = null;
 
@@ -47,7 +51,12 @@ class DetalleCompra
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
     private ?float $precio_costo_historico = null;
 
-    public function getId(): ?int
+    public function __construct()
+    {
+        $this->id = Uuid::v6();
+    }
+
+    public function getId(): ?Uuid
     {
         return $this->id;
     }
@@ -130,12 +139,12 @@ class DetalleCompra
         $this->producto_codigo_barras_historico = $producto_codigo_barras_historico;
     }
 
-    public function getProductoCategoriaIdHistorico(): ?int
+    public function getProductoCategoriaIdHistorico(): ?string
     {
         return $this->producto_categoria_id_historico;
     }
 
-    public function setProductoCategoriaIdHistorico(?int $producto_categoria_id_historico): void
+    public function setProductoCategoriaIdHistorico(?string $producto_categoria_id_historico): void
     {
         $this->producto_categoria_id_historico = $producto_categoria_id_historico;
     }
@@ -170,4 +179,8 @@ class DetalleCompra
         $this->precio_costo_historico = $precio_costo_historico;
     }
 
+    public function __toString(): string
+    {
+        return $this->id ? $this->id->toRfc4122() : 'Nuevo Detalle Compra';
+    }
 }

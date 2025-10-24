@@ -5,14 +5,17 @@ namespace App\Entity;
 use App\Repository\HistorialPreciosRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Types\UuidType;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: HistorialPreciosRepository::class)]
 class HistorialPrecios
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(type: UuidType::NAME, unique: true)]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
+    private ?Uuid $id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $tipo = null;
@@ -32,7 +35,12 @@ class HistorialPrecios
     #[ORM\ManyToOne(inversedBy: 'historialPrecios')]
     private ?Producto $producto = null;
 
-    public function getId(): ?int
+    public function __construct()
+    {
+        $this->id = Uuid::v6();
+    }
+
+    public function getId(): ?Uuid
     {
         return $this->id;
     }
@@ -107,5 +115,10 @@ class HistorialPrecios
         $this->producto = $producto;
 
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->id ? $this->id->toRfc4122() : 'Nuevo Historial Precio';
     }
 }

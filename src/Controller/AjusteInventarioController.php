@@ -113,7 +113,7 @@ final class AjusteInventarioController extends AbstractController
     #[Route('/{id}', name: 'app_ajuste_inventario_delete', methods: ['POST'])]
     public function delete(Request $request, AjusteInventario $ajusteInventario, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$ajusteInventario->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$ajusteInventario->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($ajusteInventario);
             $entityManager->flush();
         }

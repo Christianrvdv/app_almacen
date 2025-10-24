@@ -53,17 +53,6 @@ final class ClienteController extends AbstractController
         ]);
     }
 
-    public function show(Categoria $categoria, ProductoRepository $productoRepository): Response
-    {
-        // Usar consulta optimizada en lugar de bucles
-        $ingresos = $productoRepository->getIngresosPorCategoria($categoria->getId());
-
-        return $this->render('categoria/show.html.twig', [
-            'categoria' => $categoria,
-            'ingresos' => $ingresos,
-        ]);
-    }
-
     #[Route('/{id}/edit', name: 'app_cliente_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Cliente $cliente, EntityManagerInterface $entityManager): Response
     {
@@ -85,7 +74,7 @@ final class ClienteController extends AbstractController
     #[Route('/{id}', name: 'app_cliente_delete', methods: ['POST'])]
     public function delete(Request $request, Cliente $cliente, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $cliente->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $cliente->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($cliente);
             $entityManager->flush();
         }
