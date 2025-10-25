@@ -257,69 +257,25 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const precioCompraInput = document.getElementById('{{ form.precio_compra.vars.id }}');
-            const precioVentaInput = document.getElementById('{{ form.precio_venta_actual.vars.id }}');
-            const margenPreview = document.getElementById('margenPreview');
-            const gananciaPreview = document.getElementById('gananciaPreview');
+{% endblock %}
 
-            function calcularMargen() {
-                const precioCompra = parseFloat(precioCompraInput.value) || 0;
-                const precioVenta = parseFloat(precioVentaInput.value) || 0;
+{% block javascripts %}
+    {{ parent() }}
 
-                if (precioCompra > 0 && precioVenta > 0) {
-                    const ganancia = precioVenta - precioCompra;
-                    const margenPorcentaje = (ganancia / precioCompra) * 100;
+    <script type="module">
+        import { initFormPage } from "{{ asset('js/producto/new.js') }}";
 
-                    gananciaPreview.textContent = `$${ganancia.toFixed(2)}`;
-                    margenPreview.textContent = `${margenPorcentaje.toFixed(2)}%`;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Pasa los IDs de los campos y los elementos de visualización
+            const ids = {
+                // Asumiendo que los campos se llaman 'precioCompra' y 'precioVenta' en tu FormType
+                precioCompraId: '{{ form.precio_compra.vars.id }}',
+                precioVentaId: '{{ form.precio_venta_actual.vars.id }}',
+                gananciaPreviewId: 'ganancia-preview',
+                margenPreviewId: 'margen-preview'
+            };
 
-                    // Cambiar color según el margen
-                    if (margenPorcentaje > 0) {
-                        margenPreview.className = 'margen-ganancia text-profit';
-                        gananciaPreview.className = 'text-success';
-                    } else {
-                        margenPreview.className = 'margen-ganancia text-loss';
-                        gananciaPreview.className = 'text-danger';
-                    }
-                } else {
-                    gananciaPreview.textContent = '$0.00';
-                    margenPreview.textContent = '0.00%';
-                    margenPreview.className = 'margen-ganancia text-profit';
-                    gananciaPreview.className = 'text-success';
-                }
-            }
-
-            // Calcular margen cuando cambien los precios
-            precioCompraInput.addEventListener('input', calcularMargen);
-            precioVentaInput.addEventListener('input', calcularMargen);
-
-            // Calcular margen inicial
-            calcularMargen();
-
-            // Validación de formulario
-            const form = document.querySelector('form');
-            form.addEventListener('submit', function (event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            });
-
-            // Animación suave para las secciones
-            const sections = document.querySelectorAll('.form-section');
-            sections.forEach((section, index) => {
-                section.style.opacity = '0';
-                section.style.transform = 'translateY(20px)';
-
-                setTimeout(() => {
-                    section.style.transition = 'all 0.6s ease';
-                    section.style.opacity = '1';
-                    section.style.transform = 'translateY(0)';
-                }, index * 200);
-            });
+            initFormPage(ids);
         });
     </script>
 {% endblock %}

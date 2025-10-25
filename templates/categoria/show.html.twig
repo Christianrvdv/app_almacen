@@ -268,55 +268,15 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Animación suave para las tarjetas
-            const cards = document.querySelectorAll('.stats-card, .detalle-card, .stat-item');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
 
-                setTimeout(() => {
-                    card.style.transition = 'all 0.6s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 200);
-            });
+    <script type="module">
+        import { initShowPage } from "{{ asset('js/categoria/show.js') }}";
 
-            // Cargar estadísticas
-            loadStats();
+        document.addEventListener('DOMContentLoaded', function() {
+            const totalProductos = {{ categoria.productos|length }};
+            const productosActivos = {{ categoria.productos|filter(p => p.activo)|length }};
+
+            initShowPage(totalProductos, productosActivos);
         });
-
-        async function loadStats() {
-            try {
-                // Usar datos reales de la categoría
-                const stats = {
-                    productos: {{ categoria.productos|length }},
-                    activos: {{ categoria.productos|filter(p => p.activo)|length }},
-                    ingresos: calcularIngresosTotales()
-                };
-
-                // Actualizar las estadísticas
-                document.getElementById('stat-productos').querySelector('.stat-number').textContent = stats.productos;
-                document.getElementById('stat-activos').querySelector('.stat-number').textContent = stats.activos;
-
-                // Remover clase de loading
-                document.querySelectorAll('.stat-item').forEach(item => {
-                    item.classList.remove('loading');
-                });
-            } catch (error) {
-                console.error('Error cargando estadísticas:', error);
-                document.querySelectorAll('.stat-item').forEach(item => {
-                    item.classList.remove('loading');
-                    item.querySelector('.stat-number').textContent = 'Error';
-                });
-            }
-        }
-
-        function calcularIngresosTotales() {
-            // Esta función calcularía los ingresos totales de los productos de esta categoría
-            // Por ahora devolvemos 0, pero puedes implementar la lógica real aquí
-            return 0;
-        }
     </script>
 {% endblock %}

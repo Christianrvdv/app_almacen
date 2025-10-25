@@ -258,7 +258,6 @@
                 </div>
             </div>
 
-
             <!-- Modal de Confirmación para Eliminar -->
             <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel"
                  aria-hidden="true">
@@ -311,31 +310,9 @@
             </div>
         </div>
     </div>
+{% endblock %}
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Animación para las tarjetas
-            const cards = document.querySelectorAll('.detalle-card, .stat-item');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-
-                setTimeout(() => {
-                    card.style.transition = 'all 0.5s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 150);
-            });
-
-            // Confirmación para eliminar
-            const deleteForms = document.querySelectorAll('.delete-form');
-            deleteForms.forEach(form => {
-                form.addEventListener('submit', function (e) {
-                    if (!confirm('¿Estás seguro de que deseas eliminar este registro del historial? Esta acción no se puede deshacer.')) {
-                        e.preventDefault();
-                    }
-                });
-            });
-        });
-    </script>
+{% block javascripts %}
+    {{ parent() }}
+    <script type="module" src="{{ asset('js/historial_precios/show.js') }}"></script>
 {% endblock %}

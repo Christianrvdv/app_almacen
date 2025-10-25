@@ -170,36 +170,14 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Funcionalidad básica de búsqueda
-            const searchInput = document.querySelector('input[type="text"]');
-            const tableRows = document.querySelectorAll('tbody tr');
+{% endblock %}
 
-            searchInput.addEventListener('input', function(e) {
-                const searchTerm = e.target.value.toLowerCase();
+{% block javascripts %}
+    {{ parent() }}
 
-                tableRows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    if (text.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
+    <script type="module">
+        import { initIndexPage } from "{{ asset('js/categoria/index.js') }}";
 
-            // Animación suave para las filas
-            tableRows.forEach((row, index) => {
-                row.style.opacity = '0';
-                row.style.transform = 'translateX(-20px)';
-
-                setTimeout(() => {
-                    row.style.transition = 'all 0.5s ease';
-                    row.style.opacity = '1';
-                    row.style.transform = 'translateX(0)';
-                }, index * 100);
-            });
-        });
+        document.addEventListener('DOMContentLoaded', initIndexPage);
     </script>
 {% endblock %}

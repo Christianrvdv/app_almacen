@@ -265,35 +265,20 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Animación suave para las tarjetas
-            const cards = document.querySelectorAll('.stats-card, .detalle-card, .stat-item');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
 
-                setTimeout(() => {
-                    card.style.transition = 'all 0.6s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 200);
-            });
+    <script type="module">
+        import { initShowPage } from "{{ asset('js/detalle_venta/show.js') }}";
 
-            // Calculadora de ganancia en tiempo real
-            const precioUnitario = {{ detalle_ventas.precioUnitario }};
-            const precioCosto = {{ detalle_ventas.producto.precioCompra }};
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables de Twig pasadas al módulo JavaScript
+            const detalleId = {{ detalle_ventas.id }};
+            const productoNombre = '{{ detalle_ventas.producto ? detalle_ventas.producto.nombre|escape('js') : 'Producto Eliminado' }}';
             const cantidad = {{ detalle_ventas.cantidad }};
+            const precioUnitario = {{ detalle_ventas.precioUnitario }};
+            // Asumiendo que el precio de costo está disponible en el producto asociado
+            const precioCosto = {{ detalle_ventas.producto ? detalle_ventas.producto.precioCompra : 0 }};
 
-            const gananciaUnidad = precioUnitario - precioCosto;
-            const gananciaTotal = gananciaUnidad * cantidad;
-            const margenPorcentaje = precioCosto > 0 ? (gananciaUnidad / precioCosto * 100) : 0;
-
-            console.log('Resumen financiero:', {
-                gananciaPorUnidad: gananciaUnidad,
-                gananciaTotal: gananciaTotal,
-                margenPorcentaje: margenPorcentaje
-            });
+            initShowPage(detalleId, productoNombre, cantidad, precioUnitario, precioCosto);
         });
     </script>
 {% endblock %}

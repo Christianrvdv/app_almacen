@@ -217,36 +217,16 @@
         </div>
     </div>
 
-    <script>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script type="module">
+        import { initProveedorListPage } from "{{ asset('js/proveedor/list.js') }}";
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Funcionalidad básica de búsqueda
-            const searchInput = document.querySelector('input[type="text"]');
-            const tableRows = document.querySelectorAll('tbody tr');
-
-            searchInput.addEventListener('input', function(e) {
-                const searchTerm = e.target.value.toLowerCase();
-
-                tableRows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    if (text.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-
-            // Animación suave para las filas
-            tableRows.forEach((row, index) => {
-                row.style.opacity = '0';
-                row.style.transform = 'translateX(-20px)';
-
-                setTimeout(() => {
-                    row.style.transition = 'all 0.5s ease';
-                    row.style.opacity = '1';
-                    row.style.transform = 'translateX(0)';
-                }, index * 100);
-            });
+            initProveedorListPage();
         });
     </script>
 {% endblock %}

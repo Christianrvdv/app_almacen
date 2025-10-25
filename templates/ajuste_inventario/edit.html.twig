@@ -250,74 +250,26 @@
         </div>
     </div>
 
-    <script>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {# Se carga el script principal de formulario como un módulo #}
+    <script type="module">
+        import { initFormPage } from "{{ asset('js/ajuste_inventario/new.js') }}";
+
         document.addEventListener('DOMContentLoaded', function() {
-            const tipoSelect = document.getElementById('{{ form.tipo.vars.id }}');
-            const cantidadInput = document.getElementById('{{ form.cantidad.vars.id }}');
-            const productoSelect = document.getElementById('{{ form.producto.vars.id }}');
-            const tipoPreview = document.getElementById('tipoPreview');
-            const impactoPreview = document.getElementById('impactoPreview');
-            const productoPreview = document.getElementById('productoPreview');
+            const formVars = {
+                tipoId: '{{ form.tipo.vars.id }}',
+                cantidadId: '{{ form.cantidad.vars.id }}',
+                productoId: '{{ form.producto.vars.id }}',
+                fechaId: '{{ form.fecha.vars.id }}',
+                isEdit: true,
+            };
+            initFormPage(formVars);
 
-            function actualizarVistaPrevia() {
-                const tipo = tipoSelect.value;
-                const cantidad = parseInt(cantidadInput.value) || 0;
-                const productoTexto = productoSelect.options[productoSelect.selectedIndex]?.text || 'Ninguno';
-
-                // Actualizar tipo
-                if (tipo === 'entrada') {
-                    tipoPreview.textContent = 'ENTRADA 📥';
-                    tipoPreview.className = 'margen-ganancia text-success';
-                    impactoPreview.textContent = `+${cantidad} unidades`;
-                    impactoPreview.className = 'text-success';
-                } else if (tipo === 'salida') {
-                    tipoPreview.textContent = 'SALIDA 📤';
-                    tipoPreview.className = 'margen-ganancia text-danger';
-                    impactoPreview.textContent = `-${cantidad} unidades`;
-                    impactoPreview.className = 'text-danger';
-                } else {
-                    tipoPreview.textContent = 'Selecciona un tipo';
-                    tipoPreview.className = 'margen-ganancia text-secondary';
-                    impactoPreview.textContent = '0 unidades';
-                    impactoPreview.className = 'text-secondary';
-                }
-
-                // Actualizar producto
-                productoPreview.textContent = productoTexto;
-            }
-
-            // Actualizar vista previa cuando cambien los campos
-            tipoSelect.addEventListener('change', actualizarVistaPrevia);
-            cantidadInput.addEventListener('input', actualizarVistaPrevia);
-            productoSelect.addEventListener('change', actualizarVistaPrevia);
-
-            // Actualizar vista previa inicial con los datos actuales
-            actualizarVistaPrevia();
-
-            // Validación de formulario
-            const form = document.querySelector('form');
-            form.addEventListener('submit', function(event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            });
-
-            // Animación suave para las secciones
-            const sections = document.querySelectorAll('.form-section, .stats-card');
-            sections.forEach((section, index) => {
-                section.style.opacity = '0';
-                section.style.transform = 'translateY(20px)';
-
-                setTimeout(() => {
-                    section.style.transition = 'all 0.6s ease';
-                    section.style.opacity = '1';
-                    section.style.transform = 'translateY(0)';
-                }, index * 200);
-            });
-
-            // Mostrar información de cambios
+            // Log de consola específico de esta página
             console.log('Editando ajuste de inventario #{{ ajuste_inventario.id }}');
         });
     </script>

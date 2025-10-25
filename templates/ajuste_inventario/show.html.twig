@@ -304,38 +304,21 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script>
+    <script type="module">
+        import { initShowPage } from "{{ asset('js/ajuste_inventario/show.js') }}";
+
         document.addEventListener('DOMContentLoaded', function() {
-            // Animación suave para las tarjetas
-            const cards = document.querySelectorAll('.stats-card, .detalle-card, .stat-item');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-
-                setTimeout(() => {
-                    card.style.transition = 'all 0.6s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 200);
-            });
-
-            // Remover clase de loading de las estadísticas
-            setTimeout(() => {
-                document.querySelectorAll('.stat-item').forEach(item => {
-                    item.classList.remove('loading');
-                });
-            }, 1000);
-
-            // Mostrar información del impacto
             const tipo = '{{ ajuste_inventario.tipo|lower }}';
             const cantidad = {{ ajuste_inventario.cantidad }};
-            const producto = {% if ajuste_inventario.producto %}true{% else %}false{% endif %};
+            const productoExists = {% if ajuste_inventario.producto %}true{% else %}false{% endif %};
+            const precioVenta = {{ ajuste_inventario.producto ? ajuste_inventario.producto.precioVentaActual : 0 }};
+            const valorTotal = cantidad * precioVenta;
 
-            if (producto) {
-                const precioVenta = {{ ajuste_inventario.producto ? ajuste_inventario.producto.precioVentaActual : 0 }};
-                const valorTotal = cantidad * precioVenta;
-                console.log(`Impacto del ajuste: ${tipo} de ${cantidad} unidades (Valor: $${valorTotal.toLocaleString('es-ES', {minimumFractionDigits: 2})})`);
-            }
+            const logMessage = productoExists
+                ? `Impacto del ajuste: ${tipo} de ${cantidad} unidades (Valor: $${valorTotal.toLocaleString('es-ES', {minimumFractionDigits: 2})})`
+                : `Impacto del ajuste: ${tipo} de ${cantidad} unidades (Producto no asociado, valor no calculado)`;
+
+            initShowPage(logMessage);
         });
     </script>
 {% endblock %}

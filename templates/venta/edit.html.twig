@@ -70,7 +70,7 @@
                     <i class="fas fa-edit me-2"></i>Editar Información de la Venta
                 </div>
                 <div class="card-body p-4">
-                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate'}}) }}
+                    {{ form_start(form, {'attr': {'class': 'needs-validation', 'novalidate': 'novalidate', 'id': 'venta-edit-form'}}) }}
 
                     <!-- Información General de la Venta -->
                     <h3 class="section-title">
@@ -83,7 +83,8 @@
                                     {{ form_label(form.fecha, 'Fecha de Venta', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
                                     {{ form_widget(form.fecha, {'attr': {
                                         'class': 'form-control form-control-modern',
-                                        'required': 'required'
+                                        'required': 'required',
+                                        'id': 'venta_fecha'
                                     }}) }}
                                     {{ form_errors(form.fecha) }}
                                     <div class="form-help-text">Fecha en que se realiza la venta</div>
@@ -94,7 +95,8 @@
                                     {{ form_label(form.cliente, 'Cliente', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
                                     {{ form_widget(form.cliente, {'attr': {
                                         'class': 'form-control form-control-modern',
-                                        'required': 'required'
+                                        'required': 'required',
+                                        'id': 'venta_cliente'
                                     }}) }}
                                     {{ form_errors(form.cliente) }}
                                     <div class="form-help-text">Selecciona el cliente</div>
@@ -106,7 +108,8 @@
                                     {{ form_label(form.tipo_veenta, 'Tipo de Venta', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
                                     {{ form_widget(form.tipo_veenta, {'attr': {
                                         'class': 'form-control form-control-modern',
-                                        'required': 'required'
+                                        'required': 'required',
+                                        'id': 'venta_tipo_venta'
                                     }}) }}
                                     {{ form_errors(form.tipo_veenta) }}
                                     <div class="form-help-text">Tipo de transacción</div>
@@ -117,7 +120,8 @@
                                     {{ form_label(form.estado, 'Estado', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
                                     {{ form_widget(form.estado, {'attr': {
                                         'class': 'form-control form-control-modern',
-                                        'required': 'required'
+                                        'required': 'required',
+                                        'id': 'venta_estado'
                                     }}) }}
                                     {{ form_errors(form.estado) }}
                                     <div class="form-help-text">Estado actual de la venta</div>
@@ -130,7 +134,8 @@
                                         <span class="input-group-text input-group-text-modern">$</span>
                                         {{ form_widget(form.total, {'attr': {
                                             'class': 'form-control form-control-modern',
-                                            'readonly': 'readonly'
+                                            'readonly': 'readonly',
+                                            'id': 'venta_total'
                                         }}) }}
                                     </div>
                                     {{ form_errors(form.total) }}
@@ -147,16 +152,18 @@
                     <div class="form-section">
 
                         <div id="detalle-ventas"
-                             data-prototype="{{ form_widget(form.detalleVentas.vars.prototype)|e('html_attr') }}">
+                             data-prototype="{{ form_widget(form.detalleVentas.vars.prototype)|e('html_attr') }}"
+                             data-index="{{ form.detalleVentas|length > 0 ? form.detalleVentas|last.vars.name + 1 : 0 }}">
                             {% for detalle in form.detalleVentas %}
-                                <div class="detalle-card">
+                                <div class="detalle-card" data-index="{{ loop.index0 }}">
                                     <div class="row align-items-center">
                                         <div class="col-md-4 mb-3">
                                             <div class="form-group-modern">
                                                 {{ form_label(detalle.producto, 'Producto', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
                                                 {{ form_widget(detalle.producto, {'attr': {
-                                                    'class': 'form-control form-control-modern',
-                                                    'required': 'required'
+                                                    'class': 'form-control form-control-modern producto-select',
+                                                    'required': 'required',
+                                                    'data-index': loop.index0
                                                 }}) }}
                                                 {{ form_errors(detalle.producto) }}
                                             </div>
@@ -165,9 +172,10 @@
                                             <div class="form-group-modern">
                                                 {{ form_label(detalle.cantidad, 'Cantidad', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
                                                 {{ form_widget(detalle.cantidad, {'attr': {
-                                                    'class': 'form-control form-control-modern',
+                                                    'class': 'form-control form-control-modern cantidad-input',
                                                     'min': '1',
-                                                    'required': 'required'
+                                                    'required': 'required',
+                                                    'data-index': loop.index0
                                                 }}) }}
                                                 {{ form_errors(detalle.cantidad) }}
                                             </div>
@@ -178,10 +186,11 @@
                                                 <div class="input-group input-group-modern">
                                                     <span class="input-group-text input-group-text-modern">$</span>
                                                     {{ form_widget(detalle.precio_unitario, {'attr': {
-                                                        'class': 'form-control form-control-modern',
+                                                        'class': 'form-control form-control-modern precio-input',
                                                         'step': '0.01',
                                                         'min': '0',
-                                                        'required': 'required'
+                                                        'required': 'required',
+                                                        'data-index': loop.index0
                                                     }}) }}
                                                 </div>
                                                 {{ form_errors(detalle.precio_unitario) }}
@@ -194,12 +203,13 @@
                                                     <span class="input-group-text input-group-text-modern">$</span>
                                                     <input type="text"
                                                            class="form-control form-control-modern subtotal-input"
-                                                           readonly>
+                                                           readonly
+                                                           data-index="{{ loop.index0 }}">
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <button type="button" class="btn btn-modern btn-danger-modern eliminar-detalle">
+                                    <button type="button" class="btn btn-modern btn-danger-modern eliminar-detalle" data-index="{{ loop.index0 }}">
                                         <i class="fas fa-trash me-2"></i>Eliminar Detalle
                                     </button>
                                 </div>
@@ -227,7 +237,7 @@
                                class="btn btn-modern btn-outline-modern">
                                 <i class="fas fa-times me-2"></i>Cancelar
                             </a>
-                            <button type="submit" class="btn btn-modern btn-primary-modern">
+                            <button type="submit" class="btn btn-modern btn-primary-modern" id="submit-venta">
                                 <i class="fas fa-save me-2"></i>Actualizar Venta
                             </button>
                         </div>
@@ -241,153 +251,6 @@
 {% endblock %}
 
 {% block javascripts %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const addButton = document.getElementById('add-detalle');
-            const detalleVentas = document.getElementById('detalle-ventas');
-            const prototype = detalleVentas.getAttribute('data-prototype');
-            const totalPreview = document.getElementById('totalPreview');
-            const totalInput = document.getElementById('{{ form.total.vars.id }}');
-
-            // Función para calcular subtotales y total
-            function calcularTotales() {
-                let totalVenta = 0;
-
-                document.querySelectorAll('.detalle-card').forEach(card => {
-                    const cantidad = parseFloat(card.querySelector('[id$="_cantidad"]').value) || 0;
-                    const precio = parseFloat(card.querySelector('[id$="_precio_unitario"]').value) || 0;
-                    const subtotal = cantidad * precio;
-
-                    // Actualizar subtotal
-                    const subtotalInput = card.querySelector('.subtotal-input');
-                    if (subtotalInput) {
-                        subtotalInput.value = subtotal.toFixed(2);
-                    }
-
-                    totalVenta += subtotal;
-                });
-
-                // Actualizar total
-                totalPreview.textContent = `$${totalVenta.toFixed(2)}`;
-                totalInput.value = totalVenta.toFixed(2);
-            }
-
-            // Agregar nuevo detalle
-            addButton.addEventListener('click', function () {
-                const index = document.querySelectorAll('.detalle-card').length;
-                const newForm = prototype.replace(/__name__/g, index);
-                const newRow = document.createElement('div');
-                newRow.setAttribute('class', 'detalle-card');
-                newRow.innerHTML = newForm;
-
-                // Añadir campos de subtotal
-                const subtotalField = `
-                    <div class="col-md-3 mb-3">
-                        <div class="form-group-modern">
-                            <label class="form-label-modern">Subtotal</label>
-                            <div class="input-group input-group-modern">
-                                <span class="input-group-text input-group-text-modern">$</span>
-                                <input type="text" class="form-control form-control-modern subtotal-input" readonly>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                const rowContent = newRow.querySelector('.row');
-                if (rowContent) {
-                    rowContent.insertAdjacentHTML('beforeend', subtotalField);
-                }
-
-                // Añadir botón eliminar
-                const deleteButton = document.createElement('button');
-                deleteButton.setAttribute('type', 'button');
-                deleteButton.setAttribute('class', 'btn btn-modern btn-danger-modern eliminar-detalle');
-                deleteButton.innerHTML = '<i class="fas fa-trash me-2"></i>Eliminar Detalle';
-                newRow.appendChild(deleteButton);
-
-                detalleVentas.appendChild(newRow);
-
-                // Reasignar eventos a los nuevos campos
-                asignarEventosDetalle(newRow);
-
-                // Calcular totales
-                calcularTotales();
-
-                // Animación para el nuevo elemento
-                newRow.style.opacity = '0';
-                newRow.style.transform = 'translateY(20px)';
-
-                setTimeout(() => {
-                    newRow.style.transition = 'all 0.6s ease';
-                    newRow.style.opacity = '1';
-                    newRow.style.transform = 'translateY(0)';
-                }, 100);
-            });
-
-            // Eliminar detalle
-            detalleVentas.addEventListener('click', function (e) {
-                if (e.target.classList.contains('eliminar-detalle') ||
-                    e.target.closest('.eliminar-detalle')) {
-                    const button = e.target.classList.contains('eliminar-detalle') ?
-                        e.target : e.target.closest('.eliminar-detalle');
-                    const card = button.closest('.detalle-card');
-
-                    // Animación de salida
-                    card.style.transition = 'all 0.4s ease';
-                    card.style.opacity = '0';
-                    card.style.transform = 'translateX(100px)';
-
-                    setTimeout(() => {
-                        card.remove();
-                        calcularTotales();
-                    }, 400);
-                }
-            });
-
-            // Función para asignar eventos a los campos de un detalle
-            function asignarEventosDetalle(detalleCard) {
-                const cantidadInput = detalleCard.querySelector('[id$="_cantidad"]');
-                const precioInput = detalleCard.querySelector('[id$="_precio_unitario"]');
-
-                if (cantidadInput) {
-                    cantidadInput.addEventListener('input', calcularTotales);
-                }
-
-                if (precioInput) {
-                    precioInput.addEventListener('input', calcularTotales);
-                }
-            }
-
-            // Asignar eventos a los detalles existentes
-            document.querySelectorAll('.detalle-card').forEach(card => {
-                asignarEventosDetalle(card);
-            });
-
-            // Calcular totales iniciales
-            calcularTotales();
-
-            // Animación suave para las secciones
-            const sections = document.querySelectorAll('.form-section');
-            sections.forEach((section, index) => {
-                section.style.opacity = '0';
-                section.style.transform = 'translateY(20px)';
-
-                setTimeout(() => {
-                    section.style.transition = 'all 0.6s ease';
-                    section.style.opacity = '1';
-                    section.style.transform = 'translateY(0)';
-                }, index * 200);
-            });
-
-            // Validación de formulario
-            const form = document.querySelector('form');
-            form.addEventListener('submit', function (event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                }
-                form.classList.add('was-validated');
-            });
-        });
-    </script>
+    {{ parent() }}
+    <script type="module" src="{{ asset('js/venta/edit.js') }}"></script>
 {% endblock %}

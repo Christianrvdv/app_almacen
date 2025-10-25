@@ -373,21 +373,23 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Animación suave para las tarjetas
-            const cards = document.querySelectorAll('.stats-card, .module-card, .quick-action-card');
+{% endblock %}
 
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
+{% block javascripts %}
+    {{ parent() }}
 
-                setTimeout(() => {
-                    card.style.transition = 'all 0.5s ease';
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
+    {% set chartData = {
+        ventasMensuales: [1200, 1500, 1800, 1400, 2000, 2500, 2200],
+        stockPorCategoria: [40, 30, 15, 15]
+    } %}
+
+    <script type="module">
+        import { initDashboard } from "{{ asset('js/dashboard/index.js') }}";
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const data = {{ chartData | json_encode | raw }};
+
+            initDashboard(data);
         });
     </script>
 {% endblock %}

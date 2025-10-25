@@ -110,7 +110,7 @@
                                     {{ form_widget(form.tipo, {'attr': {
                                         'class': 'form-control form-control-modern form-select-modern',
                                         'required': 'required',
-                                        'id': 'tipo_cambio'
+                                        'id': 'historial_precios_tipo'
                                     }}) }}
                                     {{ form_errors(form.tipo) }}
                                     <div class="form-help-text">Selecciona el tipo de cambio de precio</div>
@@ -137,9 +137,8 @@
                                             'min': '0',
                                             'required': 'required',
                                             'placeholder': '0.00',
-                                            'id':'precio_anterior',
+                                            'id': 'historial_precios_precio_anterior',
                                             'readonly': 'readonly'
-
                                         }}) }}
                                     </div>
                                     {{ form_errors(form.precio_anterior) }}
@@ -156,7 +155,8 @@
                                             'step': '0.01',
                                             'min': '0',
                                             'required': 'required',
-                                            'placeholder': '0.00'
+                                            'placeholder': '0.00',
+                                            'id': 'historial_precios_precio_nuevo'
                                         }}) }}
                                     </div>
                                     {{ form_errors(form.precio_nuevo) }}
@@ -190,7 +190,8 @@
                                     {{ form_label(form.fecha_cambio, 'Fecha del Cambio', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
                                     {{ form_widget(form.fecha_cambio, {'attr': {
                                         'class': 'form-control form-control-modern',
-                                        'readonly': 'readonly'
+                                        'readonly': 'readonly',
+                                        'id': 'historial_precios_fecha_cambio'
                                     }}) }}
                                     {{ form_errors(form.fecha_cambio) }}
                                     <div class="form-help-text">Fecha y hora en que se realizó el cambio</div>
@@ -256,186 +257,16 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const tipoSelect = document.getElementById('{{ form.tipo.vars.id }}');
-            const precioAnteriorInput = document.getElementById('{{ form.precio_anterior.vars.id }}');
-            const precioNuevoInput = document.getElementById('{{ form.precio_nuevo.vars.id }}');
-            const fechaCambioInput = document.getElementById('{{ form.fecha_cambio.vars.id }}');
-            const diferenciaPreview = document.getElementById('diferenciaPreview');
-            const variacionPreview = document.getElementById('variacionPreview');
-
-            // Elementos del resumen
-            const resumenTipo = document.getElementById('resumenTipo');
-            const resumenAnterior = document.getElementById('resumenAnterior');
-            const resumenNuevo = document.getElementById('resumenNuevo');
-            const resumenDiferencia = document.getElementById('resumenDiferencia');
-
-            // Precios del producto desde el objeto producto pasado por el controlador
-            const preciosProducto = {
-                compra: {{ producto.getPrecioCompra() ?? 0 }},
-                venta: {{ producto.getPrecioVentaActual() ?? 0 }}
-            };
-
-            console.log('Precios del producto:', preciosProducto);
-
-            // Establecer fecha actual por defecto si está vacía
-            if (!fechaCambioInput.value) {
-                const now = new Date();
-
-                // Convertir a zona horaria de Toronto
-                const torontoTime = now.toLocaleString("en-CA", {
-                    timeZone: "America/Toronto",
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                }).replace(', ', 'T').replace(/\//g, '-');
-
-                fechaCambioInput.value = torontoTime;
-            }
-
-            // Función para actualizar el precio según el tipo seleccionado
-            function actualizarPrecio() {
-                const valorTipo = tipoSelect.value;
-                const helpText = document.querySelector('#{{ form.precio_anterior.vars.id }}').closest('.form-group-modern').querySelector('.form-help-text');
-
-                console.log('Actualizando precio para tipo:', valorTipo);
-
-                if (valorTipo === 'compra') {
-                    precioAnteriorInput.value = preciosProducto.compra;
-                    precioAnteriorInput.placeholder = preciosProducto.compra.toFixed(2);
-                    if (helpText) {
-                        helpText.textContent = 'Precio de compra actual del producto';
-                    }
-                } else if (valorTipo === 'venta') {
-                    precioAnteriorInput.value = preciosProducto.venta;
-                    precioAnteriorInput.placeholder = preciosProducto.venta.toFixed(2);
-                    if (helpText) {
-                        helpText.textContent = 'Precio de venta actual del producto';
-                    }
-                } else {
-                    precioAnteriorInput.value = '0.00';
-                    precioAnteriorInput.placeholder = '0.00';
-                    if (helpText) {
-                        helpText.textContent = 'Precio anterior del producto';
-                    }
-                }
-
-                // Recalcular el cambio después de actualizar el precio
-                calcularCambio();
-            }
-
-            // Asignar el evento change
-            tipoSelect.addEventListener('change', actualizarPrecio);
-
-            // Llamar a la función al cargar la página
-            actualizarPrecio();
-
-            function calcularCambio() {
-                const precioAnterior = parseFloat(precioAnteriorInput.value) || 0;
-                const precioNuevo = parseFloat(precioNuevoInput.value) || 0;
-                const tipo = tipoSelect.options[tipoSelect.selectedIndex]?.text || '-';
-
-                if (precioAnterior > 0 && precioNuevo > 0) {
-                    const diferencia = precioNuevo - precioAnterior;
-                    const variacionPorcentaje = (diferencia / precioAnterior) * 100;
-
-                    // Actualizar preview
-                    diferenciaPreview.textContent = `$${diferencia.toFixed(2)}`;
-                    variacionPreview.textContent = `${variacionPorcentaje.toFixed(2)}%`;
-
-                    // Cambiar colores según el resultado
-                    if (diferencia > 0) {
-                        diferenciaPreview.className = 'text-success';
-                        variacionPreview.className = 'text-profit';
-                    } else {
-                        diferenciaPreview.className = 'text-danger';
-                        variacionPreview.className = 'text-loss';
-                    }
-
-                    // Actualizar resumen
-                    resumenTipo.textContent = tipo;
-                    resumenAnterior.textContent = `$${precioAnterior.toFixed(2)}`;
-                    resumenNuevo.textContent = `$${precioNuevo.toFixed(2)}`;
-                    resumenDiferencia.textContent = `$${diferencia.toFixed(2)}`;
-                    resumenDiferencia.className = diferencia > 0 ? 'info-value text-success' : 'info-value text-danger';
-                } else {
-                    // Valores por defecto
-                    diferenciaPreview.textContent = '$0.00';
-                    variacionPreview.textContent = '0.00%';
-                    diferenciaPreview.className = 'text-success';
-                    variacionPreview.className = 'text-profit';
-
-                    // Resumen por defecto
-                    resumenTipo.textContent = tipo || '-';
-                    resumenAnterior.textContent = `$${(precioAnterior || 0).toFixed(2)}`;
-                    resumenNuevo.textContent = `$${(precioNuevo || 0).toFixed(2)}`;
-                    resumenDiferencia.textContent = '$0.00';
-                    resumenDiferencia.className = 'info-value text-primary';
-                }
-            }
-
-            // Calcular cuando cambien los precios
-            precioAnteriorInput.addEventListener('input', calcularCambio);
-            precioNuevoInput.addEventListener('input', calcularCambio);
-
-            // Calcular inicialmente
-            calcularCambio();
-
-            // Validación de formulario
-            const form = document.querySelector('form');
-            form.addEventListener('submit', function (event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    // Mostrar mensajes de error específicos
-                    const requiredFields = form.querySelectorAll('[required]');
-                    requiredFields.forEach(field => {
-                        if (!field.value) {
-                            field.classList.add('is-invalid');
-                        }
-                    });
-                }
-                form.classList.add('was-validated');
-            });
-
-            // Remover clase de error cuando se complete el campo
-            const requiredFields = form.querySelectorAll('[required]');
-            requiredFields.forEach(field => {
-                field.addEventListener('input', function () {
-                    if (this.value) {
-                        this.classList.remove('is-invalid');
-                    }
-                });
-            });
-
-            // Animación suave para las secciones
-            const sections = document.querySelectorAll('.form-section');
-            sections.forEach((section, index) => {
-                section.style.opacity = '0';
-                section.style.transform = 'translateY(20px)';
-
-                setTimeout(() => {
-                    section.style.transition = 'all 0.6s ease';
-                    section.style.opacity = '1';
-                    section.style.transform = 'translateY(0)';
-                }, index * 200);
-            });
-
-            // Efecto hover para la tarjeta de resumen
-            const resumenCard = document.querySelector('.detalle-card');
-            if (resumenCard) {
-                resumenCard.addEventListener('mouseenter', function () {
-                    this.style.transform = 'translateY(-2px)';
-                });
-                resumenCard.addEventListener('mouseleave', function () {
-                    this.style.transform = 'translateY(0)';
-                });
-            }
-        });
+        // Pasar datos de PHP a JavaScript
+        window.preciosProducto = {
+            compra: {{ producto.precio_compra ?? 5 }},
+            venta: {{ producto.precio_venta_actual ?? 5 }}
+        };
     </script>
+    <script type="module" src="{{ asset('js/historial_precios/new.js') }}"></script>
 {% endblock %}
