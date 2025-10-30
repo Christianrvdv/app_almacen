@@ -11,10 +11,9 @@ use Symfony\Component\Uid\Uuid;
 class AjusteInventario
 {
     #[ORM\Id]
-    #[ORM\Column(type: UuidType::NAME, unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
-    private ?Uuid $id = null;
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $tipo = null;
@@ -34,12 +33,7 @@ class AjusteInventario
     #[ORM\ManyToOne(inversedBy: 'ajusteInventarios')]
     private ?Producto $producto = null;
 
-    public function __construct()
-    {
-        $this->id = Uuid::v6();
-    }
-
-    public function getId(): ?Uuid
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -114,10 +108,5 @@ class AjusteInventario
         $this->producto = $producto;
 
         return $this;
-    }
-
-    public function __toString(): string
-    {
-        return $this->id ? $this->id->toRfc4122() : 'Nuevo Ajuste Inventario';
     }
 }

@@ -95,7 +95,7 @@ class PdfGeneratorService
         // CORRECCIÓN: Cambiar getTipoVeenta() por getTipoVenta()
         $tipoVenta = method_exists($venta, 'getTipoVenta') ?
             $venta->getTipoVenta() :
-            ($venta->getTipoVeenta() ?? 'No especificado');
+            ($venta->getTipoVenta() ?? 'No especificado');
 
         $vendedorNombre = 'Vendedor';
         $clienteNombre = $venta->getCliente() ? $venta->getCliente()->getNombre() : 'Cliente General';

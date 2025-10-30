@@ -4,7 +4,7 @@ namespace App\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 
-class StatisticsService
+class  StatisticsService
 {
     private EntityManagerInterface $entityManager;
 

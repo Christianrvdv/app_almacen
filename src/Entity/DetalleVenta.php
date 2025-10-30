@@ -5,17 +5,14 @@ namespace App\Entity;
 use App\Repository\DetalleVentaRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Types\UuidType;
-use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: DetalleVentaRepository::class)]
 class DetalleVenta
 {
     #[ORM\Id]
-    #[ORM\Column(type: UuidType::NAME, unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
-    private ?Uuid $id = null;
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
     #[ORM\Column]
     private ?int $cantidad = null;
@@ -51,12 +48,8 @@ class DetalleVenta
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
     private ?float $precio_costo_historico = null;
 
-    public function __construct()
-    {
-        $this->id = Uuid::v6();
-    }
 
-    public function getId(): ?Uuid
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -181,8 +174,4 @@ class DetalleVenta
         $this->producto_nombre_historico = $producto_nombre_historico;
     }
 
-    public function __toString(): string
-    {
-        return $this->id ? $this->id->toRfc4122() : 'Nuevo Detalle Venta';
-    }
 }

@@ -13,10 +13,9 @@ use Symfony\Component\Uid\Uuid;
 class Categoria
 {
     #[ORM\Id]
-    #[ORM\Column(type: UuidType::NAME, unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
-    private ?Uuid $id = null;
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $nombre = null;
@@ -30,13 +29,7 @@ class Categoria
     #[ORM\OneToMany(targetEntity: Producto::class, mappedBy: 'categoria')]
     private Collection $productos;
 
-    public function __construct()
-    {
-        $this->productos = new ArrayCollection();
-        $this->id = Uuid::v6();
-    }
-
-    public function getId(): ?Uuid
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -95,8 +88,4 @@ class Categoria
         return $this;
     }
 
-    public function __toString(): string
-    {
-        return $this->nombre ?? 'Nueva Categoría';
-    }
 }

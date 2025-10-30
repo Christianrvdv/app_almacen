@@ -3,21 +3,17 @@
 namespace App\Entity;
 
 use App\Repository\VentaRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Types\UuidType;
-use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: VentaRepository::class)]
 class Venta
 {
     #[ORM\Id]
-    #[ORM\Column(type: UuidType::NAME, unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
-    private ?Uuid $id = null;
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
     #[ORM\Column]
     private ?\DateTime $fecha = null;
@@ -26,7 +22,7 @@ class Venta
     private ?string $total = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $tipo_veenta = null;
+    private ?string $tipo_venta = null;
 
     #[ORM\ManyToOne(inversedBy: 'ventas')]
     private ?Cliente $cliente = null;
@@ -35,18 +31,12 @@ class Venta
      * @var Collection<int, DetalleVenta>
      */
     #[ORM\OneToMany(targetEntity: DetalleVenta::class, mappedBy: 'venta', cascade: ["persist"])]
-    private Collection $detalleVentas;
+    private Collection $detalle_ventas;
 
     #[ORM\Column(length: 255)]
     private ?string $estado = null;
 
-    public function __construct()
-    {
-        $this->detalleVentas = new ArrayCollection();
-        $this->id = Uuid::v6(); // Generar UUID automáticamente
-    }
-
-    public function getId(): ?Uuid
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -75,14 +65,14 @@ class Venta
         return $this;
     }
 
-    public function getTipoVeenta(): ?string
+    public function getTipoVenta(): ?string
     {
-        return $this->tipo_veenta;
+        return $this->tipo_venta;
     }
 
-    public function setTipoVeenta(string $tipo_veenta): static
+    public function setTipoVenta(string $tipo_venta): static
     {
-        $this->tipo_veenta = $tipo_veenta;
+        $this->tipo_venta = $tipo_venta;
 
         return $this;
     }
@@ -104,13 +94,13 @@ class Venta
      */
     public function getDetalleVentas(): Collection
     {
-        return $this->detalleVentas;
+        return $this->detalle_ventas;
     }
 
     public function addDetalleVenta(DetalleVenta $detalleVenta): static
     {
-        if (!$this->detalleVentas->contains($detalleVenta)) {
-            $this->detalleVentas->add($detalleVenta);
+        if (!$this->detalle_ventas->contains($detalleVenta)) {
+            $this->detalle_ventas->add($detalleVenta);
             $detalleVenta->setVenta($this);
         }
 
@@ -119,7 +109,7 @@ class Venta
 
     public function removeDetalleVenta(DetalleVenta $detalleVenta): static
     {
-        if ($this->detalleVentas->removeElement($detalleVenta)) {
+        if ($this->detalle_ventas->removeElement($detalleVenta)) {
             // set the owning side to null (unless already changed)
             if ($detalleVenta->getVenta() === $this) {
                 $detalleVenta->setVenta(null);
@@ -139,10 +129,5 @@ class Venta
         $this->estado = $estado;
 
         return $this;
-    }
-
-    public function __toString(): string
-    {
-        return $this->id ? $this->id->toRfc4122() : 'Nueva Venta';
     }
 }

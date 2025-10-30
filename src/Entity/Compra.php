@@ -3,21 +3,17 @@
 namespace App\Entity;
 
 use App\Repository\CompraRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Types\UuidType;
-use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: CompraRepository::class)]
 class Compra
 {
     #[ORM\Id]
-    #[ORM\Column(type: UuidType::NAME, unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
-    private ?Uuid $id = null;
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
     #[ORM\Column]
     private ?\DateTime $fecha = null;
@@ -41,15 +37,9 @@ class Compra
      * @var Collection<int, DetalleCompra>
      */
     #[ORM\OneToMany(targetEntity: DetalleCompra::class, mappedBy: 'compra', cascade: ['persist', 'remove'])]
-    private Collection $detalleCompras;
+    private Collection $detalle_compras;
 
-    public function __construct()
-    {
-        $this->detalleCompras = new ArrayCollection();
-        $this->id = Uuid::v6();
-    }
-
-    public function getId(): ?Uuid
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -129,13 +119,13 @@ class Compra
      */
     public function getDetalleCompras(): Collection
     {
-        return $this->detalleCompras;
+        return $this->detalle_compras;
     }
 
     public function addDetalleCompra(DetalleCompra $detalleCompra): static
     {
-        if (!$this->detalleCompras->contains($detalleCompra)) {
-            $this->detalleCompras->add($detalleCompra);
+        if (!$this->detalle_compras->contains($detalleCompra)) {
+            $this->detalle_compras->add($detalleCompra);
             $detalleCompra->setCompra($this);
         }
 
@@ -144,7 +134,7 @@ class Compra
 
     public function removeDetalleCompra(DetalleCompra $detalleCompra): static
     {
-        if ($this->detalleCompras->removeElement($detalleCompra)) {
+        if ($this->detalle_compras->removeElement($detalleCompra)) {
             // set the owning side to null (unless already changed)
             if ($detalleCompra->getCompra() === $this) {
                 $detalleCompra->setCompra(null);
@@ -152,10 +142,5 @@ class Compra
         }
 
         return $this;
-    }
-
-    public function __toString(): string
-    {
-        return $this->numero_factura ?? ($this->id ? $this->id->toRfc4122() : 'Nueva Compra');
     }
 }

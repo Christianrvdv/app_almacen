@@ -3,27 +3,23 @@
 namespace App\Entity;
 
 use App\Repository\ProductoRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Types\UuidType;
-use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: ProductoRepository::class)]
 class Producto
 {
     #[ORM\Id]
-    #[ORM\Column(type: UuidType::NAME, unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
-    private ?Uuid $id = null;
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $nombre = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $descipcion = null;
+    private ?string $descripcion = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $codigo_barras = null;
@@ -77,15 +73,7 @@ class Producto
     #[ORM\OneToMany(targetEntity: AjusteInventario::class, mappedBy: 'producto')]
     private Collection $ajusteInventarios;
 
-    public function __construct()
-    {
-        $this->detalleCompras = new ArrayCollection();
-        $this->detalleVentas = new ArrayCollection();
-        $this->historialPrecios = new ArrayCollection();
-        $this->ajusteInventarios = new ArrayCollection();
-    }
-
-    public function getId(): ?Uuid
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -103,14 +91,14 @@ class Producto
         return $this;
     }
 
-    public function getDescipcion(): ?string
+    public function getDescripcion(): ?string
     {
-        return $this->descipcion;
+        return $this->descripcion;
     }
 
-    public function setDescipcion(?string $descipcion): static
+    public function setDescripcion(?string $descripcion): static
     {
-        $this->descipcion = $descipcion;
+        $this->descripcion = $descripcion;
 
         return $this;
     }

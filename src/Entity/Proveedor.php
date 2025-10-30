@@ -3,20 +3,16 @@
 namespace App\Entity;
 
 use App\Repository\ProveedorRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Types\UuidType;
-use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: ProveedorRepository::class)]
 class Proveedor
 {
     #[ORM\Id]
-    #[ORM\Column(type: UuidType::NAME, unique: true)]
-    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
-    private ?Uuid $id = null;
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $nombre = null;
@@ -36,13 +32,8 @@ class Proveedor
     #[ORM\OneToMany(targetEntity: Producto::class, mappedBy: 'proveedor')]
     private Collection $productos;
 
-    public function __construct()
-    {
-        $this->productos = new ArrayCollection();
-        $this->id = Uuid::v6();
-    }
 
-    public function getId(): ?Uuid
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -123,10 +114,5 @@ class Proveedor
         }
 
         return $this;
-    }
-
-    public function __toString(): string
-    {
-        return $this->nombre ?? 'Nuevo Proveedor';
     }
 }
