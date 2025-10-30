@@ -14,7 +14,8 @@
             <div class="container">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <a href="{{ path('app_producto_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                        <a href="{{ path('app_producto_index') }}"
+                           class="btn btn-outline-light btn-sm rounded-pill px-3">
                             <i class="fas fa-arrow-left me-2"></i>Volver al Listado
                         </a>
                     </div>
@@ -113,7 +114,6 @@
                     <h3 class="section-title">
                         <i class="fas fa-dollar-sign me-2"></i>Información de Precios y Stock
                     </h3>
-
                     <div class="form-section">
                         <div class="row">
                             <div class="col-md-4">
@@ -122,10 +122,13 @@
                                     <div class="input-group input-group-modern">
                                         <span class="input-group-text input-group-text-modern">$</span>
                                         {{ form_widget(form.precio_compra, {'attr': {
-                                            'class': 'form-control form-control-modern',
+                                            'class': 'form-control form-control-modern solo-numeros',
                                             'step': '0.01',
                                             'min': '0',
-                                            'required': 'required'
+                                            'required': 'required',
+                                            'type': 'number',
+                                            'pattern': '[0-9]+([\\.,][0-9]+)?',
+                                            'inputmode': 'decimal'
                                         }}) }}
                                     </div>
                                     {{ form_errors(form.precio_compra) }}
@@ -138,10 +141,13 @@
                                     <div class="input-group input-group-modern">
                                         <span class="input-group-text input-group-text-modern">$</span>
                                         {{ form_widget(form.precio_venta_actual, {'attr': {
-                                            'class': 'form-control form-control-modern',
+                                            'class': 'form-control form-control-modern solo-numeros',
                                             'step': '0.01',
                                             'min': '0',
-                                            'required': 'required'
+                                            'required': 'required',
+                                            'type': 'number',
+                                            'pattern': '[0-9]+([\\.,][0-9]+)?',
+                                            'inputmode': 'decimal'
                                         }}) }}
                                     </div>
                                     {{ form_errors(form.precio_venta_actual) }}
@@ -152,9 +158,12 @@
                                 <div class="form-group-modern">
                                     {{ form_label(form.stock_minimo, 'Stock Mínimo', {'label_attr': {'class': 'form-label-modern required-field'}}) }}
                                     {{ form_widget(form.stock_minimo, {'attr': {
-                                        'class': 'form-control form-control-modern',
+                                        'class': 'form-control form-control-modern solo-numeros',
                                         'min': '0',
-                                        'required': 'required'
+                                        'required': 'required',
+                                        'type': 'number',
+                                        'pattern': '[0-9]*',
+                                        'inputmode': 'numeric'
                                     }}) }}
                                     {{ form_errors(form.stock_minimo) }}
                                     <div class="form-help-text">Cantidad mínima antes de alertar</div>
@@ -240,19 +249,106 @@
     {{ parent() }}
 
     <script type="module">
-        import { initFormPage } from "{{ asset('js/producto/new.js') }}";
+        import {initFormPage} from "{{ asset('js/producto/new.js') }}";
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Pasa los IDs de los campos y los elementos de visualización
             const ids = {
-                // Asumiendo que los campos se llaman 'precioCompra' y 'precioVenta' en tu FormType
                 precioCompraId: '{{ form.precio_compra.vars.id }}',
                 precioVentaId: '{{ form.precio_venta_actual.vars.id }}',
-                gananciaPreviewId: 'ganancia-preview',
-                margenPreviewId: 'margen-preview'
+                gananciaPreviewId: 'gananciaPreview',
+                margenPreviewId: 'margenPreview'
             };
 
             initFormPage(ids);
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            class ValidadorNumeros {
+                constructor() {
+                    this.campos = document.querySelectorAll('.solo-numeros');
+                    this.iniciar();
+                }
+
+                iniciar() {
+                    this.campos.forEach(campo => {
+                        campo.addEventListener('input', this.validarInput.bind(this));
+                        campo.addEventListener('blur', this.formatearValor.bind(this));
+                        campo.addEventListener('keydown', this.prevenirCaracteresInvalidos.bind(this));
+                    });
+                }
+
+                validarInput(e) {
+                    const campo = e.target;
+                    const esDecimal = campo.hasAttribute('step');
+
+                    if (esDecimal) {
+                        this.validarDecimal(campo);
+                    } else {
+                        this.validarEntero(campo);
+                    }
+                }
+
+                validarDecimal(campo) {
+                    // Permite solo números, un punto decimal, y reemplaza comas
+                    let valor = campo.value.replace(/[^0-9,.]/g, '');
+                    valor = valor.replace(/,/g, '.');
+
+                    // Elimina puntos decimales adicionales
+                    const partes = valor.split('.');
+                    if (partes.length > 2) {
+                        valor = partes[0] + '.' + partes.slice(1).join('');
+                    }
+
+                    campo.value = valor;
+                }
+
+                validarEntero(campo) {
+                    campo.value = campo.value.replace(/[^0-9]/g, '');
+                }
+
+                formatearValor(e) {
+                    const campo = e.target;
+                    const esDecimal = campo.hasAttribute('step');
+
+                    if (!campo.value) return;
+
+                    if (esDecimal) {
+                        const valor = parseFloat(campo.value);
+                        if (!isNaN(valor)) {
+                            campo.value = Math.max(0, valor).toFixed(2);
+                        } else {
+                            campo.value = '0.00';
+                        }
+                    } else {
+                        const valor = parseInt(campo.value);
+                        campo.value = isNaN(valor) ? '0' : Math.max(0, valor).toString();
+                    }
+                }
+
+                prevenirCaracteresInvalidos(e) {
+                    // Permite teclas de control, números y punto (solo para decimales)
+                    const teclasPermitidas = [
+                        'Backspace', 'Tab', 'Delete', 'ArrowLeft', 'ArrowRight',
+                        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+                    ];
+
+                    const esDecimal = e.target.hasAttribute('step');
+                    if (esDecimal) {
+                        teclasPermitidas.push('.', ',');
+                    }
+
+                    if (!teclasPermitidas.includes(e.key) &&
+                        !e.ctrlKey && !e.metaKey) {
+                        e.preventDefault();
+                    }
+                }
+            }
+
+            // Inicializar validador
+            new ValidadorNumeros();
         });
     </script>
 {% endblock %}

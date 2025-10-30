@@ -925,3 +925,22 @@
         flex-direction: column;
     }
 }
+
+
+/* Ocultar flechas en navegadores WebKit */
+.solo-numeros::-webkit-outer-spin-button,
+.solo-numeros::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Ocultar flechas en Firefox */
+.solo-numeros[type=number] {
+    -moz-appearance: textfield;
+}
+
+/* Estilo para indicar que es numérico */
+.solo-numeros {
+    text-align: right;
+    font-family: 'Courier New', monospace;
+}
