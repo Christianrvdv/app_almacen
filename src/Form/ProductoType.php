@@ -22,7 +22,7 @@ class ProductoType extends AbstractType
             ->add('nombre', TextType::class, [
                 'attr' => ['class' => 'form-control', 'placeholder' => 'Nombre del producto']
             ])
-            ->add('descipcion', TextareaType::class, [
+            ->add('descripcion', TextareaType::class, [
                 'attr' => ['class' => 'form-control', 'rows' => 3, 'placeholder' => 'Descripción del producto']
             ])
             ->add('codigo_barras', TextType::class, [

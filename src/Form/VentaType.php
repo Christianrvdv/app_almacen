@@ -18,7 +18,7 @@ class VentaType extends AbstractType
         $builder
             ->add('fecha')
             ->add('total')
-            ->add('tipo_veenta', ChoiceType::class, [
+            ->add('tipo_venta', ChoiceType::class, [
                 'choices' => [
                     'Efectivo' => 'efectivo',
                     'Transferencia' => 'transferencia',

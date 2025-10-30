@@ -90,10 +90,10 @@
                             <div class="info-value">
                                 <span class="badge-modern bg-secondary">
                                     <i class="fas
-                                        {% if venta.tipoVeenta == 'contado' %}fa-money-bill-wave
-                                        {% elseif venta.tipoVeenta == 'credito' %}fa-credit-card
+                                        {% if venta.tipoVenta == 'contado' %}fa-money-bill-wave
+                                        {% elseif venta.tipoVenta == 'credito' %}fa-credit-card
                                         {% else %}fa-shopping-cart{% endif %} me-1"></i>
-                                    {{ venta.tipoVeenta|capitalize }}
+                                    {{ venta.tipoVenta|capitalize }}
                                 </span>
                             </div>
                         </div>
