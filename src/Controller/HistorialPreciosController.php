@@ -43,6 +43,8 @@ final class HistorialPreciosController extends AbstractController
                 $entityManager->persist($historialPrecio);
                 $entityManager->flush();
 
+                $this->addFlash('success', 'El historial de precios ha sido creado correctamente y el precio del producto ha sido actualizado.');
+
                 return $this->redirectToRoute('app_producto_show', [
                     'id' => $producto->getId()
                 ], Response::HTTP_SEE_OTHER);
@@ -83,16 +85,23 @@ final class HistorialPreciosController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            if ($historialPrecio->getTipo() === "venta") {
-                $producto->setPrecioVentaActual($historialPrecio->getPrecioNuevo());
-            } else {
-                $producto->setPrecioCompra($historialPrecio->getPrecioNuevo());
-            }
+            try {
+                if ($historialPrecio->getTipo() === "venta") {
+                    $producto->setPrecioVentaActual($historialPrecio->getPrecioNuevo());
+                } else {
+                    $producto->setPrecioCompra($historialPrecio->getPrecioNuevo());
+                }
 
-            $entityManager->flush();
-            return $this->redirectToRoute('app_historial_precios_show', [
-                'id' => $historialPrecio->getId()
-            ], Response::HTTP_SEE_OTHER);
+                $entityManager->flush();
+
+                $this->addFlash('success', 'El historial de precios ha sido actualizado correctamente y el precio del producto ha sido actualizado.');
+
+                return $this->redirectToRoute('app_historial_precios_show', [
+                    'id' => $historialPrecio->getId()
+                ], Response::HTTP_SEE_OTHER);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al actualizar el historial de precios: ' . $e->getMessage());
+            }
         }
 
         return $this->render('historial_precios/edit.html.twig', [
@@ -110,34 +119,42 @@ final class HistorialPreciosController extends AbstractController
     ): Response
     {
         if ($this->isCsrfTokenValid('delete' . $historialPrecio->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
-            $producto = $historialPrecio->getProducto();
-            $tipo = $historialPrecio->getTipo();
+            try {
+                $producto = $historialPrecio->getProducto();
+                $tipo = $historialPrecio->getTipo();
 
-            $registros = $historialPreciosRepository->createQueryBuilder('h')
-                ->andWhere('h.producto = :producto')
-                ->andWhere('h.tipo = :tipo')
-                ->setParameter('producto', $producto)
-                ->setParameter('tipo', $tipo)
-                ->orderBy('h.fecha_cambio', 'DESC')
-                ->setMaxResults(2)
-                ->getQuery()
-                ->getResult();
+                $registros = $historialPreciosRepository->createQueryBuilder('h')
+                    ->andWhere('h.producto = :producto')
+                    ->andWhere('h.tipo = :tipo')
+                    ->setParameter('producto', $producto)
+                    ->setParameter('tipo', $tipo)
+                    ->orderBy('h.fecha_cambio', 'DESC')
+                    ->setMaxResults(2)
+                    ->getQuery()
+                    ->getResult();
 
-            if (count($registros) > 1) {
-                $penultimoRegistro = $registros[1];
-                $nuevoPrecio = $penultimoRegistro->getPrecioNuevo();
-            } else {
-                $nuevoPrecio = $historialPrecio->getPrecioAnterior();
+                if (count($registros) > 1) {
+                    $penultimoRegistro = $registros[1];
+                    $nuevoPrecio = $penultimoRegistro->getPrecioNuevo();
+                } else {
+                    $nuevoPrecio = $historialPrecio->getPrecioAnterior();
+                }
+
+                if ($tipo === 'venta') {
+                    $producto->setPrecioVentaActual($nuevoPrecio);
+                } else {
+                    $producto->setPrecioCompra($nuevoPrecio);
+                }
+
+                $entityManager->remove($historialPrecio);
+                $entityManager->flush();
+
+                $this->addFlash('success', 'El historial de precios ha sido eliminado correctamente y el precio del producto ha sido revertido.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al eliminar el historial de precios: ' . $e->getMessage());
             }
-
-            if ($tipo === 'venta') {
-                $producto->setPrecioVentaActual($nuevoPrecio);
-            } else {
-                $producto->setPrecioCompra($nuevoPrecio);
-            }
-
-            $entityManager->remove($historialPrecio);
-            $entityManager->flush();
+        } else {
+            $this->addFlash('error', 'Token de seguridad inválido, no se pudo eliminar el historial de precios.');
         }
 
         return $this->redirectToRoute('app_producto_show', [
