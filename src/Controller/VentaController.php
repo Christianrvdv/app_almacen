@@ -55,7 +55,7 @@ final class VentaController extends AbstractController
                 $entityManager->persist($venta);
                 $entityManager->flush();
 
-                $this->addFlash('success', 'Venta registrada exitosamente');
+                $this->addFlash('success', 'La venta ha sido registrada correctamente.');
                 return $this->redirectToRoute('app_venta_show', ['id' => $venta->getId()], Response::HTTP_SEE_OTHER);
 
             } catch (\Exception $e) {
@@ -123,7 +123,7 @@ final class VentaController extends AbstractController
 
                 $entityManager->flush();
 
-                $this->addFlash('success', 'Venta actualizada correctamente');
+                $this->addFlash('success', 'La venta ha sido actualizada correctamente.');
                 return $this->redirectToRoute('app_venta_show', ['id' => $venta->getId()], Response::HTTP_SEE_OTHER);
 
             } catch (\Exception $e) {
@@ -141,10 +141,16 @@ final class VentaController extends AbstractController
     #[Route('/{id}', name: 'app_venta_delete', methods: ['POST'])]
     public function delete(Request $request, Venta $venta, EntityManagerInterface $entityManager): Response
     {
-        // CORRECCIÓN: Cambiar toRfc4122() por simplemente el ID integer
-        if ($this->isCsrfTokenValid('delete' . $venta->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($venta);
-            $entityManager->flush();
+        try {
+            if ($this->isCsrfTokenValid('delete' . $venta->getId(), $request->getPayload()->getString('_token'))) {
+                $entityManager->remove($venta);
+                $entityManager->flush();
+                $this->addFlash('success', 'La venta ha sido eliminada correctamente.');
+            } else {
+                $this->addFlash('error', 'Error de seguridad. No se pudo eliminar la venta.');
+            }
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Error al eliminar la venta: ' . $e->getMessage());
         }
 
         return $this->redirectToRoute('app_venta_index', [], Response::HTTP_SEE_OTHER);
@@ -170,7 +176,6 @@ final class VentaController extends AbstractController
     public function downloadPdf(Venta $venta, PdfGeneratorService $pdfGenerator): Response
     {
         try {
-            // CORRECCIÓN: Cambiar toRfc4122() por simplemente el ID integer
             $filename = 'factura_venta_' . $venta->getId() . '_' . date('Y-m-d') . '.pdf';
             $filePath = $pdfGenerator->getPdfFilePath($filename);
 
@@ -200,7 +205,6 @@ final class VentaController extends AbstractController
     public function viewPdf(Venta $venta, PdfGeneratorService $pdfGenerator): Response
     {
         try {
-            // CORRECCIÓN: Cambiar toRfc4122() por simplemente el ID integer
             $filename = 'factura_venta_' . $venta->getId() . '_' . date('Y-m-d') . '.pdf';
             $filePath = $pdfGenerator->getPdfFilePath($filename);
 
