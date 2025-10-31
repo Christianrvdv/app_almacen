@@ -39,8 +39,22 @@ final class ProductoController extends AbstractController
             10
         );
 
+        // Estadísticas totales
+        $totalProductos = $productoRepository->count([]);
+        $totalActivos = $productoRepository->count(['activo' => true]);
+        $totalInactivos = $productoRepository->count(['activo' => false]);
+        $totalConCategoria = $productoRepository->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.categoria IS NOT NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+
         return $this->render('producto/index.html.twig', [
             'productos' => $productos,
+            'totalProductos' => $totalProductos,
+            'totalActivos' => $totalActivos,
+            'totalInactivos' => $totalInactivos,
+            'totalConCategoria' => $totalConCategoria,
         ]);
     }
 

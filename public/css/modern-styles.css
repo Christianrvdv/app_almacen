@@ -944,3 +944,36 @@
     text-align: right;
     font-family: 'Courier New', monospace;
 }
+
+/* Estilos para paginación moderna */
+.pagination .page-link {
+    border-radius: 50px;
+    margin: 0 3px;
+    border: 1px solid #dee2e6;
+    color: #6c757d;
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    min-width: 42px;
+    text-align: center;
+    transition: all 0.2s ease-in-out;
+}
+
+.pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border-color: #007bff;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+}
+
+.pagination .page-link:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+    transform: translateY(-1px);
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d;
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    opacity: 0.6;
+}
