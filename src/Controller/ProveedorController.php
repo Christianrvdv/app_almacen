@@ -6,6 +6,7 @@ use App\Entity\Proveedor;
 use App\Form\ProveedorType;
 use App\Repository\ProveedorRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,10 +16,42 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ProveedorController extends AbstractController
 {
     #[Route(name: 'app_proveedor_index', methods: ['GET'])]
-    public function index(ProveedorRepository $proveedorRepository): Response
+    public function index(Request $request, ProveedorRepository $proveedorRepository, PaginatorInterface $paginator): Response
     {
+        $query = $proveedorRepository->createQueryBuilder('p')
+            ->orderBy('p.nombre', 'ASC')
+            ->getQuery();
+
+        $proveedors = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10
+        );
+
+        // Estadísticas totales
+        $totalProveedores = $proveedorRepository->count([]);
+        $totalConTelefono = $proveedorRepository->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.telefono IS NOT NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+        $totalConEmail = $proveedorRepository->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.email IS NOT NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+        $totalConDireccion = $proveedorRepository->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.direccion IS NOT NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+
         return $this->render('proveedor/index.html.twig', [
-            'proveedors' => $proveedorRepository->findAll(),
+            'proveedors' => $proveedors,
+            'totalProveedores' => $totalProveedores,
+            'totalConTelefono' => $totalConTelefono,
+            'totalConEmail' => $totalConEmail,
+            'totalConDireccion' => $totalConDireccion,
         ]);
     }
 

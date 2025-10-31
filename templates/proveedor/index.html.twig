@@ -14,7 +14,8 @@
             <div class="container">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <a href="{{ path('app_dashboard_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                        <a href="{{ path('app_dashboard_index') }}"
+                           class="btn btn-outline-light btn-sm rounded-pill px-3">
                             <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
                         </a>
                     </div>
@@ -32,7 +33,8 @@
         </div>
 
         <!-- Estadísticas Rápidas -->
-        <div class="container"><!-- Mensajes Flash -->
+        <div class="container">
+            <!-- Mensajes Flash -->
             {% for message in app.flashes('success') %}
                 <div class="alert-modern alert alert-success alert-dismissible fade show" role="alert">
                     <div class="d-flex align-items-center">
@@ -58,6 +60,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
+
             <div class="row">
                 <div class="col-md-3">
                     <div class="stats-card">
@@ -65,7 +68,7 @@
                             <div class="metric-icon text-primary">
                                 <i class="fas fa-truck"></i>
                             </div>
-                            <div class="metric-value text-primary">{{ proveedors|length }}</div>
+                            <div class="metric-value text-primary">{{ totalProveedores }}</div>
                             <div class="metric-label">Total Proveedores</div>
                         </div>
                     </div>
@@ -77,7 +80,7 @@
                                 <i class="fas fa-phone"></i>
                             </div>
                             <div class="metric-value text-success">
-                                {{ proveedors|filter(p => p.telefono != null)|length }}
+                                {{ totalConTelefono }}
                             </div>
                             <div class="metric-label">Con Teléfono</div>
                         </div>
@@ -90,7 +93,7 @@
                                 <i class="fas fa-envelope"></i>
                             </div>
                             <div class="metric-value text-info">
-                                {{ proveedors|filter(p => p.email != null)|length }}
+                                {{ totalConEmail }}
                             </div>
                             <div class="metric-label">Con Email</div>
                         </div>
@@ -103,7 +106,7 @@
                                 <i class="fas fa-map-marker-alt"></i>
                             </div>
                             <div class="metric-value text-warning">
-                                {{ proveedors|filter(p => p.direccion != null)|length }}
+                                {{ totalConDireccion }}
                             </div>
                             <div class="metric-label">Con Dirección</div>
                         </div>
@@ -115,122 +118,164 @@
             <div class="search-filter">
                 <div class="row align-items-center">
                     <div class="col-md-12">
-                        <input type="text" class="form-control form-control-modern" placeholder="🔍 Buscar proveedores por nombre, teléfono, email o dirección...">
+                        <input type="text" class="form-control form-control-modern"
+                               placeholder="🔍 Buscar proveedores por nombre, teléfono, email o dirección...">
                     </div>
                 </div>
             </div>
 
             <!-- Tabla de Proveedores -->
             <div class="table-modern">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead>
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th>Proveedor</th>
+                        <th>Contacto</th>
+                        <th>Ubicación</th>
+                        <th class="text-center">Productos</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for proveedor in proveedors %}
                         <tr>
-                            <th>Proveedor</th>
-                            <th>Contacto</th>
-                            <th>Ubicación</th>
-                            <th class="text-center">Productos</th>
-                            <th class="text-center">Acciones</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for proveedor in proveedors %}
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="bg-light rounded p-2 me-3">
-                                            <i class="fas fa-truck text-primary"></i>
-                                        </div>
-                                        <div>
-                                            <div class="product-name">{{ proveedor.nombre }}</div>
-                                            <small class="text-muted">
-                                                ID: {{ proveedor.id }}
-                                            </small>
-                                        </div>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-light rounded p-2 me-3">
+                                        <i class="fas fa-truck text-primary"></i>
                                     </div>
-                                </td>
-                                <td>
-                                    <div class="contact-info">
-                                        {% if proveedor.telefono %}
-                                            <div class="mb-1">
-                                                <a href="tel:{{ proveedor.telefono }}" class="text-decoration-none text-success">
-                                                    <i class="fas fa-phone-alt me-2"></i>{{ proveedor.telefono }}
-                                                </a>
-                                            </div>
-                                        {% endif %}
-                                        {% if proveedor.email %}
-                                            <div>
-                                                <a href="mailto:{{ proveedor.email }}" class="text-decoration-none text-primary">
-                                                    <i class="fas fa-envelope me-2"></i>{{ proveedor.email }}
-                                                </a>
-                                            </div>
-                                        {% endif %}
-                                        {% if not proveedor.telefono and not proveedor.email %}
-                                            <span class="text-muted">Sin información de contacto</span>
-                                        {% endif %}
+                                    <div>
+                                        <div class="product-name">{{ proveedor.nombre }}</div>
+                                        <small class="text-muted">
+                                            ID: {{ proveedor.id }}
+                                        </small>
                                     </div>
-                                </td>
-                                <td>
-                                    {% if proveedor.direccion %}
-                                        <div class="text-muted">
-                                            <i class="fas fa-map-marker-alt me-2 text-warning"></i>
-                                            {{ proveedor.direccion|slice(0, 40) }}{{ proveedor.direccion|length > 40 ? '...' : '' }}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="contact-info">
+                                    {% if proveedor.telefono %}
+                                        <div class="mb-1">
+                                            <a href="tel:{{ proveedor.telefono }}"
+                                               class="text-decoration-none text-success">
+                                                <i class="fas fa-phone-alt me-2"></i>{{ proveedor.telefono }}
+                                            </a>
                                         </div>
-                                    {% else %}
-                                        <span class="text-muted">Sin dirección</span>
                                     {% endif %}
-                                </td>
-                                <td class="text-center">
+                                    {% if proveedor.email %}
+                                        <div>
+                                            <a href="mailto:{{ proveedor.email }}"
+                                               class="text-decoration-none text-primary">
+                                                <i class="fas fa-envelope me-2"></i>{{ proveedor.email }}
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                    {% if not proveedor.telefono and not proveedor.email %}
+                                        <span class="text-muted">Sin información de contacto</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                {% if proveedor.direccion %}
+                                    <div class="text-muted">
+                                        <i class="fas fa-map-marker-alt me-2 text-warning"></i>
+                                        {{ proveedor.direccion|slice(0, 40) }}{{ proveedor.direccion|length > 40 ? '...' : '' }}
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">Sin dirección</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
                                     <span class="badge-modern text-info">
                                         <i class="fas fa-cube me-1"></i>{{ proveedor.productos|length }}
                                     </span>
-                                </td>
-                                <td class="text-center">
-                                    <div class="action-buttons">
-                                        <a href="{{ path('app_proveedor_show', {'id': proveedor.id}) }}"
-                                           class="btn btn-modern btn-outline-modern" title="Ver detalles">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ path('app_proveedor_edit', {'id': proveedor.id}) }}"
-                                           class="btn btn-modern btn-primary-modern" title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% else %}
-                            <tr>
-                                <td colspan="5" class="empty-state">
-                                    <i class="fas fa-truck"></i>
-                                    <h4 class="mt-3">No se encontraron proveedores</h4>
-                                    <p class="text-muted mb-3">Comienza agregando tu primer proveedor al sistema</p>
-
-                                </td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                            </td>
+                            <td class="text-center">
+                                <div class="action-buttons">
+                                    <a href="{{ path('app_proveedor_show', {'id': proveedor.id}) }}"
+                                       class="btn btn-modern btn-outline-modern" title="Ver detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ path('app_proveedor_edit', {'id': proveedor.id}) }}"
+                                       class="btn btn-modern btn-primary-modern" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="empty-state">
+                                <i class="fas fa-truck"></i>
+                                <h4 class="mt-3">No se encontraron proveedores</h4>
+                                <p class="text-muted mb-3">Comienza agregando tu primer proveedor al sistema</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
 
             <!-- Información de Paginación -->
-            {% if proveedors|length > 0 %}
+            {% if proveedors.getTotalItemCount > 0 %}
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <div class="text-muted">
-                        Mostrando <strong>{{ proveedors|length }}</strong> proveedores en total
+                        Página <strong>{{ proveedors.currentPageNumber }}</strong> de
+                        <strong>{{ proveedors.pageCount }}</strong> -
+                        Mostrando <strong>{{ proveedors.getItemNumberPerPage * (proveedors.currentPageNumber - 1) + 1 }}
+                            -{{ min(proveedors.getItemNumberPerPage * proveedors.currentPageNumber, proveedors.getTotalItemCount) }}</strong>
+                        de <strong>{{ proveedors.getTotalItemCount }}</strong> proveedores
                     </div>
                     <div>
-                        <!-- Aquí iría la paginación si la hubiera -->
                         <nav>
                             <ul class="pagination mb-0">
-                                <li class="page-item disabled">
-                                    <a class="page-link" href="#">Anterior</a>
+                                {# Botón Anterior #}
+                                <li class="page-item {{ proveedors.currentPageNumber == 1 ? 'disabled' : '' }}">
+                                    <a class="page-link"
+                                       href="{{ proveedors.currentPageNumber == 1 ? '#' : path('app_proveedor_index', {'page': proveedors.currentPageNumber - 1}) }}">
+                                        <i class="fas fa-chevron-left me-1"></i> Anterior
+                                    </a>
                                 </li>
-                                <li class="page-item active">
-                                    <a class="page-link" href="#">1</a>
-                                </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">Siguiente</a>
+
+                                {# Primera página #}
+                                {% if proveedors.currentPageNumber > 2 %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ path('app_proveedor_index', {'page': 1}) }}">1</a>
+                                    </li>
+                                    {% if proveedors.currentPageNumber > 3 %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#">...</a>
+                                        </li>
+                                    {% endif %}
+                                {% endif %}
+
+                                {# Páginas alrededor de la actual #}
+                                {% for i in max(1, proveedors.currentPageNumber - 1)..min(proveedors.pageCount, proveedors.currentPageNumber + 1) %}
+                                    <li class="page-item {{ proveedors.currentPageNumber == i ? 'active' : '' }}">
+                                        <a class="page-link"
+                                           href="{{ path('app_proveedor_index', {'page': i}) }}">{{ i }}</a>
+                                    </li>
+                                {% endfor %}
+
+                                {# Última página #}
+                                {% if proveedors.currentPageNumber < proveedors.pageCount - 1 %}
+                                    {% if proveedors.currentPageNumber < proveedors.pageCount - 2 %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#">...</a>
+                                        </li>
+                                    {% endif %}
+                                    <li class="page-item">
+                                        <a class="page-link"
+                                           href="{{ path('app_proveedor_index', {'page': proveedors.pageCount}) }}">{{ proveedors.pageCount }}</a>
+                                    </li>
+                                {% endif %}
+
+                                {# Botón Siguiente #}
+                                <li class="page-item {{ proveedors.currentPageNumber == proveedors.pageCount ? 'disabled' : '' }}">
+                                    <a class="page-link"
+                                       href="{{ proveedors.currentPageNumber == proveedors.pageCount ? '#' : path('app_proveedor_index', {'page': proveedors.currentPageNumber + 1}) }}">
+                                        Siguiente <i class="fas fa-chevron-right ms-1"></i>
+                                    </a>
                                 </li>
                             </ul>
                         </nav>
@@ -239,16 +284,15 @@
             {% endif %}
         </div>
     </div>
-
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
 
     <script type="module">
-        import { initProveedorListPage } from "{{ asset('js/proveedor/list.js') }}";
+        import {initProveedorListPage} from "{{ asset('js/proveedor/list.js') }}";
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             initProveedorListPage();
         });
     </script>
