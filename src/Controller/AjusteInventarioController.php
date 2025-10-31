@@ -121,7 +121,6 @@ final class AjusteInventarioController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$ajusteInventario->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($ajusteInventario);
             $entityManager->flush();
-
             $this->addFlash('success', 'El ajuste de inventario ha sido eliminado correctamente.');
         } else {
             $this->addFlash('error', 'Error de seguridad. No se pudo eliminar el ajuste de inventario.');

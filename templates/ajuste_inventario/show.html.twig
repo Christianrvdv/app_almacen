@@ -13,7 +13,8 @@
             <div class="container">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <a href="{{ path('app_ajuste_inventario_index') }}" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                        <a href="{{ path('app_ajuste_inventario_index') }}"
+                           class="btn btn-outline-light btn-sm rounded-pill px-3">
                             <i class="fas fa-arrow-left me-2"></i>Volver al Listado
                         </a>
                     </div>
@@ -40,6 +41,31 @@
         </div>
 
         <div class="container">
+            {% for message in app.flashes('success') %}
+                <div class="alert-modern alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">¡Éxito!</h5>
+                            {{ message }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('error') %}
+                <div class="alert-modern alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Error</h5>
+                            {{ message }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
             <!-- Información Principal -->
             <div class="info-grid">
                 <!-- Información Básica del Ajuste -->
@@ -61,15 +87,18 @@
                                         <i class="fas fa-sign-out-alt me-1"></i>Salida
                                     </span>
                                 {% else %}
-                                    <span class="badge-modern bg-secondary">{{ ajuste_inventario.tipo|capitalize }}</span>
+                                    <span
+                                        class="badge-modern bg-secondary">{{ ajuste_inventario.tipo|capitalize }}</span>
                                 {% endif %}
                             </div>
                         </div>
 
                         <div class="detalle-card">
                             <div class="info-label">Cantidad Ajustada</div>
-                            <div class="info-value {% if tipo == 'entrada' %}text-success{% else %}text-danger{% endif %} fw-bold">
-                                {% if tipo == 'entrada' %}+{% else %}-{% endif %}{{ ajuste_inventario.cantidad }} unidades
+                            <div
+                                class="info-value {% if tipo == 'entrada' %}text-success{% else %}text-danger{% endif %} fw-bold">
+                                {% if tipo == 'entrada' %}+{% else %}-{% endif %}{{ ajuste_inventario.cantidad }}
+                                unidades
                             </div>
                         </div>
 
@@ -112,7 +141,8 @@
                                 <div class="info-label">Código de Barras</div>
                                 <div class="info-value">
                                     {% if ajuste_inventario.producto.codigoBarras %}
-                                        <code class="bg-light p-2 rounded">{{ ajuste_inventario.producto.codigoBarras }}</code>
+                                        <code
+                                            class="bg-light p-2 rounded">{{ ajuste_inventario.producto.codigoBarras }}</code>
                                     {% else %}
                                         <span class="text-muted">No asignado</span>
                                     {% endif %}
@@ -121,7 +151,8 @@
 
                             <div class="detalle-card">
                                 <div class="info-label">Precio Actual</div>
-                                <div class="info-value text-success">${{ ajuste_inventario.producto.precioVentaActual|number_format(2, ',', '.') }}</div>
+                                <div class="info-value text-success">
+                                    ${{ ajuste_inventario.producto.precioVentaActual|number_format(2, ',', '.') }}</div>
                             </div>
                         {% else %}
                             <div class="empty-state text-center py-4">
@@ -144,17 +175,20 @@
                     <div class="card-body p-4">
                         <div class="detalle-card">
                             <div class="info-label">Fecha del Ajuste</div>
-                            <div class="info-value">{{ ajuste_inventario.fecha ? ajuste_inventario.fecha|date('d/m/Y') : 'No disponible' }}</div>
+                            <div
+                                class="info-value">{{ ajuste_inventario.fecha ? ajuste_inventario.fecha|date('d/m/Y') : 'No disponible' }}</div>
                         </div>
 
                         <div class="detalle-card">
                             <div class="info-label">Hora del Ajuste</div>
-                            <div class="info-value">{{ ajuste_inventario.fecha ? ajuste_inventario.fecha|date('H:i:s') : 'No disponible' }}</div>
+                            <div
+                                class="info-value">{{ ajuste_inventario.fecha ? ajuste_inventario.fecha|date('H:i:s') : 'No disponible' }}</div>
                         </div>
 
                         <div class="detalle-card">
                             <div class="info-label">Fecha Completa</div>
-                            <div class="info-value">{{ ajuste_inventario.fecha ? ajuste_inventario.fecha|date('d/m/Y H:i:s') : 'No disponible' }}</div>
+                            <div
+                                class="info-value">{{ ajuste_inventario.fecha ? ajuste_inventario.fecha|date('d/m/Y H:i:s') : 'No disponible' }}</div>
                         </div>
                     </div>
                 </div>
@@ -186,14 +220,16 @@
                                             <i class="fas fa-sign-out-alt me-1"></i>Salida
                                         </span>
                                     {% else %}
-                                        <span class="badge-modern bg-secondary">{{ ajuste_inventario.tipo|capitalize }}</span>
+                                        <span
+                                            class="badge-modern bg-secondary">{{ ajuste_inventario.tipo|capitalize }}</span>
                                     {% endif %}
                                 </span>
                             </div>
 
                             <div class="metadata-item">
                                 <span class="metadata-label">Impacto en Inventario</span>
-                                <span class="metadata-value {% if tipo == 'entrada' %}text-success{% else %}text-danger{% endif %} fw-bold">
+                                <span
+                                    class="metadata-value {% if tipo == 'entrada' %}text-success{% else %}text-danger{% endif %} fw-bold">
                                     {% if tipo == 'entrada' %}+{% else %}-{% endif %}{{ ajuste_inventario.cantidad }} unidades
                                 </span>
                             </div>
@@ -233,7 +269,8 @@
                     <div class="stat-label">Valor del Movimiento</div>
                 </div>
                 <div class="stat-item loading" id="stat-fecha">
-                    <div class="stat-number text-info">{{ ajuste_inventario.fecha ? ajuste_inventario.fecha|date('d/m/Y') : 'N/A' }}</div>
+                    <div
+                        class="stat-number text-info">{{ ajuste_inventario.fecha ? ajuste_inventario.fecha|date('d/m/Y') : 'N/A' }}</div>
                     <div class="stat-label">Fecha del Ajuste</div>
                 </div>
             </div>
@@ -279,11 +316,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>¿Estás seguro de que deseas eliminar el ajuste de inventario <strong>#{{ ajuste_inventario.id }}</strong>?</p>
+                    <p>¿Estás seguro de que deseas eliminar el ajuste de inventario
+                        <strong>#{{ ajuste_inventario.id }}</strong>?</p>
                     <div class="alert alert-warning small">
                         <i class="fas fa-info-circle me-1"></i>
                         <strong>Información del ajuste:</strong><br>
-                        - Producto: {% if ajuste_inventario.producto %}{{ ajuste_inventario.producto.nombre }}{% else %}Producto eliminado{% endif %}<br>
+                        -
+                        Producto: {% if ajuste_inventario.producto %}{{ ajuste_inventario.producto.nombre }}{% else %}Producto eliminado{% endif %}
+                        <br>
                         - Tipo: {{ ajuste_inventario.tipo }}<br>
                         - Cantidad: {{ ajuste_inventario.cantidad }} unidades<br>
                         - Motivo: {{ ajuste_inventario.motivo }}
@@ -305,9 +345,9 @@
 {% block javascripts %}
     {{ parent() }}
     <script type="module">
-        import { initShowPage } from "{{ asset('js/ajuste_inventario/show.js') }}";
+        import {initShowPage} from "{{ asset('js/ajuste_inventario/show.js') }}";
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const tipo = '{{ ajuste_inventario.tipo|lower }}';
             const cantidad = {{ ajuste_inventario.cantidad }};
             const productoExists = {% if ajuste_inventario.producto %}true{% else %}false{% endif %};
