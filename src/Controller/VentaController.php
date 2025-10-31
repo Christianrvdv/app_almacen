@@ -141,7 +141,8 @@ final class VentaController extends AbstractController
     #[Route('/{id}', name: 'app_venta_delete', methods: ['POST'])]
     public function delete(Request $request, Venta $venta, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $venta->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
+        // CORRECCIÓN: Cambiar toRfc4122() por simplemente el ID integer
+        if ($this->isCsrfTokenValid('delete' . $venta->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($venta);
             $entityManager->flush();
         }
@@ -169,7 +170,8 @@ final class VentaController extends AbstractController
     public function downloadPdf(Venta $venta, PdfGeneratorService $pdfGenerator): Response
     {
         try {
-            $filename = 'factura_venta_' . $venta->getId()->toRfc4122() . '_' . date('Y-m-d') . '.pdf';
+            // CORRECCIÓN: Cambiar toRfc4122() por simplemente el ID integer
+            $filename = 'factura_venta_' . $venta->getId() . '_' . date('Y-m-d') . '.pdf';
             $filePath = $pdfGenerator->getPdfFilePath($filename);
 
             if (!file_exists($filePath)) {
@@ -198,7 +200,8 @@ final class VentaController extends AbstractController
     public function viewPdf(Venta $venta, PdfGeneratorService $pdfGenerator): Response
     {
         try {
-            $filename = 'factura_venta_' . $venta->getId()->toRfc4122() . '_' . date('Y-m-d') . '.pdf';
+            // CORRECCIÓN: Cambiar toRfc4122() por simplemente el ID integer
+            $filename = 'factura_venta_' . $venta->getId() . '_' . date('Y-m-d') . '.pdf';
             $filePath = $pdfGenerator->getPdfFilePath($filename);
 
             if (!file_exists($filePath)) {
