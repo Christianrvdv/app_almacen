@@ -7,6 +7,7 @@ use App\Form\CategoriaType;
 use App\Repository\CategoriaRepository;
 use App\Repository\ProductoRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,10 +17,37 @@ use Symfony\Component\Routing\Attribute\Route;
 final class CategoriaController extends AbstractController
 {
     #[Route(name: 'app_categoria_index', methods: ['GET'])]
-    public function index(CategoriaRepository $categoriaRepository): Response
+    public function index(Request $request, CategoriaRepository $categoriaRepository, PaginatorInterface $paginator): Response
     {
+        $query = $categoriaRepository->createQueryBuilder('c')
+            ->orderBy('c.nombre', 'ASC')
+            ->getQuery();
+
+        $categorias = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10
+        );
+
+        // Estadísticas totales
+        $totalCategorias = $categoriaRepository->count([]);
+        $totalConDescripcion = $categoriaRepository->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('c.descripcion IS NOT NULL AND c.descripcion != :empty')
+            ->setParameter('empty', '')
+            ->getQuery()
+            ->getSingleScalarResult();
+        $totalEnUso = $categoriaRepository->createQueryBuilder('c')
+            ->select('COUNT(DISTINCT c.id)')
+            ->innerJoin('c.productos', 'p')
+            ->getQuery()
+            ->getSingleScalarResult();
+
         return $this->render('categoria/index.html.twig', [
-            'categorias' => $categoriaRepository->findAll(),
+            'categorias' => $categorias,
+            'totalCategorias' => $totalCategorias,
+            'totalConDescripcion' => $totalConDescripcion,
+            'totalEnUso' => $totalEnUso,
         ]);
     }
 
@@ -64,7 +92,6 @@ final class CategoriaController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
-
 
             $this->addFlash('success', 'La categoría ha sido actualizada correctamente.');
 
