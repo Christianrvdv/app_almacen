@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\CompraRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -38,6 +39,10 @@ class Compra
      */
     #[ORM\OneToMany(targetEntity: DetalleCompra::class, mappedBy: 'compra', cascade: ['persist', 'remove'])]
     private Collection $detalle_compras;
+
+    public function __construct() {
+        $this->detalle_compras = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
