@@ -266,12 +266,10 @@
     {{ parent() }}
 
     <script type="module">
-        import { initFormPage } from "{{ asset('js/producto/form.js') }}";
+        import {initFormPage} from "{{ asset('js/producto/form.js') }}";
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Pasa los IDs de los campos y los elementos de visualización
+        document.addEventListener('DOMContentLoaded', function () {
             const ids = {
-                // Asumiendo que los campos se llaman 'precioCompra' y 'precioVenta' en tu FormType
                 precioCompraId: '{{ form.precio_compra.vars.id }}',
                 precioVentaId: '{{ form.precio_venta_actual.vars.id }}',
                 gananciaPreviewId: 'ganancia-preview',

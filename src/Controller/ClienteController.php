@@ -17,7 +17,9 @@ final class ClienteController extends AbstractController
 {
     public function __construct(
         private CommonService $commonService
-    ) {}
+    )
+    {
+    }
 
     #[Route(name: 'app_cliente_index', methods: ['GET'])]
     public function index(ClienteRepository $clienteRepository): Response
@@ -50,6 +52,16 @@ final class ClienteController extends AbstractController
         return $this->render('cliente/new.html.twig', [
             'cliente' => $cliente,
             'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}', name: 'app_cliente_show', methods: ['GET'])]
+    public function show(ClienteRepository $clienteRepository, Cliente $cliente): Response
+    {
+        $deuda = $clienteRepository->findDeudaTotalByCliente($cliente);
+        return $this->render('cliente/show.html.twig', [
+            'cliente' => $cliente,
+            'deuda' => $deuda,
         ]);
     }
 

@@ -16,28 +16,19 @@ class ClienteRepository extends ServiceEntityRepository
         parent::__construct($registry, Cliente::class);
     }
 
-    //    /**
-    //     * @return Cliente[] Returns an array of Cliente objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('c.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    // En ClienteRepository.php
+    public function findDeudaTotalByCliente(Cliente $cliente): float
+    {
+        $result = $this->createQueryBuilder('c')
+            ->select('COALESCE(SUM(venta.total), 0) as deuda_total')
+            ->leftJoin('c.ventas', 'venta')
+            ->where('c.id = :clienteId')
+            ->andWhere('venta.estado != :estadoCompletada OR venta.estado IS NULL')
+            ->setParameter('clienteId', $cliente->getId())
+            ->setParameter('estadoCompletada', 'completada')
+            ->getQuery()
+            ->getSingleScalarResult();
 
-    //    public function findOneBySomeField($value): ?Cliente
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        return (float) $result;
+    }
 }
