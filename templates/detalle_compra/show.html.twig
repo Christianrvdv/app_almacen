@@ -14,7 +14,7 @@
             <div class="container">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <a href="{{ path('app_compra_show', {'id': detalle_compra.compra.id})  }}"
+                        <a href="{{ path('app_compra_show', {'id': detalle_compra.compra.id}) }}"
                            class="btn btn-outline-light btn-sm rounded-pill px-3">
                             <i class="fas fa-arrow-left me-2"></i>Ver Compra Principal
                         </a>
@@ -29,63 +29,34 @@
         </div>
 
         <div class="container">
-            {% extends 'base.html.twig' %}
-
-            {% block title %}Detalle de Compra #{{ detalle_compra.id }} - Sistema de Compras{% endblock %}
-
-            {% block stylesheets %}
-                {{ parent() }}
-                <link rel="stylesheet" href="{{ asset('css/modern-styles.css') }}">
-            {% endblock %}
-
-            {% block body %}
-                <div class="container-fluid py-4">
-                    <!-- Header con gradiente -->
-                    <div class="page-header">
-                        <div class="container">
-                            <div class="d-flex align-items-center justify-content-between">
-                                <div>
-                                    <a href="{{ path('app_compra_show', {'id': detalle_compra.compra.id})  }}"
-                                       class="btn btn-outline-light btn-sm rounded-pill px-3">
-                                        <i class="fas fa-arrow-left me-2"></i>Ver Compra Principal
-                                    </a>
-                                </div>
-                                <div class="text-center text-white">
-                                    <h1 class="fw-bold mb-1">📦 Detalle de Compra #{{ detalle_compra.id }}</h1>
-                                    <p class="mb-0 opacity-75">Información completa del detalle de compra</p>
-                                </div>
-                                <div style="width: 130px;"></div>
-                            </div>
+            <!-- Mensajes Flash -->
+            {% for message in app.flashes('success') %}
+                <div class="alert-modern alert alert-success alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">¡Éxito!</h5>
+                            {{ message }}
                         </div>
                     </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                            aria-label="Close"></button>
+                </div>
+            {% endfor %}
 
-                    <div class="container">
-                        <!-- Mensajes Flash -->
-                        {% for message in app.flashes('success') %}
-                            <div class="alert-modern alert alert-success alert-dismissible fade show" role="alert">
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-check-circle fa-2x me-3"></i>
-                                    <div>
-                                        <h5 class="alert-heading mb-1">¡Éxito!</h5>
-                                        {{ message }}
-                                    </div>
-                                </div>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-
-                        {% for message in app.flashes('error') %}
-                            <div class="alert-modern alert alert-danger alert-dismissible fade show" role="alert">
-                                <div class="d-flex align-items-center">
-                                    <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
-                                    <div>
-                                        <h5 class="alert-heading mb-1">Error</h5>
-                                        {{ message }}
-                                    </div>
-                                </div>
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
+            {% for message in app.flashes('error') %}
+                <div class="alert-modern alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-1">Error</h5>
+                            {{ message }}
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                            aria-label="Close"></button>
+                </div>
+            {% endfor %}
             <!-- Información Principal -->
             <div class="info-grid">
                 <!-- Información de la Compra -->
