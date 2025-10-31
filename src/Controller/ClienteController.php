@@ -45,7 +45,7 @@ final class ClienteController extends AbstractController
             $entityManager->persist($cliente);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Cliente creado exitosamente');
+            $this->addFlash('success', 'El cliente ha sido creado correctamente.');
             return $this->redirectToRoute('app_cliente_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -74,7 +74,9 @@ final class ClienteController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_cliente_index', [], Response::HTTP_SEE_OTHER);
+            $this->addFlash('success', 'El cliente ha sido actualizado correctamente.');
+
+            return $this->redirectToRoute('app_cliente_show', ['id' => $cliente->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('cliente/edit.html.twig', [
@@ -89,6 +91,10 @@ final class ClienteController extends AbstractController
         if ($this->isCsrfTokenValid('delete' . $cliente->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($cliente);
             $entityManager->flush();
+
+            $this->addFlash('success', 'El cliente ha sido eliminado correctamente.');
+        } else {
+            $this->addFlash('error', 'Error de seguridad. No se pudo eliminar el cliente.');
         }
 
         return $this->redirectToRoute('app_cliente_index', [], Response::HTTP_SEE_OTHER);
