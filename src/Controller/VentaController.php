@@ -12,6 +12,7 @@ use App\Service\TransactionService;
 use App\Service\PdfGeneratorService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -74,10 +75,37 @@ final class VentaController extends AbstractController
     }
 
     #[Route(name: 'app_venta_index', methods: ['GET'])]
-    public function index(VentaRepository $ventaRepository): Response
+    public function index(Request $request, VentaRepository $ventaRepository, PaginatorInterface $paginator): Response
     {
+        $query = $ventaRepository->createQueryBuilder('v')
+            ->leftJoin('v.cliente', 'c')
+            ->addSelect('c')
+            ->orderBy('v.fecha', 'DESC')
+            ->getQuery();
+
+        $ventas = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10
+        );
+
+        // Estadísticas totales
+        $totalVentas = $ventaRepository->count([]);
+        $totalCompletadas = $ventaRepository->count(['estado' => 'completada']);
+        $totalPendientes = $ventaRepository->count(['estado' => 'pendiente']);
+        $totalIngresos = $ventaRepository->createQueryBuilder('v')
+            ->select('SUM(v.total)')
+            ->where('v.estado = :estado')
+            ->setParameter('estado', 'completada')
+            ->getQuery()
+            ->getSingleScalarResult() ?? 0;
+
         return $this->render('venta/index.html.twig', [
-            'ventas' => $ventaRepository->findAll(),
+            'ventas' => $ventas,
+            'totalVentas' => $totalVentas,
+            'totalCompletadas' => $totalCompletadas,
+            'totalPendientes' => $totalPendientes,
+            'totalIngresos' => $totalIngresos,
         ]);
     }
 

@@ -67,7 +67,7 @@
                             <div class="metric-icon text-primary">
                                 <i class="fas fa-shopping-cart"></i>
                             </div>
-                            <div class="metric-value text-primary">{{ ventas|length }}</div>
+                            <div class="metric-value text-primary">{{ totalVentas }}</div>
                             <div class="metric-label">Total Ventas</div>
                         </div>
                     </div>
@@ -79,8 +79,7 @@
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <div class="metric-value text-success">
-                                {% set completed_sales = ventas|filter(v => v.estado == 'completada') %}
-                                {{ completed_sales|length }}
+                                {{ totalCompletadas }}
                             </div>
                             <div class="metric-label">Ventas Completadas</div>
                         </div>
@@ -93,8 +92,7 @@
                                 <i class="fas fa-clock"></i>
                             </div>
                             <div class="metric-value text-warning">
-                                {% set pending_sales = ventas|filter(v => v.estado == 'pendiente') %}
-                                {{ pending_sales|length }}
+                                {{ totalPendientes }}
                             </div>
                             <div class="metric-label">Ventas Pendientes</div>
                         </div>
@@ -107,7 +105,7 @@
                                 <i class="fas fa-dollar-sign"></i>
                             </div>
                             <div class="metric-value text-info">
-                                ${{ ventas|reduce((total, v) => total + v.total, 0)|number_format(2, ',', '.') }}
+                                ${{ totalIngresos|number_format(2, ',', '.') }}
                             </div>
                             <div class="metric-label">Ingresos Totales</div>
                         </div>
@@ -223,23 +221,60 @@
             </div>
 
             <!-- Información de Paginación -->
-            {% if ventas|length > 0 %}
+            {% if ventas.getTotalItemCount > 0 %}
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <div class="text-muted">
-                        Mostrando <strong>{{ ventas|length }}</strong> ventas en total
+                        Página <strong>{{ ventas.currentPageNumber }}</strong> de <strong>{{ ventas.pageCount }}</strong> -
+                        Mostrando <strong>{{ ventas.getItemNumberPerPage * (ventas.currentPageNumber - 1) + 1 }}-{{ min(ventas.getItemNumberPerPage * ventas.currentPageNumber, ventas.getTotalItemCount) }}</strong> de <strong>{{ ventas.getTotalItemCount }}</strong> ventas
                     </div>
                     <div>
-                        <!-- Aquí iría la paginación si la hiciera -->
                         <nav>
                             <ul class="pagination mb-0">
-                                <li class="page-item disabled">
-                                    <a class="page-link" href="#">Anterior</a>
+                                {# Botón Anterior #}
+                                <li class="page-item {{ ventas.currentPageNumber == 1 ? 'disabled' : '' }}">
+                                    <a class="page-link"
+                                       href="{{ ventas.currentPageNumber == 1 ? '#' : path('app_venta_index', {'page': ventas.currentPageNumber - 1}) }}">
+                                        <i class="fas fa-chevron-left me-1"></i> Anterior
+                                    </a>
                                 </li>
-                                <li class="page-item active">
-                                    <a class="page-link" href="#">1</a>
-                                </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">Siguiente</a>
+
+                                {# Primera página #}
+                                {% if ventas.currentPageNumber > 2 %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ path('app_venta_index', {'page': 1}) }}">1</a>
+                                    </li>
+                                    {% if ventas.currentPageNumber > 3 %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#">...</a>
+                                        </li>
+                                    {% endif %}
+                                {% endif %}
+
+                                {# Páginas alrededor de la actual #}
+                                {% for i in max(1, ventas.currentPageNumber - 1)..min(ventas.pageCount, ventas.currentPageNumber + 1) %}
+                                    <li class="page-item {{ ventas.currentPageNumber == i ? 'active' : '' }}">
+                                        <a class="page-link" href="{{ path('app_venta_index', {'page': i}) }}">{{ i }}</a>
+                                    </li>
+                                {% endfor %}
+
+                                {# Última página #}
+                                {% if ventas.currentPageNumber < ventas.pageCount - 1 %}
+                                    {% if ventas.currentPageNumber < ventas.pageCount - 2 %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#">...</a>
+                                        </li>
+                                    {% endif %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ path('app_venta_index', {'page': ventas.pageCount}) }}">{{ ventas.pageCount }}</a>
+                                    </li>
+                                {% endif %}
+
+                                {# Botón Siguiente #}
+                                <li class="page-item {{ ventas.currentPageNumber == ventas.pageCount ? 'disabled' : '' }}">
+                                    <a class="page-link"
+                                       href="{{ ventas.currentPageNumber == ventas.pageCount ? '#' : path('app_venta_index', {'page': ventas.currentPageNumber + 1}) }}">
+                                        Siguiente <i class="fas fa-chevron-right ms-1"></i>
+                                    </a>
                                 </li>
                             </ul>
                         </nav>
