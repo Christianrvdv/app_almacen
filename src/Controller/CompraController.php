@@ -86,7 +86,7 @@ final class CompraController extends AbstractController
             $entityManager->persist($compra);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Compra registrada exitosamente');
+            $this->addFlash('success', 'La compra ha sido registrada exitosamente.');
             return $this->redirectToRoute('app_compra_show', ['id' => $compra->getId()], Response::HTTP_SEE_OTHER);
         }
 
@@ -153,8 +153,8 @@ final class CompraController extends AbstractController
 
                 $entityManager->flush();
 
-                $this->addFlash('success', 'Compra actualizada correctamente');
-                return $this->redirectToRoute('app_compra_index', [], Response::HTTP_SEE_OTHER);
+                $this->addFlash('success', 'La compra ha sido actualizada correctamente.');
+                return $this->redirectToRoute('app_compra_show', ['id' => $compra->getId()], Response::HTTP_SEE_OTHER);
 
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Error al actualizar la compra: ' . $e->getMessage());
@@ -174,6 +174,10 @@ final class CompraController extends AbstractController
         if ($this->isCsrfTokenValid('delete' . $compra->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($compra);
             $entityManager->flush();
+
+            $this->addFlash('success', 'La compra ha sido eliminada correctamente.');
+        } else {
+            $this->addFlash('error', 'Error de seguridad. No se pudo eliminar la compra.');
         }
 
         return $this->redirectToRoute('app_compra_index', [], Response::HTTP_SEE_OTHER);
