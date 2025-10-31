@@ -53,7 +53,8 @@ final class AjusteInventarioController extends AbstractController
             $entityManager->persist($ajusteInventario);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Ajuste de inventario procesado exitosamente');
+            $this->addFlash('success', 'El ajuste de inventario ha sido creado correctamente.');
+
             return $this->redirectToRoute('app_ajuste_inventario_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -101,7 +102,11 @@ final class AjusteInventarioController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_ajuste_inventario_index', [], Response::HTTP_SEE_OTHER);
+            $this->addFlash('success', 'El ajuste de inventario ha sido actualizado correctamente.');
+
+            return $this->redirectToRoute('app_ajuste_inventario_show', [
+                'id' => $ajusteInventario->getId(),
+            ], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('ajuste_inventario/edit.html.twig', [
@@ -113,9 +118,13 @@ final class AjusteInventarioController extends AbstractController
     #[Route('/{id}', name: 'app_ajuste_inventario_delete', methods: ['POST'])]
     public function delete(Request $request, AjusteInventario $ajusteInventario, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$ajusteInventario->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$ajusteInventario->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($ajusteInventario);
             $entityManager->flush();
+
+            $this->addFlash('success', 'El ajuste de inventario ha sido eliminado correctamente.');
+        } else {
+            $this->addFlash('error', 'Error de seguridad. No se pudo eliminar el ajuste de inventario.');
         }
 
         return $this->redirectToRoute('app_ajuste_inventario_index', [], Response::HTTP_SEE_OTHER);

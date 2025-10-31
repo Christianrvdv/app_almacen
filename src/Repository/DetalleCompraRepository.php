@@ -17,11 +17,11 @@ class DetalleCompraRepository extends ServiceEntityRepository
         parent::__construct($registry, DetalleCompra::class);
     }
 
-    public function findByCompraId(Uuid $compraId): array
+    public function findByCompraId(int $compraId): array
     {
         return $this->createQueryBuilder('d')
             ->andWhere('d.compra = :compraId')
-            ->setParameter('compraId', $compraId->toBinary())
+            ->setParameter('compraId', $compraId)
             ->getQuery()
             ->getResult();
     }

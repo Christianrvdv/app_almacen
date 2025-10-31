@@ -18,11 +18,11 @@ class VentaRepository extends ServiceEntityRepository
     }
 
     // Si tienes métodos que filtran por IDs, deben actualizarse
-    public function findByClienteId(Uuid $clienteId): array
+    public function findByClienteId(int $clienteId): array
     {
         return $this->createQueryBuilder('v')
             ->andWhere('v.cliente = :clienteId')
-            ->setParameter('clienteId', $clienteId->toBinary())
+            ->setParameter('clienteId', $clienteId)
             ->getQuery()
             ->getResult();
     }

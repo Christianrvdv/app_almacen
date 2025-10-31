@@ -17,11 +17,11 @@ class CompraRepository extends ServiceEntityRepository
         parent::__construct($registry, Compra::class);
     }
 
-    public function findByProveedorId(Uuid $proveedorId): array
+    public function findByProveedorId(int $proveedorId): array
     {
         return $this->createQueryBuilder('c')
             ->andWhere('c.proveedor = :proveedorId')
-            ->setParameter('proveedorId', $proveedorId->toBinary())
+            ->setParameter('proveedorId', $proveedorId)
             ->getQuery()
             ->getResult();
     }

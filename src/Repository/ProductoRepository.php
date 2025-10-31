@@ -17,7 +17,7 @@ class ProductoRepository extends ServiceEntityRepository
         parent::__construct($registry, Producto::class);
     }
 
-    public function findWithRelations(Uuid $id): ?Producto
+    public function findWithRelations(int $id): ?Producto
     {
         return $this->createQueryBuilder('p')
             ->leftJoin('p.categoria', 'c')
@@ -25,18 +25,18 @@ class ProductoRepository extends ServiceEntityRepository
             ->leftJoin('p.proveedor', 'prov')
             ->addSelect('prov')
             ->where('p.id = :id')
-            ->setParameter('id', $id->toBinary())
+            ->setParameter('id', $id)
             ->getQuery()
             ->getOneOrNullResult();
     }
 
-    public function getIngresosPorCategoria(Uuid $categoriaId): float
+    public function getIngresosPorCategoria(int $categoriaId): float
     {
         $result = $this->createQueryBuilder('p')
             ->select('COALESCE(SUM(dv.subtotal), 0) as ingresos')
             ->join('p.detalleVentas', 'dv')
             ->where('p.categoria = :categoriaId')
-            ->setParameter('categoriaId', $categoriaId->toBinary())
+            ->setParameter('categoriaId', $categoriaId)
             ->getQuery()
             ->getSingleScalarResult();
 
