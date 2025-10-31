@@ -2,7 +2,7 @@
  * public/js/producto/new.js
  * Lógica específica para los formularios de Producto (New y Edit).
  */
-import { initFormValidation } from '../utils/validation.js';
+import { initFormValidation, initNumerosValidation } from '../utils/validation.js';
 import { animateElements } from '../utils/animate.js';
 
 /**
@@ -52,7 +52,6 @@ function setupMarginCalculator(compraId, ventaId, gananciaPreviewId, margenPrevi
     calcularMargen();
 }
 
-
 export function initFormPage(ids) {
     initFormValidation();
 
@@ -64,7 +63,10 @@ export function initFormPage(ids) {
         ids.margenPreviewId
     );
 
-    // 2. Animación suave para las secciones
+    // 2. Inicializar validación numérica (REUTILIZABLE)
+    initNumerosValidation();
+
+    // 3. Animación suave para las secciones
     animateElements('.form-section, .detalle-card', 200, 'Y');
 
     console.log('Formulario de Producto inicializado de forma modular.');
