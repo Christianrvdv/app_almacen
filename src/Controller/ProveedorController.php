@@ -33,6 +33,7 @@ final class ProveedorController extends AbstractController
             $entityManager->persist($proveedor);
             $entityManager->flush();
 
+            $this->addFlash('success', 'El proveedor ha sido creado correctamente.');
             return $this->redirectToRoute('app_proveedor_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -59,6 +60,7 @@ final class ProveedorController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
+            $this->addFlash('success', 'El proveedor ha sido actualizado correctamente.');
             return $this->redirectToRoute('app_proveedor_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -71,9 +73,16 @@ final class ProveedorController extends AbstractController
     #[Route('/{id}', name: 'app_proveedor_delete', methods: ['POST'])]
     public function delete(Request $request, Proveedor $proveedor, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $proveedor->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($proveedor);
-            $entityManager->flush();
+        try {
+            if ($this->isCsrfTokenValid('delete' . $proveedor->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
+                $entityManager->remove($proveedor);
+                $entityManager->flush();
+                $this->addFlash('success', 'El proveedor ha sido eliminado correctamente.');
+            } else {
+                $this->addFlash('error', 'Error de seguridad. No se pudo eliminar el proveedor.');
+            }
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Error al eliminar el proveedor: ' . $e->getMessage());
         }
 
         return $this->redirectToRoute('app_proveedor_index', [], Response::HTTP_SEE_OTHER);
