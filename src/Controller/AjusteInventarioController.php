@@ -8,6 +8,7 @@ use App\Form\AjusteInventarioType;
 use App\Repository\AjusteInventarioRepository;
 use App\Service\CommonService;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,19 +22,34 @@ final class AjusteInventarioController extends AbstractController
     ) {}
 
     #[Route(name: 'app_ajuste_inventario_index', methods: ['GET'])]
-    public function index(AjusteInventarioRepository $ajusteInventarioRepository): Response
+    public function index(Request $request, AjusteInventarioRepository $ajusteInventarioRepository, PaginatorInterface $paginator): Response
     {
-        $ajuste_inventarios = $ajusteInventarioRepository->findAll();
+        $query = $ajusteInventarioRepository->createQueryBuilder('a')
+            ->leftJoin('a.producto', 'p')
+            ->addSelect('p')
+            ->orderBy('a.fecha', 'DESC')
+            ->getQuery();
 
-        // Calcular la cantidad de usuarios únicos
-        $usuariosUnicos = [];
-        foreach ($ajuste_inventarios as $ajuste) {
-            $usuariosUnicos[] = $ajuste->getUsuario();
-        }
-        $cantidadUsuariosUnicos = count(array_unique($usuariosUnicos));
+        $ajuste_inventarios = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10
+        );
+
+        // Estadísticas totales
+        $totalAjustes = $ajusteInventarioRepository->count([]);
+        $totalEntradas = $ajusteInventarioRepository->count(['tipo' => 'entrada']);
+        $totalSalidas = $ajusteInventarioRepository->count(['tipo' => 'salida']);
+        $cantidadUsuariosUnicos = $ajusteInventarioRepository->createQueryBuilder('a')
+            ->select('COUNT(DISTINCT a.usuario)')
+            ->getQuery()
+            ->getSingleScalarResult();
 
         return $this->render('ajuste_inventario/index.html.twig', [
             'ajuste_inventarios' => $ajuste_inventarios,
+            'totalAjustes' => $totalAjustes,
+            'totalEntradas' => $totalEntradas,
+            'totalSalidas' => $totalSalidas,
             'cantidad_usuarios_unicos' => $cantidadUsuariosUnicos,
         ]);
     }
