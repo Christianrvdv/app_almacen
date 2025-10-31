@@ -34,6 +34,8 @@ final class CategoriaController extends AbstractController
             $entityManager->persist($categoria);
             $entityManager->flush();
 
+            $this->addFlash('success', 'La categoría ha sido creada correctamente.');
+
             return $this->redirectToRoute('app_categoria_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -63,6 +65,9 @@ final class CategoriaController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
+
+            $this->addFlash('success', 'La categoría ha sido actualizada correctamente.');
+
             return $this->redirectToRoute('app_categoria_show', [
                 'id' => $categoria->getId(),
             ], Response::HTTP_SEE_OTHER);
@@ -77,9 +82,12 @@ final class CategoriaController extends AbstractController
     #[Route('/{id}', name: 'app_categoria_delete', methods: ['POST'])]
     public function delete(Request $request, Categoria $categoria, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $categoria->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $categoria->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($categoria);
             $entityManager->flush();
+            $this->addFlash('success', 'La categoría ha sido eliminada correctamente.');
+        } else {
+            $this->addFlash('error', 'Error de seguridad. No se pudo eliminar la categoría.');
         }
 
         return $this->redirectToRoute('app_categoria_index', [], Response::HTTP_SEE_OTHER);
