@@ -7,6 +7,7 @@ use App\Form\ClienteType;
 use App\Repository\ClienteRepository;
 use App\Service\CommonService;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,10 +23,42 @@ final class ClienteController extends AbstractController
     }
 
     #[Route(name: 'app_cliente_index', methods: ['GET'])]
-    public function index(ClienteRepository $clienteRepository): Response
+    public function index(Request $request, ClienteRepository $clienteRepository, PaginatorInterface $paginator): Response
     {
+        $query = $clienteRepository->createQueryBuilder('c')
+            ->orderBy('c.nombre', 'ASC')
+            ->getQuery();
+
+        $clientes = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10
+        );
+
+        // Estadísticas totales
+        $totalClientes = $clienteRepository->count([]);
+        $totalConEmail = $clienteRepository->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('c.email IS NOT NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+        $totalConTelefono = $clienteRepository->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('c.telefono IS NOT NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+        $totalConDireccion = $clienteRepository->createQueryBuilder('c')
+            ->select('COUNT(c.id)')
+            ->where('c.direccion IS NOT NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+
         return $this->render('cliente/index.html.twig', [
-            'clientes' => $clienteRepository->findAll(),
+            'clientes' => $clientes,
+            'totalClientes' => $totalClientes,
+            'totalConEmail' => $totalConEmail,
+            'totalConTelefono' => $totalConTelefono,
+            'totalConDireccion' => $totalConDireccion,
         ]);
     }
 
