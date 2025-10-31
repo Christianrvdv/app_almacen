@@ -65,7 +65,7 @@
                             <div class="metric-icon text-primary">
                                 <i class="fas fa-shopping-bag"></i>
                             </div>
-                            <div class="metric-value text-primary">{{ compras|length }}</div>
+                            <div class="metric-value text-primary">{{ totalCompras }}</div>
                             <div class="metric-label">Total Compras</div>
                         </div>
                     </div>
@@ -77,8 +77,7 @@
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <div class="metric-value text-success">
-                                {% set pagadas = compras|filter(c => c.estado|lower == 'completada') %}
-                                {{ pagadas|length }}
+                                {{ totalPagadas }}
                             </div>
                             <div class="metric-label">Compras Pagadas</div>
                         </div>
@@ -91,8 +90,7 @@
                                 <i class="fas fa-clock"></i>
                             </div>
                             <div class="metric-value text-warning">
-                                {% set pendientes = compras|filter(c => c.estado|lower == 'pendiente') %}
-                                {{ pendientes|length }}
+                                {{ totalPendientes }}
                             </div>
                             <div class="metric-label">Compras Pendientes</div>
                         </div>
@@ -105,7 +103,7 @@
                                 <i class="fas fa-dollar-sign"></i>
                             </div>
                             <div class="metric-value text-info">
-                                ${{ compras|reduce((total, c) => total + c.total, 0)|number_format(2, ',', '.') }}
+                                ${{ gastosTotales|number_format(2, ',', '.') }}
                             </div>
                             <div class="metric-label">Gastos Totales</div>
                         </div>
@@ -223,23 +221,60 @@
             </div>
 
             <!-- Información de Paginación -->
-            {% if compras|length > 0 %}
+            {% if compras.getTotalItemCount > 0 %}
                 <div class="d-flex justify-content-between align-items-center mt-3">
                     <div class="text-muted">
-                        Mostrando <strong>{{ compras|length }}</strong> compras en total
+                        Página <strong>{{ compras.currentPageNumber }}</strong> de <strong>{{ compras.pageCount }}</strong> -
+                        Mostrando <strong>{{ compras.getItemNumberPerPage * (compras.currentPageNumber - 1) + 1 }}-{{ min(compras.getItemNumberPerPage * compras.currentPageNumber, compras.getTotalItemCount) }}</strong> de <strong>{{ compras.getTotalItemCount }}</strong> compras
                     </div>
                     <div>
-                        <!-- Aquí iría la paginación si la hiciera -->
                         <nav>
                             <ul class="pagination mb-0">
-                                <li class="page-item disabled">
-                                    <a class="page-link" href="#">Anterior</a>
+                                {# Botón Anterior #}
+                                <li class="page-item {{ compras.currentPageNumber == 1 ? 'disabled' : '' }}">
+                                    <a class="page-link"
+                                       href="{{ compras.currentPageNumber == 1 ? '#' : path('app_compra_index', {'page': compras.currentPageNumber - 1}) }}">
+                                        <i class="fas fa-chevron-left me-1"></i> Anterior
+                                    </a>
                                 </li>
-                                <li class="page-item active">
-                                    <a class="page-link" href="#">1</a>
-                                </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="#">Siguiente</a>
+
+                                {# Primera página #}
+                                {% if compras.currentPageNumber > 2 %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ path('app_compra_index', {'page': 1}) }}">1</a>
+                                    </li>
+                                    {% if compras.currentPageNumber > 3 %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#">...</a>
+                                        </li>
+                                    {% endif %}
+                                {% endif %}
+
+                                {# Páginas alrededor de la actual #}
+                                {% for i in max(1, compras.currentPageNumber - 1)..min(compras.pageCount, compras.currentPageNumber + 1) %}
+                                    <li class="page-item {{ compras.currentPageNumber == i ? 'active' : '' }}">
+                                        <a class="page-link" href="{{ path('app_compra_index', {'page': i}) }}">{{ i }}</a>
+                                    </li>
+                                {% endfor %}
+
+                                {# Última página #}
+                                {% if compras.currentPageNumber < compras.pageCount - 1 %}
+                                    {% if compras.currentPageNumber < compras.pageCount - 2 %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#">...</a>
+                                        </li>
+                                    {% endif %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ path('app_compra_index', {'page': compras.pageCount}) }}">{{ compras.pageCount }}</a>
+                                    </li>
+                                {% endif %}
+
+                                {# Botón Siguiente #}
+                                <li class="page-item {{ compras.currentPageNumber == compras.pageCount ? 'disabled' : '' }}">
+                                    <a class="page-link"
+                                       href="{{ compras.currentPageNumber == compras.pageCount ? '#' : path('app_compra_index', {'page': compras.currentPageNumber + 1}) }}">
+                                        Siguiente <i class="fas fa-chevron-right ms-1"></i>
+                                    </a>
                                 </li>
                             </ul>
                         </nav>
@@ -250,7 +285,6 @@
     </div>
 
 {% endblock %}
-
 
 {% block javascripts %}
     {{ parent() }}

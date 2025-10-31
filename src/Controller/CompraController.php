@@ -12,6 +12,7 @@ use App\Repository\CompraRepository;
 use App\Service\CommonService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,10 +38,35 @@ final class CompraController extends AbstractController
     }
 
     #[Route(name: 'app_compra_index', methods: ['GET'])]
-    public function index(CompraRepository $compraRepository): Response
+    public function index(Request $request, CompraRepository $compraRepository, PaginatorInterface $paginator): Response
     {
+        $query = $compraRepository->createQueryBuilder('c')
+            ->orderBy('c.fecha', 'DESC')
+            ->getQuery();
+
+        $compras = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10
+        );
+
+        // Estadísticas totales
+        $totalCompras = $compraRepository->count([]);
+        $totalPagadas = $compraRepository->count(['estado' => 'pagada']);
+        $totalPendientes = $compraRepository->count(['estado' => 'pendiente']);
+        $gastosTotales = $compraRepository->createQueryBuilder('c')
+            ->select('SUM(c.total)')
+            ->where('c.estado = :estado')
+            ->setParameter('estado', 'pagada')
+            ->getQuery()
+            ->getSingleScalarResult() ?? 0;
+
         return $this->render('compra/index.html.twig', [
-            'compras' => $compraRepository->findAll(),
+            'compras' => $compras,
+            'totalCompras' => $totalCompras,
+            'totalPagadas' => $totalPagadas,
+            'totalPendientes' => $totalPendientes,
+            'gastosTotales' => $gastosTotales,
         ]);
     }
 
