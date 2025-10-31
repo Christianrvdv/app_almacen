@@ -60,7 +60,7 @@ final class ProductoController extends AbstractController
                 $entityManager->persist($producto);
                 $entityManager->flush();
 
-                $this->addFlash('success', 'Producto creado exitosamente.');
+                $this->addFlash('success', 'El producto ha sido creado correctamente.');
                 return $this->redirectToRoute('app_producto_index', [], Response::HTTP_SEE_OTHER);
             }
 
@@ -101,7 +101,7 @@ final class ProductoController extends AbstractController
             if ($form->isSubmitted() && $form->isValid()) {
                 $entityManager->flush();
 
-                $this->addFlash('success', 'Producto actualizado exitosamente.');
+                $this->addFlash('success', 'El producto ha sido actualizado correctamente.');
                 return $this->redirectToRoute('app_producto_index', [], Response::HTTP_SEE_OTHER);
             }
 
@@ -122,9 +122,9 @@ final class ProductoController extends AbstractController
             if ($this->isCsrfTokenValid('delete' . $producto->getId(), $request->getPayload()->getString('_token'))) {
                 $entityManager->remove($producto);
                 $entityManager->flush();
-                $this->addFlash('success', 'Producto eliminado exitosamente.');
+                $this->addFlash('success', 'El producto ha sido eliminado correctamente.');
             } else {
-                $this->addFlash('error', 'Token de seguridad inválido.');
+                $this->addFlash('error', 'Error de seguridad. No se pudo eliminar el producto.');
             }
         } catch (\Exception $e) {
             $this->addFlash('error', 'Error al eliminar el producto: ' . $e->getMessage());
