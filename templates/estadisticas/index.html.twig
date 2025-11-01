@@ -108,6 +108,199 @@
                 font-size: 1.8rem;
             }
         }
+
+        /* Estilos Modernos para Filtros */
+        .filter-form-modern {
+            background: transparent;
+        }
+
+        .form-group-modern {
+            margin-bottom: 0;
+        }
+
+        .form-label-modern {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #2b2d42;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .select-wrapper {
+            position: relative;
+            display: block;
+        }
+
+        .form-select-modern {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            background-color: white;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2b2d42;
+            transition: all 0.3s ease;
+            appearance: none;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-select-modern:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .form-select-modern:hover {
+            border-color: #d0d7e0;
+        }
+
+        .select-arrow {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            pointer-events: none;
+            transition: transform 0.3s ease;
+        }
+
+        .select-wrapper:focus-within .select-arrow {
+            transform: translateY(-50%) rotate(180deg);
+            color: var(--primary-color);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: block;
+        }
+
+        .form-input-modern {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            background-color: white;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2b2d42;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-input-modern:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .form-input-modern:hover {
+            border-color: #d0d7e0;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            pointer-events: none;
+        }
+
+        .button-group-modern {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .btn-modern {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary-modern {
+            background: linear-gradient(135deg, var(--primary-color), #4a6cf7);
+            color: white;
+        }
+
+        .btn-primary-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.3);
+            color: white;
+        }
+
+        .btn-secondary-modern {
+            background: white;
+            color: #6c757d;
+            border: 2px solid #e9ecef;
+        }
+
+        .btn-secondary-modern:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background: #f8f9fa;
+            color: #495057;
+            border-color: #d0d7e0;
+        }
+
+        /* Efectos de transición suave */
+        .filter-form-modern * {
+            transition: all 0.3s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .button-group-modern {
+                flex-direction: column;
+            }
+
+            .btn-modern {
+                width: 100%;
+            }
+
+            .form-select-modern,
+            .form-input-modern {
+                padding: 10px 40px 10px 12px;
+                font-size: 13px;
+            }
+
+            .select-arrow,
+            .input-icon {
+                right: 12px;
+            }
+        }
+
+        /* Estados de carga/interacción */
+        .btn-modern:active {
+            transform: translateY(0);
+        }
+
+        .form-select-modern option {
+            padding: 10px;
+            font-weight: 500;
+        }
+
+        /* Mejora visual para el badge del período activo */
+        .badge-modern.bg-primary {
+            background: linear-gradient(135deg, var(--primary-color), #4a6cf7) !important;
+            font-weight: 600;
+            padding: 8px 12px;
+            border-radius: 20px;
+        }
     </style>
 {% endblock %}
 
@@ -196,58 +389,19 @@
                 </div>
             {% endif %}
 
-            <!-- Filtros por Período -->
+            <!-- Filtros por Período - Versión Mejorada -->
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="card-modern">
                         <div class="card-body">
-                            <h5 class="card-title mb-3">🕒 Filtros de Período</h5>
-                            <form method="get" action="{{ path('app_estadisticas_index') }}" class="row g-3 align-items-end">
-                                <div class="col-md-4">
-                                    <label for="filtro" class="form-label">Período:</label>
-                                    <select class="form-select" id="filtro" name="filtro">
-                                        <option value="hoy" {{ filtro_actual == 'hoy' ? 'selected' : '' }}>Hoy</option>
-                                        <option value="ayer" {{ filtro_actual == 'ayer' ? 'selected' : '' }}>Ayer</option>
-                                        <option value="fecha_especifica" {{ filtro_actual == 'fecha_especifica' ? 'selected' : '' }}>Fecha Específica</option>
-                                        <option value="semana_actual" {{ filtro_actual == 'semana_actual' ? 'selected' : '' }}>Esta Semana</option>
-                                        <option value="semana_pasada" {{ filtro_actual == 'semana_pasada' ? 'selected' : '' }}>Semana Pasada</option>
-                                        <option value="mes_actual" {{ filtro_actual == 'mes_actual' ? 'selected' : '' }}>Este Mes</option>
-                                        <option value="mes_pasado" {{ filtro_actual == 'mes_pasado' ? 'selected' : '' }}>Mes Pasado</option>
-                                        <option value="ultimos_3_meses" {{ filtro_actual == 'ultimos_3_meses' ? 'selected' : '' }}>Últimos 3 Meses</option>
-                                        <option value="ultimos_6_meses" {{ filtro_actual == 'ultimos_6_meses' ? 'selected' : '' }}>Últimos 6 Meses</option>
-                                        <option value="ano_actual" {{ filtro_actual == 'ano_actual' ? 'selected' : '' }}>Este Año</option>
-                                        <option value="ano_pasado" {{ filtro_actual == 'ano_pasado' ? 'selected' : '' }}>Año Pasado</option>
-                                        <option value="todo" {{ filtro_actual == 'todo' ? 'selected' : '' }}>Todo el Historial</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-4" id="fecha-especifica-container" style="{{ filtro_actual == 'fecha_especifica' ? '' : 'display: none;' }}">
-                                    <label for="fecha_especifica" class="form-label">Fecha Específica:</label>
-                                    <input type="date" class="form-control" id="fecha_especifica" name="fecha_especifica"
-                                           value="{{ fecha_especifica }}">
-                                </div>
-
-                                <div class="col-md-4">
-                                    <div class="d-flex gap-2">
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-filter me-2"></i>Aplicar Filtros
-                                        </button>
-                                        <a href="{{ path('app_estadisticas_index') }}" class="btn btn-outline-secondary">
-                                            <i class="fas fa-times me-2"></i>Limpiar
-                                        </a>
-                                    </div>
-                                </div>
-                            </form>
-
-                            <!-- Indicador del período activo -->
-                            {% if filtro_actual != 'todo' %}
-                                <div class="mt-3">
-                        <span class="badge-modern bg-info">
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <h5 class="card-title mb-0">🕒 Filtros de Período</h5>
+                                {% if filtro_actual != 'todo' %}
+                                    <span class="badge-modern bg-primary">
                             <i class="fas fa-calendar me-1"></i>
-                            Período activo:
                             {% if filtro_actual == 'hoy' %}Hoy
                             {% elseif filtro_actual == 'ayer' %}Ayer
-                            {% elseif filtro_actual == 'fecha_especifica' %}Fecha específica: {{ fecha_especifica|date('d/m/Y') }}
+                            {% elseif filtro_actual == 'fecha_especifica' %}{{ fecha_especifica|date('d/m/Y') }}
                             {% elseif filtro_actual == 'semana_actual' %}Esta semana
                             {% elseif filtro_actual == 'semana_pasada' %}Semana pasada
                             {% elseif filtro_actual == 'mes_actual' %}Este mes
@@ -256,11 +410,69 @@
                             {% elseif filtro_actual == 'ultimos_6_meses' %}Últimos 6 meses
                             {% elseif filtro_actual == 'ano_actual' %}Este año
                             {% elseif filtro_actual == 'ano_pasado' %}Año pasado
-                            {% else %}Todo el historial
                             {% endif %}
                         </span>
+                                {% endif %}
+                            </div>
+
+                            <form method="get" action="{{ path('app_estadisticas_index') }}" class="filter-form-modern">
+                                <div class="row g-3 align-items-end">
+                                    <!-- Select de Período -->
+                                    <div class="col-md-4">
+                                        <div class="form-group-modern">
+                                            <label for="filtro" class="form-label-modern">
+                                                <i class="fas fa-filter me-2"></i>Período
+                                            </label>
+                                            <div class="select-wrapper">
+                                                <select class="form-select-modern" id="filtro" name="filtro">
+                                                    <option value="hoy" {{ filtro_actual == 'hoy' ? 'selected' : '' }}>📅 Hoy</option>
+                                                    <option value="ayer" {{ filtro_actual == 'ayer' ? 'selected' : '' }}>📅 Ayer</option>
+                                                    <option value="fecha_especifica" {{ filtro_actual == 'fecha_especifica' ? 'selected' : '' }}>📅 Fecha Específica</option>
+                                                    <option value="semana_actual" {{ filtro_actual == 'semana_actual' ? 'selected' : '' }}>📅 Esta Semana</option>
+                                                    <option value="semana_pasada" {{ filtro_actual == 'semana_pasada' ? 'selected' : '' }}>📅 Semana Pasada</option>
+                                                    <option value="mes_actual" {{ filtro_actual == 'mes_actual' ? 'selected' : '' }}>📅 Este Mes</option>
+                                                    <option value="mes_pasado" {{ filtro_actual == 'mes_pasado' ? 'selected' : '' }}>📅 Mes Pasado</option>
+                                                    <option value="ultimos_3_meses" {{ filtro_actual == 'ultimos_3_meses' ? 'selected' : '' }}>📅 Últimos 3 Meses</option>
+                                                    <option value="ultimos_6_meses" {{ filtro_actual == 'ultimos_6_meses' ? 'selected' : '' }}>📅 Últimos 6 Meses</option>
+                                                    <option value="ano_actual" {{ filtro_actual == 'ano_actual' ? 'selected' : '' }}>📅 Este Año</option>
+                                                    <option value="ano_pasado" {{ filtro_actual == 'ano_pasado' ? 'selected' : '' }}>📅 Año Pasado</option>
+                                                    <option value="todo" {{ filtro_actual == 'todo' ? 'selected' : '' }}>📊 Todo el Historial</option>
+                                                </select>
+                                                <i class="fas fa-chevron-down select-arrow"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Campo de Fecha Específica -->
+                                    <div class="col-md-4" id="fecha-especifica-container" style="{{ filtro_actual == 'fecha_especifica' ? '' : 'display: none;' }}">
+                                        <div class="form-group-modern">
+                                            <label for="fecha_especifica" class="form-label-modern">
+                                                <i class="fas fa-calendar-day me-2"></i>Fecha Específica
+                                            </label>
+                                            <div class="input-wrapper">
+                                                <input type="date" class="form-input-modern" id="fecha_especifica" name="fecha_especifica"
+                                                       value="{{ fecha_especifica }}">
+                                                <i class="fas fa-calendar input-icon"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Botones de Acción -->
+                                    <div class="col-md-4">
+                                        <div class="form-group-modern">
+                                            <label class="form-label-modern invisible">Acciones</label>
+                                            <div class="button-group-modern">
+                                                <button type="submit" class="btn-modern btn-primary-modern">
+                                                    <i class="fas fa-sliders-h me-2"></i>Aplicar
+                                                </button>
+                                                <a href="{{ path('app_estadisticas_index') }}" class="btn-modern btn-secondary-modern">
+                                                    <i class="fas fa-eraser me-2"></i>Limpiar
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            {% endif %}
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -896,5 +1108,5 @@
         window.ventasDiarias = {{ ventasDiarias|json_encode()|raw }};
         window.comprasDiarias = {{ comprasDiarias|json_encode()|raw }};
     </script>
-    <script type="module" src="{{ asset('js/estadisticas/index.js') }}"></script>   
+    <script type="module" src="{{ asset('js/estadisticas/index.js') }}"></script>
 {% endblock %}
