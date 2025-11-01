@@ -133,7 +133,25 @@ final class ProductoController extends AbstractController
     public function delete(Request $request, Producto $producto, EntityManagerInterface $entityManager): Response
     {
         try {
-            if ($this->isCsrfTokenValid('delete' . $producto->getId(), $request->getPayload()->getString('_token'))) {
+            if ($this->isCsrfTokenValid('delete'.$producto->getId(), $request->getPayload()->getString('_token'))) {
+
+                // Eliminar registros relacionados manualmente
+                foreach ($producto->getHistorialPrecios() as $historial) {
+                    $entityManager->remove($historial);
+                }
+
+                foreach ($producto->getDetalleCompras() as $detalleCompra) {
+                    $entityManager->remove($detalleCompra);
+                }
+
+                foreach ($producto->getDetalleVentas() as $detalleVenta) {
+                    $entityManager->remove($detalleVenta);
+                }
+
+                foreach ($producto->getAjusteInventarios() as $ajuste) {
+                    $entityManager->remove($ajuste);
+                }
+
                 $entityManager->remove($producto);
                 $entityManager->flush();
                 $this->addFlash('success', 'El producto ha sido eliminado correctamente.');
