@@ -42,17 +42,13 @@ class ProductoRepository extends ServiceEntityRepository
 
         return (float) $result;
     }
-
-    /*
-    public function findAllWithRelations(): array
+    public function findBySearchTerm(string $searchTerm): array
     {
         return $this->createQueryBuilder('p')
-            ->leftJoin('p.categoria', 'c')
-            ->addSelect('c')
-            ->leftJoin('p.proveedor', 'prov')
-            ->addSelect('prov')
+            ->andWhere('p.nombre LIKE :searchTerm OR p.descripcion LIKE :searchTerm OR p.codigo_barras LIKE :searchTerm')
+            ->setParameter('searchTerm', '%' . $searchTerm . '%')
             ->orderBy('p.fecha_actualizacion', 'DESC')
             ->getQuery()
             ->getResult();
-    }*/
+    }
 }

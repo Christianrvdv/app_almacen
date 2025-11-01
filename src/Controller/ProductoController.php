@@ -25,13 +25,24 @@ final class ProductoController extends AbstractController
     #[Route('', name: 'app_producto_index', methods: ['GET'])]
     public function index(Request $request, ProductoRepository $productoRepository, PaginatorInterface $paginator): Response
     {
-        $query = $productoRepository->createQueryBuilder('p')
+        $searchTerm = $request->query->get('q', ''); // Obtener término de búsqueda
+
+        // Construir query con filtro de búsqueda si existe
+        $queryBuilder = $productoRepository->createQueryBuilder('p')
             ->leftJoin('p.categoria', 'c')
             ->addSelect('c')
             ->leftJoin('p.proveedor', 'prov')
             ->addSelect('prov')
-            ->orderBy('p.fecha_actualizacion', 'DESC')
-            ->getQuery();
+            ->orderBy('p.fecha_actualizacion', 'DESC');
+
+        // Aplicar filtro de búsqueda si hay término
+        if (!empty($searchTerm)) {
+            $queryBuilder
+                ->andWhere('p.nombre LIKE :searchTerm OR p.descripcion LIKE :searchTerm OR p.codigo_barras LIKE :searchTerm')
+                ->setParameter('searchTerm', '%' . $searchTerm . '%');
+        }
+
+        $query = $queryBuilder->getQuery();
 
         $productos = $paginator->paginate(
             $query,
@@ -39,22 +50,18 @@ final class ProductoController extends AbstractController
             10
         );
 
-        // Estadísticas totales
-        $totalProductos = $productoRepository->count([]);
-        $totalActivos = $productoRepository->count(['activo' => true]);
-        $totalInactivos = $productoRepository->count(['activo' => false]);
-        $totalConCategoria = $productoRepository->createQueryBuilder('p')
-            ->select('COUNT(p.id)')
-            ->where('p.categoria IS NOT NULL')
-            ->getQuery()
-            ->getSingleScalarResult();
-
+        // Pasar el término de búsqueda a la plantilla
         return $this->render('producto/index.html.twig', [
             'productos' => $productos,
-            'totalProductos' => $totalProductos,
-            'totalActivos' => $totalActivos,
-            'totalInactivos' => $totalInactivos,
-            'totalConCategoria' => $totalConCategoria,
+            'totalProductos' => $productoRepository->count([]),
+            'totalActivos' => $productoRepository->count(['activo' => true]),
+            'totalInactivos' => $productoRepository->count(['activo' => false]),
+            'totalConCategoria' => $productoRepository->createQueryBuilder('p')
+                ->select('COUNT(p.id)')
+                ->where('p.categoria IS NOT NULL')
+                ->getQuery()
+                ->getSingleScalarResult(),
+            'searchTerm' => $searchTerm, // Pasar el término actual
         ]);
     }
 
