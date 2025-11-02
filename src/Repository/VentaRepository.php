@@ -5,7 +5,6 @@ namespace App\Repository;
 use App\Entity\Venta;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Uid\Uuid;
 
 /**
  * @extends ServiceEntityRepository<Venta>
@@ -17,7 +16,6 @@ class VentaRepository extends ServiceEntityRepository
         parent::__construct($registry, Venta::class);
     }
 
-    // Si tienes métodos que filtran por IDs, deben actualizarse
     public function findByClienteId(int $clienteId): array
     {
         return $this->createQueryBuilder('v')
@@ -25,5 +23,25 @@ class VentaRepository extends ServiceEntityRepository
             ->setParameter('clienteId', $clienteId)
             ->getQuery()
             ->getResult();
+    }
+
+    public function findBySearchTerm(string $searchTerm): array
+    {
+        $queryBuilder = $this->createQueryBuilder('v')
+            ->leftJoin('v.cliente', 'c')
+            ->orderBy('v.fecha', 'DESC');
+
+        if (is_numeric($searchTerm)) {
+            $queryBuilder
+                ->andWhere('v.id = :id OR v.estado LIKE :searchTerm OR v.total LIKE :searchTerm OR v.tipo_venta LIKE :searchTerm OR c.nombre LIKE :searchTerm')
+                ->setParameter('id', (int) $searchTerm)
+                ->setParameter('searchTerm', '%' . $searchTerm . '%');
+        } else {
+            $queryBuilder
+                ->andWhere('v.estado LIKE :searchTerm OR v.tipo_venta LIKE :searchTerm OR c.nombre LIKE :searchTerm')
+                ->setParameter('searchTerm', '%' . $searchTerm . '%');
+        }
+
+        return $queryBuilder->getQuery()->getResult();
     }
 }

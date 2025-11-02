@@ -77,11 +77,30 @@ final class VentaController extends AbstractController
     #[Route(name: 'app_venta_index', methods: ['GET'])]
     public function index(Request $request, VentaRepository $ventaRepository, PaginatorInterface $paginator): Response
     {
-        $query = $ventaRepository->createQueryBuilder('v')
+        $searchTerm = $request->query->get('q', ''); // Obtener término de búsqueda
+
+        // Construir query con filtro de búsqueda si existe
+        $queryBuilder = $ventaRepository->createQueryBuilder('v')
             ->leftJoin('v.cliente', 'c')
             ->addSelect('c')
-            ->orderBy('v.fecha', 'DESC')
-            ->getQuery();
+            ->orderBy('v.fecha', 'DESC');
+
+        // Aplicar filtro de búsqueda si hay término
+        if (!empty($searchTerm)) {
+            // Buscar por ID (si es numérico), estado, tipo_venta o nombre del cliente
+            if (is_numeric($searchTerm)) {
+                $queryBuilder
+                    ->andWhere('v.id = :id OR v.estado LIKE :searchTerm OR v.total LIKE :searchTerm OR v.tipo_venta LIKE :searchTerm OR c.nombre LIKE :searchTerm')
+                    ->setParameter('id', (int) $searchTerm)
+                    ->setParameter('searchTerm', '%' . $searchTerm . '%');
+            } else {
+                $queryBuilder
+                    ->andWhere('v.estado LIKE :searchTerm OR v.tipo_venta LIKE :searchTerm OR c.nombre LIKE :searchTerm')
+                    ->setParameter('searchTerm', '%' . $searchTerm . '%');
+            }
+        }
+
+        $query = $queryBuilder->getQuery();
 
         $ventas = $paginator->paginate(
             $query,
@@ -89,7 +108,7 @@ final class VentaController extends AbstractController
             10
         );
 
-        // Estadísticas totales
+        // Estadísticas totales (sin filtro de búsqueda)
         $totalVentas = $ventaRepository->count([]);
         $totalCompletadas = $ventaRepository->count(['estado' => 'completada']);
         $totalPendientes = $ventaRepository->count(['estado' => 'pendiente']);
@@ -106,6 +125,7 @@ final class VentaController extends AbstractController
             'totalCompletadas' => $totalCompletadas,
             'totalPendientes' => $totalPendientes,
             'totalIngresos' => $totalIngresos,
+            'searchTerm' => $searchTerm, // Pasar el término actual
         ]);
     }
 
