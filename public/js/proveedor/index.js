@@ -1,32 +1,39 @@
 // public/js/proveedor/index.js
 import { animateElements } from '../utils/animate.js';
 
-function initSearchAndFilter() {
-    const searchInput = document.querySelector('input[type="text"]');
-    const tableRows = document.querySelectorAll('tbody tr');
+export function initIndexPage() {
+    // 1. Manejar búsqueda con el servidor
+    const searchInput = document.getElementById('search-input');
+    const searchForm = document.getElementById('search-form');
 
-    if (searchInput) {
+    if (searchInput && searchForm) {
+        // Búsqueda en tiempo real con debounce
+        let searchTimeout;
         searchInput.addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                // Enviar formulario después de 800ms sin escribir
+                searchForm.submit();
+            }, 800);
+        });
 
-            tableRows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if (text.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
+        // También permitir búsqueda con Enter
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchForm.submit();
+            }
         });
     }
-}
 
-function initRowAnimations() {
-    // Animación suave para las filas, usando el módulo animate.js
+    // 2. Animación suave para las filas de la tabla
     animateElements('tbody tr', 100, 'X');
+    // 3. Animación para tarjetas de estadísticas rápidas
+    animateElements('.stats-card, .quick-action-card', 200, 'Y');
+
+    console.log('Listado de Proveedores inicializado.');
 }
 
-export function initProveedorListPage() {
-    initSearchAndFilter();
-    initRowAnimations();
+// Función para limpiar búsqueda (definida en ámbito global)
+window.clearSearch = function() {
+    window.location.href = "{{ path('app_proveedor_index') }}";
 }

@@ -16,28 +16,22 @@ class ProveedorRepository extends ServiceEntityRepository
         parent::__construct($registry, Proveedor::class);
     }
 
-    //    /**
-    //     * @return Proveedor[] Returns an array of Proveedor objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('p.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function findByClienteId(int $clienteId): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.cliente = :clienteId')
+            ->setParameter('clienteId', $clienteId)
+            ->getQuery()
+            ->getResult();
+    }
 
-    //    public function findOneBySomeField($value): ?Proveedor
-    //    {
-    //        return $this->createQueryBuilder('p')
-    //            ->andWhere('p.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function findBySearchTerm(string $searchTerm): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.nombre LIKE :searchTerm OR p.telefono LIKE :searchTerm OR p.email LIKE :searchTerm OR p.direccion LIKE :searchTerm')
+            ->setParameter('searchTerm', '%' . $searchTerm . '%')
+            ->orderBy('p.nombre', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
