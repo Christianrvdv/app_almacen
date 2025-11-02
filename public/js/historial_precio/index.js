@@ -5,22 +5,38 @@
 import { animateElements } from '../utils/animate.js';
 
 export function initIndexPage() {
-    // 1. Funcionalidad básica de búsqueda (se aplica a la tabla)
-    const searchInput = document.querySelector('input[type="text"]');
-    const tableRows = document.querySelectorAll('tbody tr');
+    // 1. Manejar búsqueda con el servidor
+    const searchInput = document.getElementById('search-input');
+    const searchForm = document.getElementById('search-form');
 
-    if (searchInput && tableRows.length > 0) {
+    if (searchInput && searchForm) {
+        // Búsqueda en tiempo real con debounce
+        let searchTimeout;
         searchInput.addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            tableRows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                // Enviar formulario después de 800ms sin escribir
+                searchForm.submit();
+            }, 800);
+        });
+
+        // También permitir búsqueda con Enter
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchForm.submit();
+            }
         });
     }
 
-    // 2. Animación suave para las filas de la tabla (X)
+    // 2. Animación suave para las filas de la tabla
     animateElements('tbody tr', 100, 'X');
-    // 3. Animación para tarjetas de estadísticas rápidas (Y)
-    animateElements('.stats-card', 200, 'Y');
+    // 3. Animación para tarjetas de estadísticas rápidas
+    animateElements('.stats-card, .quick-action-card', 200, 'Y');
+
+    console.log('Listado de Historial de Precios inicializado.');
+}
+
+// Función para limpiar búsqueda (definida en ámbito global)
+window.clearSearch = function() {
+    window.location.href = "{{ path('app_historial_precios_index') }}";
 }

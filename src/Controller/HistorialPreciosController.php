@@ -7,6 +7,7 @@ use App\Entity\Producto;
 use App\Form\HistorialPreciosType;
 use App\Repository\HistorialPreciosRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,48 +17,48 @@ use Symfony\Component\Routing\Attribute\Route;
 final class HistorialPreciosController extends AbstractController
 {
     #[Route(name: 'app_historial_precios_index', methods: ['GET'])]
-    public function index(HistorialPreciosRepository $historialPreciosRepository): Response
+    public function index(Request $request, HistorialPreciosRepository $historialPreciosRepository, PaginatorInterface $paginator): Response
     {
-        return $this->render('historial_precios/index.html.twig', [
-            'historial_precios' => $historialPreciosRepository->findAll(),
-        ]);
-    }
+        $searchTerm = $request->query->get('q', ''); // Obtener término de búsqueda
 
-    #[Route('/new/{id}', name: 'app_historial_precios_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, Producto $producto): Response
-    {
-        $historialPrecio = new HistorialPrecios();
-        $historialPrecio->setProducto($producto);
+        // Construir query con filtro de búsqueda si existe
+        $queryBuilder = $historialPreciosRepository->createQueryBuilder('h')
+            ->leftJoin('h.producto', 'p')
+            ->addSelect('p')
+            ->orderBy('h.fecha_cambio', 'DESC');
 
-        $form = $this->createForm(HistorialPreciosType::class, $historialPrecio);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            try {
-                if ($historialPrecio->getTipo() === "venta") {
-                    $producto->setPrecioVentaActual($historialPrecio->getPrecioNuevo());
-                } else {
-                    $producto->setPrecioCompra($historialPrecio->getPrecioNuevo());
-                }
-
-                $entityManager->persist($historialPrecio);
-                $entityManager->flush();
-
-                $this->addFlash('success', 'El historial de precios ha sido creado correctamente y el precio del producto ha sido actualizado.');
-
-                return $this->redirectToRoute('app_producto_show', [
-                    'id' => $producto->getId()
-                ], Response::HTTP_SEE_OTHER);
-
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'Error al actualizar el precio: ' . $e->getMessage());
-            }
+        // Aplicar filtro de búsqueda si hay término
+        if (!empty($searchTerm)) {
+            $queryBuilder
+                ->andWhere('h.tipo LIKE :searchTerm OR h.motivo LIKE :searchTerm OR p.nombre LIKE :searchTerm')
+                ->setParameter('searchTerm', '%' . $searchTerm . '%');
         }
 
-        return $this->render('historial_precios/new.html.twig', [
-            'historial_precio' => $historialPrecio,
-            'form' => $form,
-            'producto' => $producto,
+        $query = $queryBuilder->getQuery();
+
+        $historialPrecios = $paginator->paginate(
+            $query,
+            $request->query->getInt('page', 1),
+            10
+        );
+
+        // Obtener estadísticas totales (sin filtro)
+        $totalRegistros = $historialPreciosRepository->count([]);
+        $totalVenta = $historialPreciosRepository->count(['tipo' => 'venta']);
+        $totalCompra = $historialPreciosRepository->count(['tipo' => 'compra']);
+        $totalAjustePromo = $historialPreciosRepository->createQueryBuilder('h')
+            ->select('COUNT(h.id)')
+            ->where("h.tipo IN ('promocion', 'ajuste')")
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return $this->render('historial_precios/index.html.twig', [
+            'historial_precios' => $historialPrecios,
+            'searchTerm' => $searchTerm,
+            'totalRegistros' => $totalRegistros,
+            'totalVenta' => $totalVenta,
+            'totalCompra' => $totalCompra,
+            'totalAjustePromo' => $totalAjustePromo,
         ]);
     }
 

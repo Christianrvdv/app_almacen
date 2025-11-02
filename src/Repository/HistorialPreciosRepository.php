@@ -30,4 +30,14 @@ class HistorialPreciosRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    public function findBySearchTerm(string $searchTerm): array
+    {
+        return $this->createQueryBuilder('h')
+            ->leftJoin('h.producto', 'p')
+            ->andWhere('h.tipo LIKE :searchTerm OR h.motivo LIKE :searchTerm OR p.nombre LIKE :searchTerm')
+            ->setParameter('searchTerm', '%' . $searchTerm . '%')
+            ->orderBy('h.fecha_cambio', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }
