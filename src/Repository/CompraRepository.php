@@ -25,4 +25,15 @@ class CompraRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findBySearchTerm(string $searchTerm): array
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.numero_factura LIKE :searchTerm OR c.estado LIKE :searchTerm OR c.id = :id')
+            ->setParameter('searchTerm', '%' . $searchTerm . '%')
+            ->setParameter('id', is_numeric($searchTerm) ? (int) $searchTerm : 0)
+            ->orderBy('c.fecha', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

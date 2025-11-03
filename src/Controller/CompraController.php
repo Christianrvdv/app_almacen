@@ -21,7 +21,6 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/compra')]
 final class CompraController extends AbstractController
 {
-    // Agregar el servicio al constructor
     public function __construct(
         private CommonService      $commonService,
         private TransactionService $transactionService
@@ -29,9 +28,6 @@ final class CompraController extends AbstractController
     {
     }
 
-    /**
-     * Método privado para procesar detalles de compra
-     */
     private function processCompraDetails(Compra $compra, EntityManagerInterface $entityManager): void
     {
         $this->transactionService->processCompra($compra);
@@ -40,9 +36,21 @@ final class CompraController extends AbstractController
     #[Route(name: 'app_compra_index', methods: ['GET'])]
     public function index(Request $request, CompraRepository $compraRepository, PaginatorInterface $paginator): Response
     {
-        $query = $compraRepository->createQueryBuilder('c')
-            ->orderBy('c.fecha', 'DESC')
-            ->getQuery();
+        $searchTerm = $request->query->get('q', ''); // Obtener término de búsqueda
+
+        // Construir query con filtro de búsqueda si existe
+        $queryBuilder = $compraRepository->createQueryBuilder('c')
+            ->orderBy('c.fecha', 'DESC');
+
+        // Aplicar filtro de búsqueda si hay término
+        if (!empty($searchTerm)) {
+            $queryBuilder
+                ->andWhere('c.numero_factura LIKE :searchTerm OR c.estado LIKE :searchTerm OR c.id = :id')
+                ->setParameter('searchTerm', '%' . $searchTerm . '%')
+                ->setParameter('id', is_numeric($searchTerm) ? (int) $searchTerm : 0);
+        }
+
+        $query = $queryBuilder->getQuery();
 
         $compras = $paginator->paginate(
             $query,
@@ -50,7 +58,7 @@ final class CompraController extends AbstractController
             10
         );
 
-        // Estadísticas totales
+        // Estadísticas totales (sin filtro de búsqueda para mantener precisión)
         $totalCompras = $compraRepository->count([]);
         $totalPagadas = $compraRepository->count(['estado' => 'pagada']);
         $totalPendientes = $compraRepository->count(['estado' => 'pendiente']);
@@ -67,6 +75,7 @@ final class CompraController extends AbstractController
             'totalPagadas' => $totalPagadas,
             'totalPendientes' => $totalPendientes,
             'gastosTotales' => $gastosTotales,
+            'searchTerm' => $searchTerm, // Pasar el término actual
         ]);
     }
 
