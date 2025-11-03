@@ -25,9 +25,20 @@ final class ClienteController extends AbstractController
     #[Route(name: 'app_cliente_index', methods: ['GET'])]
     public function index(Request $request, ClienteRepository $clienteRepository, PaginatorInterface $paginator): Response
     {
-        $query = $clienteRepository->createQueryBuilder('c')
-            ->orderBy('c.nombre', 'ASC')
-            ->getQuery();
+        $searchTerm = $request->query->get('q', ''); // Obtener término de búsqueda
+
+        // Construir query con filtro de búsqueda si existe
+        $queryBuilder = $clienteRepository->createQueryBuilder('c')
+            ->orderBy('c.nombre', 'ASC');
+
+        // Aplicar filtro de búsqueda si hay término
+        if (!empty($searchTerm)) {
+            $queryBuilder
+                ->andWhere('c.nombre LIKE :searchTerm OR c.email LIKE :searchTerm OR c.telefono LIKE :searchTerm OR c.direccion LIKE :searchTerm')
+                ->setParameter('searchTerm', '%' . $searchTerm . '%');
+        }
+
+        $query = $queryBuilder->getQuery();
 
         $clientes = $paginator->paginate(
             $query,
@@ -35,7 +46,7 @@ final class ClienteController extends AbstractController
             10
         );
 
-        // Estadísticas totales
+        // Estadísticas totales (sin filtro de búsqueda para mantener precisión)
         $totalClientes = $clienteRepository->count([]);
         $totalConEmail = $clienteRepository->createQueryBuilder('c')
             ->select('COUNT(c.id)')
@@ -59,6 +70,7 @@ final class ClienteController extends AbstractController
             'totalConEmail' => $totalConEmail,
             'totalConTelefono' => $totalConTelefono,
             'totalConDireccion' => $totalConDireccion,
+            'searchTerm' => $searchTerm, // Pasar el término actual
         ]);
     }
 

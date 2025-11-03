@@ -16,7 +16,6 @@ class ClienteRepository extends ServiceEntityRepository
         parent::__construct($registry, Cliente::class);
     }
 
-    // En ClienteRepository.php
     public function findDeudaTotalByCliente(Cliente $cliente): float
     {
         $result = $this->createQueryBuilder('c')
@@ -30,5 +29,15 @@ class ClienteRepository extends ServiceEntityRepository
             ->getSingleScalarResult();
 
         return (float) $result;
+    }
+
+    public function findBySearchTerm(string $searchTerm): array
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.nombre LIKE :searchTerm OR c.email LIKE :searchTerm OR c.telefono LIKE :searchTerm OR c.direccion LIKE :searchTerm')
+            ->setParameter('searchTerm', '%' . $searchTerm . '%')
+            ->orderBy('c.nombre', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 }
