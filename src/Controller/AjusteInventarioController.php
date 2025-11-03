@@ -24,11 +24,22 @@ final class AjusteInventarioController extends AbstractController
     #[Route(name: 'app_ajuste_inventario_index', methods: ['GET'])]
     public function index(Request $request, AjusteInventarioRepository $ajusteInventarioRepository, PaginatorInterface $paginator): Response
     {
-        $query = $ajusteInventarioRepository->createQueryBuilder('a')
+        $searchTerm = $request->query->get('q', ''); // Obtener término de búsqueda
+
+        // Construir query con filtro de búsqueda si existe
+        $queryBuilder = $ajusteInventarioRepository->createQueryBuilder('a')
             ->leftJoin('a.producto', 'p')
             ->addSelect('p')
-            ->orderBy('a.fecha', 'DESC')
-            ->getQuery();
+            ->orderBy('a.fecha', 'DESC');
+
+        // Aplicar filtro de búsqueda si hay término
+        if (!empty($searchTerm)) {
+            $queryBuilder
+                ->andWhere('a.motivo LIKE :searchTerm OR a.tipo LIKE :searchTerm OR a.usuario LIKE :searchTerm OR p.nombre LIKE :searchTerm')
+                ->setParameter('searchTerm', '%' . $searchTerm . '%');
+        }
+
+        $query = $queryBuilder->getQuery();
 
         $ajuste_inventarios = $paginator->paginate(
             $query,
@@ -36,7 +47,7 @@ final class AjusteInventarioController extends AbstractController
             10
         );
 
-        // Estadísticas totales
+        // Estadísticas totales (sin filtro de búsqueda para mantener precisión)
         $totalAjustes = $ajusteInventarioRepository->count([]);
         $totalEntradas = $ajusteInventarioRepository->count(['tipo' => 'entrada']);
         $totalSalidas = $ajusteInventarioRepository->count(['tipo' => 'salida']);
@@ -51,6 +62,7 @@ final class AjusteInventarioController extends AbstractController
             'totalEntradas' => $totalEntradas,
             'totalSalidas' => $totalSalidas,
             'cantidad_usuarios_unicos' => $cantidadUsuariosUnicos,
+            'searchTerm' => $searchTerm, // Pasar el término actual
         ]);
     }
 

@@ -16,28 +16,14 @@ class AjusteInventarioRepository extends ServiceEntityRepository
         parent::__construct($registry, AjusteInventario::class);
     }
 
-    //    /**
-    //     * @return AjusteInventario[] Returns an array of AjusteInventario objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('a.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
-
-    //    public function findOneBySomeField($value): ?AjusteInventario
-    //    {
-    //        return $this->createQueryBuilder('a')
-    //            ->andWhere('a.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    public function findBySearchTerm(string $searchTerm): array
+    {
+        return $this->createQueryBuilder('a')
+            ->leftJoin('a.producto', 'p')
+            ->andWhere('a.motivo LIKE :searchTerm OR a.tipo LIKE :searchTerm OR a.usuario LIKE :searchTerm OR p.nombre LIKE :searchTerm')
+            ->setParameter('searchTerm', '%' . $searchTerm . '%')
+            ->orderBy('a.fecha', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }
