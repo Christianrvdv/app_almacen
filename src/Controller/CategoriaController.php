@@ -19,9 +19,20 @@ final class CategoriaController extends AbstractController
     #[Route(name: 'app_categoria_index', methods: ['GET'])]
     public function index(Request $request, CategoriaRepository $categoriaRepository, PaginatorInterface $paginator): Response
     {
-        $query = $categoriaRepository->createQueryBuilder('c')
-            ->orderBy('c.nombre', 'ASC')
-            ->getQuery();
+        $searchTerm = $request->query->get('q', ''); // Obtener término de búsqueda
+
+        // Construir query con filtro de búsqueda si existe
+        $queryBuilder = $categoriaRepository->createQueryBuilder('c')
+            ->orderBy('c.nombre', 'ASC');
+
+        // Aplicar filtro de búsqueda si hay término
+        if (!empty($searchTerm)) {
+            $queryBuilder
+                ->andWhere('c.nombre LIKE :searchTerm OR c.descripcion LIKE :searchTerm')
+                ->setParameter('searchTerm', '%' . $searchTerm . '%');
+        }
+
+        $query = $queryBuilder->getQuery();
 
         $categorias = $paginator->paginate(
             $query,
@@ -29,7 +40,7 @@ final class CategoriaController extends AbstractController
             10
         );
 
-        // Estadísticas totales
+        // Estadísticas totales (sin filtro de búsqueda para mantener precisión)
         $totalCategorias = $categoriaRepository->count([]);
         $totalConDescripcion = $categoriaRepository->createQueryBuilder('c')
             ->select('COUNT(c.id)')
@@ -48,6 +59,7 @@ final class CategoriaController extends AbstractController
             'totalCategorias' => $totalCategorias,
             'totalConDescripcion' => $totalConDescripcion,
             'totalEnUso' => $totalEnUso,
+            'searchTerm' => $searchTerm, // Pasar el término actual
         ]);
     }
 
