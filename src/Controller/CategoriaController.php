@@ -4,10 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Categoria;
 use App\Form\CategoriaType;
-use App\Repository\CategoriaRepository;
+use App\Service\CategoriaOperationsInterface;
+use App\Service\CategoriaSearchInterface;
+use App\Service\CategoriaStatsInterface;
 use App\Repository\ProductoRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,67 +16,42 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/categoria')]
 final class CategoriaController extends AbstractController
 {
+    public function __construct(
+        private CategoriaSearchInterface $searchService,
+        private CategoriaStatsInterface $statsService,
+        private CategoriaOperationsInterface $operationsService
+    ) {}
+
     #[Route(name: 'app_categoria_index', methods: ['GET'])]
-    public function index(Request $request, CategoriaRepository $categoriaRepository, PaginatorInterface $paginator): Response
+    public function index(Request $request): Response
     {
-        $searchTerm = $request->query->get('q', ''); // Obtener término de búsqueda
-
-        // Construir query con filtro de búsqueda si existe
-        $queryBuilder = $categoriaRepository->createQueryBuilder('c')
-            ->orderBy('c.nombre', 'ASC');
-
-        // Aplicar filtro de búsqueda si hay término
-        if (!empty($searchTerm)) {
-            $queryBuilder
-                ->andWhere('c.nombre LIKE :searchTerm OR c.descripcion LIKE :searchTerm')
-                ->setParameter('searchTerm', '%' . $searchTerm . '%');
-        }
-
-        $query = $queryBuilder->getQuery();
-
-        $categorias = $paginator->paginate(
-            $query,
-            $request->query->getInt('page', 1),
-            10
-        );
-
-        // Estadísticas totales (sin filtro de búsqueda para mantener precisión)
-        $totalCategorias = $categoriaRepository->count([]);
-        $totalConDescripcion = $categoriaRepository->createQueryBuilder('c')
-            ->select('COUNT(c.id)')
-            ->where('c.descripcion IS NOT NULL AND c.descripcion != :empty')
-            ->setParameter('empty', '')
-            ->getQuery()
-            ->getSingleScalarResult();
-        $totalEnUso = $categoriaRepository->createQueryBuilder('c')
-            ->select('COUNT(DISTINCT c.id)')
-            ->innerJoin('c.productos', 'p')
-            ->getQuery()
-            ->getSingleScalarResult();
+        $searchResult = $this->searchService->searchAndPaginate($request);
+        $statistics = $this->statsService->getStatistics();
 
         return $this->render('categoria/index.html.twig', [
-            'categorias' => $categorias,
-            'totalCategorias' => $totalCategorias,
-            'totalConDescripcion' => $totalConDescripcion,
-            'totalEnUso' => $totalEnUso,
-            'searchTerm' => $searchTerm, // Pasar el término actual
+            'categorias' => $searchResult['pagination'],
+            'totalCategorias' => $statistics['totalCategorias'],
+            'totalConDescripcion' => $statistics['totalConDescripcion'],
+            'totalEnUso' => $statistics['totalEnUso'],
+            'searchTerm' => $searchResult['searchTerm'],
         ]);
     }
 
     #[Route('/new', name: 'app_categoria_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request): Response
     {
         $categoria = new Categoria();
         $form = $this->createForm(CategoriaType::class, $categoria);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($categoria);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'La categoría ha sido creada correctamente.');
-
-            return $this->redirectToRoute('app_categoria_index', [], Response::HTTP_SEE_OTHER);
+            try {
+                $this->operationsService->createCategoria($categoria);
+                $this->addFlash('success', 'La categoría ha sido creada correctamente.');
+                return $this->redirectToRoute('app_categoria_index', [], Response::HTTP_SEE_OTHER);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al crear la categoría: ' . $e->getMessage());
+            }
         }
 
         return $this->render('categoria/new.html.twig', [
@@ -97,19 +72,19 @@ final class CategoriaController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_categoria_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Categoria $categoria, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Categoria $categoria): Response
     {
         $form = $this->createForm(CategoriaType::class, $categoria);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            $this->addFlash('success', 'La categoría ha sido actualizada correctamente.');
-
-            return $this->redirectToRoute('app_categoria_show', [
-                'id' => $categoria->getId(),
-            ], Response::HTTP_SEE_OTHER);
+            try {
+                $this->operationsService->updateCategoria($categoria);
+                $this->addFlash('success', 'La categoría ha sido actualizada correctamente.');
+                return $this->redirectToRoute('app_categoria_show', ['id' => $categoria->getId()], Response::HTTP_SEE_OTHER);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al actualizar la categoría: ' . $e->getMessage());
+            }
         }
 
         return $this->render('categoria/edit.html.twig', [
@@ -119,12 +94,15 @@ final class CategoriaController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_categoria_delete', methods: ['POST'])]
-    public function delete(Request $request, Categoria $categoria, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Categoria $categoria): Response
     {
         if ($this->isCsrfTokenValid('delete' . $categoria->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($categoria);
-            $entityManager->flush();
-            $this->addFlash('success', 'La categoría ha sido eliminada correctamente.');
+            try {
+                $this->operationsService->deleteCategoria($categoria);
+                $this->addFlash('success', 'La categoría ha sido eliminada correctamente.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al eliminar la categoría: ' . $e->getMessage());
+            }
         } else {
             $this->addFlash('error', 'Error de seguridad. No se pudo eliminar la categoría.');
         }

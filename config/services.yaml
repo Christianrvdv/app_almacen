@@ -41,3 +41,22 @@ services:
             $entityManager: '@doctrine.orm.entity_manager'
 
     App\Service\AjusteInventoryOperationsInterface: '@App\Service\AjusteInventoryOperationsService'
+
+    # Servicios del módulo Categoria
+    App\Service\CategoriaSearchService:
+        arguments:
+            $repository: '@App\Repository\CategoriaRepository'
+            $paginator: '@knp_paginator'
+
+    App\Service\CategoriaStatsService:
+        arguments:
+            $repository: '@App\Repository\CategoriaRepository'
+
+    App\Service\CategoriaOperationsService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+
+    # Alias para interfaces
+    App\Service\CategoriaSearchInterface: '@App\Service\CategoriaSearchService'
+    App\Service\CategoriaStatsInterface: '@App\Service\CategoriaStatsService'
+    App\Service\CategoriaOperationsInterface: '@App\Service\CategoriaOperationsService'

@@ -3,13 +3,11 @@
 namespace App\Repository;
 
 use App\Entity\Categoria;
+use App\Service\CategoriaRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Categoria>
- */
-class CategoriaRepository extends ServiceEntityRepository
+class CategoriaRepository extends ServiceEntityRepository implements CategoriaRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
