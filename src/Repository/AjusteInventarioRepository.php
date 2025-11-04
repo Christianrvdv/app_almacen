@@ -3,13 +3,11 @@
 namespace App\Repository;
 
 use App\Entity\AjusteInventario;
+use App\Service\AjusteInventarioRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<AjusteInventario>
- */
-class AjusteInventarioRepository extends ServiceEntityRepository
+class AjusteInventarioRepository extends ServiceEntityRepository implements AjusteInventarioRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
