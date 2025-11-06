@@ -19,7 +19,7 @@ final class HistorialPreciosController extends AbstractController
     #[Route(name: 'app_historial_precios_index', methods: ['GET'])]
     public function index(Request $request, HistorialPreciosRepository $historialPreciosRepository, PaginatorInterface $paginator): Response
     {
-        $searchTerm = $request->query->get('q', ''); // Obtener término de búsqueda
+        $searchTerm = $request->query->get('q', '');
 
         // Construir query con filtro de búsqueda si existe
         $queryBuilder = $historialPreciosRepository->createQueryBuilder('h')
@@ -59,6 +59,44 @@ final class HistorialPreciosController extends AbstractController
             'totalVenta' => $totalVenta,
             'totalCompra' => $totalCompra,
             'totalAjustePromo' => $totalAjustePromo,
+        ]);
+    }
+
+    #[Route('/new/{id}', name: 'app_historial_precios_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager, Producto $producto): Response
+    {
+        $historialPrecio = new HistorialPrecios();
+        $historialPrecio->setProducto($producto);
+
+        $form = $this->createForm(HistorialPreciosType::class, $historialPrecio);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                if ($historialPrecio->getTipo() === "venta") {
+                    $producto->setPrecioVentaActual($historialPrecio->getPrecioNuevo());
+                } else {
+                    $producto->setPrecioCompra($historialPrecio->getPrecioNuevo());
+                }
+
+                $entityManager->persist($historialPrecio);
+                $entityManager->flush();
+
+                $this->addFlash('success', 'El historial de precios ha sido creado correctamente y el precio del producto ha sido actualizado.');
+
+                return $this->redirectToRoute('app_producto_show', [
+                    'id' => $producto->getId()
+                ], Response::HTTP_SEE_OTHER);
+
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al actualizar el precio: ' . $e->getMessage());
+            }
+        }
+
+        return $this->render('historial_precios/new.html.twig', [
+            'historial_precio' => $historialPrecio,
+            'form' => $form,
+            'producto' => $producto,
         ]);
     }
 

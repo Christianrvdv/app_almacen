@@ -4,11 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Producto;
 use App\Form\ProductoType;
-use App\Repository\ProductoRepository;
-use App\Service\CommonService;
+use App\Service\ProductoOperationsInterface;
+use App\Service\ProductoSearchInterface;
+use App\Service\ProductoStatsInterface;
 use App\Service\InventoryService;
-use Doctrine\ORM\EntityManagerInterface;
-use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,81 +17,49 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ProductoController extends AbstractController
 {
     public function __construct(
-        private InventoryService $inventoryService,
-        private CommonService $commonService
+        private ProductoSearchInterface $searchService,
+        private ProductoStatsInterface $statsService,
+        private ProductoOperationsInterface $operationsService,
+        private InventoryService $inventoryService
     ) {}
 
     #[Route('', name: 'app_producto_index', methods: ['GET'])]
-    public function index(Request $request, ProductoRepository $productoRepository, PaginatorInterface $paginator): Response
+    public function index(Request $request): Response
     {
-        $searchTerm = $request->query->get('q', ''); // Obtener término de búsqueda
+        $searchResult = $this->searchService->searchAndPaginate($request);
+        $statistics = $this->statsService->getStatistics();
 
-        // Construir query con filtro de búsqueda si existe
-        $queryBuilder = $productoRepository->createQueryBuilder('p')
-            ->leftJoin('p.categoria', 'c')
-            ->addSelect('c')
-            ->leftJoin('p.proveedor', 'prov')
-            ->addSelect('prov')
-            ->orderBy('p.fecha_actualizacion', 'DESC');
-
-        // Aplicar filtro de búsqueda si hay término
-        if (!empty($searchTerm)) {
-            $queryBuilder
-                ->andWhere('p.nombre LIKE :searchTerm OR p.descripcion LIKE :searchTerm OR p.codigo_barras LIKE :searchTerm')
-                ->setParameter('searchTerm', '%' . $searchTerm . '%');
-        }
-
-        $query = $queryBuilder->getQuery();
-
-        $productos = $paginator->paginate(
-            $query,
-            $request->query->getInt('page', 1),
-            10
-        );
-
-        // Pasar el término de búsqueda a la plantilla
         return $this->render('producto/index.html.twig', [
-            'productos' => $productos,
-            'totalProductos' => $productoRepository->count([]),
-            'totalActivos' => $productoRepository->count(['activo' => true]),
-            'totalInactivos' => $productoRepository->count(['activo' => false]),
-            'totalConCategoria' => $productoRepository->createQueryBuilder('p')
-                ->select('COUNT(p.id)')
-                ->where('p.categoria IS NOT NULL')
-                ->getQuery()
-                ->getSingleScalarResult(),
-            'searchTerm' => $searchTerm, // Pasar el término actual
+            'productos' => $searchResult['pagination'],
+            'totalProductos' => $statistics['totalProductos'],
+            'totalActivos' => $statistics['totalActivos'],
+            'totalInactivos' => $statistics['totalInactivos'],
+            'totalConCategoria' => $statistics['totalConCategoria'],
+            'searchTerm' => $searchResult['searchTerm'],
         ]);
     }
 
     #[Route('/new', name: 'app_producto_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request): Response
     {
-        try {
-            $producto = new Producto();
-            $currentDateTime = $this->commonService->getCurrentDateTime();
-            $producto->setFechaCreaccion($currentDateTime);
-            $producto->setFechaActualizacion($currentDateTime);
+        $producto = new Producto();
+        $form = $this->createForm(ProductoType::class, $producto);
+        $form->handleRequest($request);
 
-            $form = $this->createForm(ProductoType::class, $producto);
-            $form->handleRequest($request);
-
-            if ($form->isSubmitted() && $form->isValid()) {
-                $entityManager->persist($producto);
-                $entityManager->flush();
-
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $this->operationsService->createProducto($producto);
                 $this->addFlash('success', 'El producto ha sido creado correctamente.');
                 return $this->redirectToRoute('app_producto_index', [], Response::HTTP_SEE_OTHER);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al crear el producto: ' . $e->getMessage());
             }
-
-            return $this->render('producto/new.html.twig', [
-                'producto' => $producto,
-                'form' => $form,
-            ]);
-        } catch (\Exception $e) {
-            $this->addFlash('error', 'Error al crear el producto: ' . $e->getMessage());
-            return $this->redirectToRoute('app_producto_index');
         }
+
+        return $this->render('producto/new.html.twig', [
+            'producto' => $producto,
+            'form' => $form,
+        ]);
     }
 
     #[Route('/{id}', name: 'app_producto_show', methods: ['GET'])]
@@ -111,62 +78,39 @@ final class ProductoController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_producto_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Producto $producto, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Producto $producto): Response
     {
-        try {
-            $producto->setFechaActualizacion($this->commonService->getCurrentDateTime());
+        $form = $this->createForm(ProductoType::class, $producto);
+        $form->handleRequest($request);
 
-            $form = $this->createForm(ProductoType::class, $producto);
-            $form->handleRequest($request);
-
-            if ($form->isSubmitted() && $form->isValid()) {
-                $entityManager->flush();
-
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                $this->operationsService->updateProducto($producto);
                 $this->addFlash('success', 'El producto ha sido actualizado correctamente.');
                 return $this->redirectToRoute('app_producto_index', [], Response::HTTP_SEE_OTHER);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al actualizar el producto: ' . $e->getMessage());
             }
-
-            return $this->render('producto/edit.html.twig', [
-                'producto' => $producto,
-                'form' => $form,
-            ]);
-        } catch (\Exception $e) {
-            $this->addFlash('error', 'Error al actualizar el producto: ' . $e->getMessage());
-            return $this->redirectToRoute('app_producto_index');
         }
+
+        return $this->render('producto/edit.html.twig', [
+            'producto' => $producto,
+            'form' => $form,
+        ]);
     }
 
     #[Route('/{id}', name: 'app_producto_delete', methods: ['POST'])]
-    public function delete(Request $request, Producto $producto, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Producto $producto): Response
     {
-        try {
-            if ($this->isCsrfTokenValid('delete'.$producto->getId(), $request->getPayload()->getString('_token'))) {
-
-                // Eliminar registros relacionados manualmente
-                foreach ($producto->getHistorialPrecios() as $historial) {
-                    $entityManager->remove($historial);
-                }
-
-                foreach ($producto->getDetalleCompras() as $detalleCompra) {
-                    $entityManager->remove($detalleCompra);
-                }
-
-                foreach ($producto->getDetalleVentas() as $detalleVenta) {
-                    $entityManager->remove($detalleVenta);
-                }
-
-                foreach ($producto->getAjusteInventarios() as $ajuste) {
-                    $entityManager->remove($ajuste);
-                }
-
-                $entityManager->remove($producto);
-                $entityManager->flush();
+        if ($this->isCsrfTokenValid('delete'.$producto->getId(), $request->getPayload()->getString('_token'))) {
+            try {
+                $this->operationsService->deleteProducto($producto);
                 $this->addFlash('success', 'El producto ha sido eliminado correctamente.');
-            } else {
-                $this->addFlash('error', 'Error de seguridad. No se pudo eliminar el producto.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al eliminar el producto: ' . $e->getMessage());
             }
-        } catch (\Exception $e) {
-            $this->addFlash('error', 'Error al eliminar el producto: ' . $e->getMessage());
+        } else {
+            $this->addFlash('error', 'Error de seguridad. No se pudo eliminar el producto.');
         }
 
         return $this->redirectToRoute('app_producto_index', [], Response::HTTP_SEE_OTHER);

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Producto;
+use App\Service\ProductoRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Uid\Uuid;
@@ -10,7 +11,7 @@ use Symfony\Component\Uid\Uuid;
 /**
  * @extends ServiceEntityRepository<Producto>
  */
-class ProductoRepository extends ServiceEntityRepository
+class ProductoRepository extends ServiceEntityRepository implements ProductoRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {

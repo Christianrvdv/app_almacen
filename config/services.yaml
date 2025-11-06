@@ -61,6 +61,26 @@ services:
     App\Service\CategoriaStatsInterface: '@App\Service\CategoriaStatsService'
     App\Service\CategoriaOperationsInterface: '@App\Service\CategoriaOperationsService'
 
+    # Servicios del módulo Producto
+    App\Service\ProductoSearchService:
+        arguments:
+            $repository: '@App\Repository\ProductoRepository'
+            $paginator: '@knp_paginator'
+
+    App\Service\ProductoStatsService:
+        arguments:
+            $repository: '@App\Repository\ProductoRepository'
+
+    App\Service\ProductoOperationsService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+            $commonService: '@App\Service\CommonService'
+
+    # Alias para interfaces del módulo Producto
+    App\Service\ProductoSearchInterface: '@App\Service\ProductoSearchService'
+    App\Service\ProductoStatsInterface: '@App\Service\ProductoStatsService'
+    App\Service\ProductoOperationsInterface: '@App\Service\ProductoOperationsService'
+
     # Servicios del módulo Cliente
     App\Service\ClienteSearchService:
         arguments:
@@ -80,7 +100,6 @@ services:
     App\Service\ClienteSearchInterface: '@App\Service\ClienteSearchService'
     App\Service\ClienteStatsInterface: '@App\Service\ClienteStatsService'
     App\Service\ClienteOperationsInterface: '@App\Service\ClienteOperationsService'
-
 
     # Servicios del módulo Compra
     App\Service\CompraSearchService:
@@ -102,7 +121,6 @@ services:
     App\Service\CompraSearchInterface: '@App\Service\CompraSearchService'
     App\Service\CompraStatsInterface: '@App\Service\CompraStatsService'
     App\Service\CompraOperationsInterface: '@App\Service\CompraOperationsService'
-
 
     # Servicios del módulo Venta
     App\Service\VentaSearchService:
