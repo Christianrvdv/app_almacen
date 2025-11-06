@@ -4,10 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Cliente;
 use App\Form\ClienteType;
+use App\Service\ClienteOperationsInterface;
+use App\Service\ClienteSearchInterface;
+use App\Service\ClienteStatsInterface;
 use App\Repository\ClienteRepository;
-use App\Service\CommonService;
-use Doctrine\ORM\EntityManagerInterface;
-use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,81 +17,42 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ClienteController extends AbstractController
 {
     public function __construct(
-        private CommonService $commonService
-    )
-    {
-    }
+        private ClienteSearchInterface $searchService,
+        private ClienteStatsInterface $statsService,
+        private ClienteOperationsInterface $operationsService
+    ) {}
 
     #[Route(name: 'app_cliente_index', methods: ['GET'])]
-    public function index(Request $request, ClienteRepository $clienteRepository, PaginatorInterface $paginator): Response
+    public function index(Request $request): Response
     {
-        $searchTerm = $request->query->get('q', ''); // Obtener término de búsqueda
-
-        // Construir query con filtro de búsqueda si existe
-        $queryBuilder = $clienteRepository->createQueryBuilder('c')
-            ->orderBy('c.nombre', 'ASC');
-
-        // Aplicar filtro de búsqueda si hay término
-        if (!empty($searchTerm)) {
-            $queryBuilder
-                ->andWhere('c.nombre LIKE :searchTerm OR c.email LIKE :searchTerm OR c.telefono LIKE :searchTerm OR c.direccion LIKE :searchTerm')
-                ->setParameter('searchTerm', '%' . $searchTerm . '%');
-        }
-
-        $query = $queryBuilder->getQuery();
-
-        $clientes = $paginator->paginate(
-            $query,
-            $request->query->getInt('page', 1),
-            10
-        );
-
-        // Estadísticas totales (sin filtro de búsqueda para mantener precisión)
-        $totalClientes = $clienteRepository->count([]);
-        $totalConEmail = $clienteRepository->createQueryBuilder('c')
-            ->select('COUNT(c.id)')
-            ->where('c.email IS NOT NULL')
-            ->getQuery()
-            ->getSingleScalarResult();
-        $totalConTelefono = $clienteRepository->createQueryBuilder('c')
-            ->select('COUNT(c.id)')
-            ->where('c.telefono IS NOT NULL')
-            ->getQuery()
-            ->getSingleScalarResult();
-        $totalConDireccion = $clienteRepository->createQueryBuilder('c')
-            ->select('COUNT(c.id)')
-            ->where('c.direccion IS NOT NULL')
-            ->getQuery()
-            ->getSingleScalarResult();
+        $searchResult = $this->searchService->searchAndPaginate($request);
+        $statistics = $this->statsService->getStatistics();
 
         return $this->render('cliente/index.html.twig', [
-            'clientes' => $clientes,
-            'totalClientes' => $totalClientes,
-            'totalConEmail' => $totalConEmail,
-            'totalConTelefono' => $totalConTelefono,
-            'totalConDireccion' => $totalConDireccion,
-            'searchTerm' => $searchTerm, // Pasar el término actual
+            'clientes' => $searchResult['pagination'],
+            'totalClientes' => $statistics['totalClientes'],
+            'totalConEmail' => $statistics['totalConEmail'],
+            'totalConTelefono' => $statistics['totalConTelefono'],
+            'totalConDireccion' => $statistics['totalConDireccion'],
+            'searchTerm' => $searchResult['searchTerm'],
         ]);
     }
 
     #[Route('/new', name: 'app_cliente_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request): Response
     {
         $cliente = new Cliente();
-
-        // Usar CommonService para valores por defecto
-        $cliente->setFechaRegistro($this->commonService->getCurrentDateTime());
-        $cliente->setCompraTotales('0.00');
-
         $form = $this->createForm(ClienteType::class, $cliente);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($cliente);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'El cliente ha sido creado correctamente.');
-            return $this->redirectToRoute('app_cliente_index', [], Response::HTTP_SEE_OTHER);
+            try {
+                $this->operationsService->createCliente($cliente);
+                $this->addFlash('success', 'El cliente ha sido creado correctamente.');
+                return $this->redirectToRoute('app_cliente_index', [], Response::HTTP_SEE_OTHER);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al crear el cliente: ' . $e->getMessage());
+            }
         }
 
         return $this->render('cliente/new.html.twig', [
@@ -111,17 +72,19 @@ final class ClienteController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_cliente_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Cliente $cliente, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Cliente $cliente): Response
     {
         $form = $this->createForm(ClienteType::class, $cliente);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            $this->addFlash('success', 'El cliente ha sido actualizado correctamente.');
-
-            return $this->redirectToRoute('app_cliente_show', ['id' => $cliente->getId()], Response::HTTP_SEE_OTHER);
+            try {
+                $this->operationsService->updateCliente($cliente);
+                $this->addFlash('success', 'El cliente ha sido actualizado correctamente.');
+                return $this->redirectToRoute('app_cliente_show', ['id' => $cliente->getId()], Response::HTTP_SEE_OTHER);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al actualizar el cliente: ' . $e->getMessage());
+            }
         }
 
         return $this->render('cliente/edit.html.twig', [
@@ -131,13 +94,15 @@ final class ClienteController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_cliente_delete', methods: ['POST'])]
-    public function delete(Request $request, Cliente $cliente, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Cliente $cliente): Response
     {
         if ($this->isCsrfTokenValid('delete' . $cliente->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($cliente);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'El cliente ha sido eliminado correctamente.');
+            try {
+                $this->operationsService->deleteCliente($cliente);
+                $this->addFlash('success', 'El cliente ha sido eliminado correctamente.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al eliminar el cliente: ' . $e->getMessage());
+            }
         } else {
             $this->addFlash('error', 'Error de seguridad. No se pudo eliminar el cliente.');
         }
