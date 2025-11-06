@@ -124,3 +124,22 @@ services:
     App\Service\VentaSearchInterface: '@App\Service\VentaSearchService'
     App\Service\VentaStatsInterface: '@App\Service\VentaStatsService'
     App\Service\VentaOperationsInterface: '@App\Service\VentaOperationsService'
+
+    # Servicios del módulo Proveedor
+    App\Service\ProveedorSearchService:
+        arguments:
+            $repository: '@App\Repository\ProveedorRepository'
+            $paginator: '@knp_paginator'
+
+    App\Service\ProveedorStatsService:
+        arguments:
+            $repository: '@App\Repository\ProveedorRepository'
+
+    App\Service\ProveedorOperationsService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+
+    # Alias para interfaces del módulo Proveedor
+    App\Service\ProveedorSearchInterface: '@App\Service\ProveedorSearchService'
+    App\Service\ProveedorStatsInterface: '@App\Service\ProveedorStatsService'
+    App\Service\ProveedorOperationsInterface: '@App\Service\ProveedorOperationsService'

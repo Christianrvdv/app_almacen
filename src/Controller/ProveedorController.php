@@ -4,9 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Proveedor;
 use App\Form\ProveedorType;
-use App\Repository\ProveedorRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Knp\Component\Pager\PaginatorInterface;
+use App\Service\ProveedorOperationsInterface;
+use App\Service\ProveedorSearchInterface;
+use App\Service\ProveedorStatsInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -15,71 +15,43 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/proveedor')]
 final class ProveedorController extends AbstractController
 {
+    public function __construct(
+        private ProveedorSearchInterface $searchService,
+        private ProveedorStatsInterface $statsService,
+        private ProveedorOperationsInterface $operationsService
+    ) {}
+
     #[Route(name: 'app_proveedor_index', methods: ['GET'])]
-    public function index(Request $request, ProveedorRepository $proveedorRepository, PaginatorInterface $paginator): Response
+    public function index(Request $request): Response
     {
-        $searchTerm = $request->query->get('q', ''); // Obtener término de búsqueda
-
-        // Construir query con filtro de búsqueda si existe
-        $queryBuilder = $proveedorRepository->createQueryBuilder('p')
-            ->orderBy('p.nombre', 'ASC');
-
-        // Aplicar filtro de búsqueda si hay término
-        if (!empty($searchTerm)) {
-            $queryBuilder
-                ->andWhere('p.nombre LIKE :searchTerm OR p.telefono LIKE :searchTerm OR p.email LIKE :searchTerm OR p.direccion LIKE :searchTerm')
-                ->setParameter('searchTerm', '%' . $searchTerm . '%');
-        }
-
-        $query = $queryBuilder->getQuery();
-
-        $proveedors = $paginator->paginate(
-            $query,
-            $request->query->getInt('page', 1),
-            10
-        );
-
-        // Estadísticas totales (sin filtro de búsqueda)
-        $totalProveedores = $proveedorRepository->count([]);
-        $totalConTelefono = $proveedorRepository->createQueryBuilder('p')
-            ->select('COUNT(p.id)')
-            ->where('p.telefono IS NOT NULL')
-            ->getQuery()
-            ->getSingleScalarResult();
-        $totalConEmail = $proveedorRepository->createQueryBuilder('p')
-            ->select('COUNT(p.id)')
-            ->where('p.email IS NOT NULL')
-            ->getQuery()
-            ->getSingleScalarResult();
-        $totalConDireccion = $proveedorRepository->createQueryBuilder('p')
-            ->select('COUNT(p.id)')
-            ->where('p.direccion IS NOT NULL')
-            ->getQuery()
-            ->getSingleScalarResult();
+        $searchResult = $this->searchService->searchAndPaginate($request);
+        $statistics = $this->statsService->getStatistics();
 
         return $this->render('proveedor/index.html.twig', [
-            'proveedors' => $proveedors,
-            'totalProveedores' => $totalProveedores,
-            'totalConTelefono' => $totalConTelefono,
-            'totalConEmail' => $totalConEmail,
-            'totalConDireccion' => $totalConDireccion,
-            'searchTerm' => $searchTerm, // Pasar el término actual
+            'proveedors' => $searchResult['pagination'],
+            'totalProveedores' => $statistics['totalProveedores'],
+            'totalConTelefono' => $statistics['totalConTelefono'],
+            'totalConEmail' => $statistics['totalConEmail'],
+            'totalConDireccion' => $statistics['totalConDireccion'],
+            'searchTerm' => $searchResult['searchTerm'],
         ]);
     }
 
     #[Route('/new', name: 'app_proveedor_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request): Response
     {
         $proveedor = new Proveedor();
         $form = $this->createForm(ProveedorType::class, $proveedor);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($proveedor);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'El proveedor ha sido creado correctamente.');
-            return $this->redirectToRoute('app_proveedor_index', [], Response::HTTP_SEE_OTHER);
+            try {
+                $this->operationsService->createProveedor($proveedor);
+                $this->addFlash('success', 'El proveedor ha sido creado correctamente.');
+                return $this->redirectToRoute('app_proveedor_index', [], Response::HTTP_SEE_OTHER);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al crear el proveedor: ' . $e->getMessage());
+            }
         }
 
         return $this->render('proveedor/new.html.twig', [
@@ -97,16 +69,19 @@ final class ProveedorController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_proveedor_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Proveedor $proveedor, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Proveedor $proveedor): Response
     {
         $form = $this->createForm(ProveedorType::class, $proveedor);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            $this->addFlash('success', 'El proveedor ha sido actualizado correctamente.');
-            return $this->redirectToRoute('app_proveedor_index', [], Response::HTTP_SEE_OTHER);
+            try {
+                $this->operationsService->updateProveedor($proveedor);
+                $this->addFlash('success', 'El proveedor ha sido actualizado correctamente.');
+                return $this->redirectToRoute('app_proveedor_index', [], Response::HTTP_SEE_OTHER);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al actualizar el proveedor: ' . $e->getMessage());
+            }
         }
 
         return $this->render('proveedor/edit.html.twig', [
@@ -116,18 +91,17 @@ final class ProveedorController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_proveedor_delete', methods: ['POST'])]
-    public function delete(Request $request, Proveedor $proveedor, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Proveedor $proveedor): Response
     {
-        try {
-            if ($this->isCsrfTokenValid('delete' . $proveedor->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
-                $entityManager->remove($proveedor);
-                $entityManager->flush();
+        if ($this->isCsrfTokenValid('delete' . $proveedor->getId(), $request->getPayload()->getString('_token'))) {
+            try {
+                $this->operationsService->deleteProveedor($proveedor);
                 $this->addFlash('success', 'El proveedor ha sido eliminado correctamente.');
-            } else {
-                $this->addFlash('error', 'Error de seguridad. No se pudo eliminar el proveedor.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al eliminar el proveedor: ' . $e->getMessage());
             }
-        } catch (\Exception $e) {
-            $this->addFlash('error', 'Error al eliminar el proveedor: ' . $e->getMessage());
+        } else {
+            $this->addFlash('error', 'Error de seguridad. No se pudo eliminar el proveedor.');
         }
 
         return $this->redirectToRoute('app_proveedor_index', [], Response::HTTP_SEE_OTHER);
