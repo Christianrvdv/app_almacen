@@ -80,3 +80,25 @@ services:
     App\Service\ClienteSearchInterface: '@App\Service\ClienteSearchService'
     App\Service\ClienteStatsInterface: '@App\Service\ClienteStatsService'
     App\Service\ClienteOperationsInterface: '@App\Service\ClienteOperationsService'
+
+
+    # Servicios del módulo Compra
+    App\Service\CompraSearchService:
+        arguments:
+            $repository: '@App\Repository\CompraRepository'
+            $paginator: '@knp_paginator'
+
+    App\Service\CompraStatsService:
+        arguments:
+            $repository: '@App\Repository\CompraRepository'
+
+    App\Service\CompraOperationsService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+            $commonService: '@App\Service\CommonService'
+            $transactionService: '@App\Service\TransactionService'
+
+    # Alias para interfaces del módulo Compra
+    App\Service\CompraSearchInterface: '@App\Service\CompraSearchService'
+    App\Service\CompraStatsInterface: '@App\Service\CompraStatsService'
+    App\Service\CompraOperationsInterface: '@App\Service\CompraOperationsService'

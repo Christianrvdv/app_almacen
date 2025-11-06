@@ -3,14 +3,11 @@
 namespace App\Repository;
 
 use App\Entity\Compra;
+use App\Service\CompraRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Uid\Uuid;
 
-/**
- * @extends ServiceEntityRepository<Compra>
- */
-class CompraRepository extends ServiceEntityRepository
+class CompraRepository extends ServiceEntityRepository implements CompraRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {

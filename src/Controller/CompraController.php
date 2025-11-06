@@ -3,16 +3,14 @@
 namespace App\Controller;
 
 use App\Entity\Compra;
-use App\Entity\DetalleCompra;
 use App\Entity\Producto;
+use App\Entity\DetalleCompra;
 use App\Form\CompraType;
-use App\Service\TransactionService;
 use App\Form\DetalleCompraType;
-use App\Repository\CompraRepository;
-use App\Service\CommonService;
+use App\Service\CompraOperationsInterface;
+use App\Service\CompraSearchInterface;
+use App\Service\CompraStatsInterface;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\EntityManagerInterface;
-use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,147 +20,52 @@ use Symfony\Component\Routing\Attribute\Route;
 final class CompraController extends AbstractController
 {
     public function __construct(
-        private CommonService      $commonService,
-        private TransactionService $transactionService
-    )
-    {
-    }
-
-    private function processCompraDetails(Compra $compra, EntityManagerInterface $entityManager): void
-    {
-        $this->transactionService->processCompra($compra);
-    }
+        private CompraSearchInterface $searchService,
+        private CompraStatsInterface $statsService,
+        private CompraOperationsInterface $operationsService
+    ) {}
 
     #[Route(name: 'app_compra_index', methods: ['GET'])]
-    public function index(Request $request, CompraRepository $compraRepository, PaginatorInterface $paginator): Response
+    public function index(Request $request): Response
     {
-        $searchTerm = $request->query->get('q', ''); // Obtener término de búsqueda
-
-        // Construir query con filtro de búsqueda si existe
-        $queryBuilder = $compraRepository->createQueryBuilder('c')
-            ->orderBy('c.fecha', 'DESC');
-
-        // Aplicar filtro de búsqueda si hay término
-        if (!empty($searchTerm)) {
-            $queryBuilder
-                ->andWhere('c.numero_factura LIKE :searchTerm OR c.estado LIKE :searchTerm OR c.id = :id')
-                ->setParameter('searchTerm', '%' . $searchTerm . '%')
-                ->setParameter('id', is_numeric($searchTerm) ? (int) $searchTerm : 0);
-        }
-
-        $query = $queryBuilder->getQuery();
-
-        $compras = $paginator->paginate(
-            $query,
-            $request->query->getInt('page', 1),
-            10
-        );
-
-        // Estadísticas totales (sin filtro de búsqueda para mantener precisión)
-        $totalCompras = $compraRepository->count([]);
-        $totalPagadas = $compraRepository->count(['estado' => 'pagada']);
-        $totalPendientes = $compraRepository->count(['estado' => 'pendiente']);
-        $gastosTotales = $compraRepository->createQueryBuilder('c')
-            ->select('SUM(c.total)')
-            ->where('c.estado = :estado')
-            ->setParameter('estado', 'pagada')
-            ->getQuery()
-            ->getSingleScalarResult() ?? 0;
+        $searchResult = $this->searchService->searchAndPaginate($request);
+        $statistics = $this->statsService->getStatistics();
 
         return $this->render('compra/index.html.twig', [
-            'compras' => $compras,
-            'totalCompras' => $totalCompras,
-            'totalPagadas' => $totalPagadas,
-            'totalPendientes' => $totalPendientes,
-            'gastosTotales' => $gastosTotales,
-            'searchTerm' => $searchTerm, // Pasar el término actual
-        ]);
-    }
-
-    /**
-     * Método privado para inicializar una compra con valores por defecto
-     */
-    private function initializeCompra(?Producto $producto = null): Compra
-    {
-        $compra = new Compra();
-        $compra->setFecha($this->commonService->getCurrentDateTime());
-
-        if ($producto) {
-            $compra->setProveedor($producto->getProveedor());
-
-            // Crear y agregar el detalle a la compra
-            $detalleCompra = new DetalleCompra();
-            $detalleCompra->setProducto($producto);
-            $detalleCompra->setPrecioUnitario($producto->getPrecioCompra());
-            $detalleCompra->setCantidad(0);
-            $detalleCompra->setSubtotal(0);
-
-            $compra->addDetalleCompra($detalleCompra);
-        }
-
-        return $compra;
-    }
-
-    /**
-     * Método privado para manejar el formulario de compra (elimina duplicación)
-     */
-    private function handleCompraForm(
-        Request                $request,
-        EntityManagerInterface $entityManager,
-        Compra                 $compra
-    ): Response
-    {
-        $form = $this->createForm(CompraType::class, $compra);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->processCompraDetails($compra, $entityManager);
-
-            $entityManager->persist($compra);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'La compra ha sido registrada exitosamente.');
-            return $this->redirectToRoute('app_compra_show', ['id' => $compra->getId()], Response::HTTP_SEE_OTHER);
-        }
-
-        $detalleCompra = new DetalleCompra();
-        $formDetalle = $this->createForm(DetalleCompraType::class, $detalleCompra);
-
-        return $this->render('compra/new.html.twig', [
-            'compra' => $compra,
-            'form' => $form,
-            'formDetalle' => $formDetalle,
+            'compras' => $searchResult['pagination'],
+            'totalCompras' => $statistics['totalCompras'],
+            'totalPagadas' => $statistics['totalPagadas'],
+            'totalPendientes' => $statistics['totalPendientes'],
+            'gastosTotales' => $statistics['gastosTotales'],
+            'searchTerm' => $searchResult['searchTerm'],
         ]);
     }
 
     #[Route('/new', name: 'app_compra_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request): Response
     {
-        $compra = $this->initializeCompra();
-        return $this->handleCompraForm($request, $entityManager, $compra);
+        $compra = $this->operationsService->initializeCompra();
+        return $this->handleCompraForm($request, $compra, 'create');
     }
 
     #[Route('/new/{id}', name: 'app_compra_new_by_id', methods: ['GET', 'POST'])]
-    public function newById(Request $request, EntityManagerInterface $entityManager, Producto $producto): Response
+    public function newById(Request $request, Producto $producto): Response
     {
-        $compra = $this->initializeCompra($producto);
-        return $this->handleCompraForm($request, $entityManager, $compra);
+        $compra = $this->operationsService->initializeCompra($producto);
+        return $this->handleCompraForm($request, $compra, 'create');
     }
 
     #[Route('/{id}', name: 'app_compra_show', methods: ['GET'])]
     public function show(Compra $compra): Response
     {
-        $detalle_compras = $compra->getDetalleCompras();
-
         return $this->render('compra/show.html.twig', [
             'compra' => $compra,
-            'detalle_compras' => $detalle_compras,
+            'detalle_compras' => $compra->getDetalleCompras(),
         ]);
     }
 
-    // En el método edit, actualizar para usar el servicio
     #[Route('/{id}/edit', name: 'app_compra_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Compra $compra, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Compra $compra): Response
     {
         // Guardar detalles originales antes del handleRequest
         $originalDetalles = new ArrayCollection();
@@ -170,51 +73,65 @@ final class CompraController extends AbstractController
             $originalDetalles->add($detalle);
         }
 
-        $form = $this->createForm(CompraType::class, $compra);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            try {
-                // Usar el servicio para manejar cambios
-                $this->transactionService->handleDetailChanges(
-                    $originalDetalles,
-                    $compra->getDetalleCompras(),
-                    $compra,
-                    'compra'
-                );
-
-                // Procesar detalles actualizados
-                $this->transactionService->processCompra($compra);
-
-                $entityManager->flush();
-
-                $this->addFlash('success', 'La compra ha sido actualizada correctamente.');
-                return $this->redirectToRoute('app_compra_show', ['id' => $compra->getId()], Response::HTTP_SEE_OTHER);
-
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'Error al actualizar la compra: ' . $e->getMessage());
-            }
-        }
-
-        return $this->render('compra/edit.html.twig', [
-            'compra' => $compra,
-            'form' => $form,
-            'detalle_compras' => $compra->getDetalleCompras(),
-        ]);
+        return $this->handleCompraForm($request, $compra, 'edit', $originalDetalles);
     }
 
     #[Route('/{id}', name: 'app_compra_delete', methods: ['POST'])]
-    public function delete(Request $request, Compra $compra, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Compra $compra): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $compra->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($compra);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'La compra ha sido eliminada correctamente.');
+        if ($this->isCsrfTokenValid('delete' . $compra->getId(), $request->getPayload()->getString('_token'))) {
+            try {
+                $this->operationsService->deleteCompra($compra);
+                $this->addFlash('success', 'La compra ha sido eliminada correctamente.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al eliminar la compra: ' . $e->getMessage());
+            }
         } else {
             $this->addFlash('error', 'Error de seguridad. No se pudo eliminar la compra.');
         }
 
         return $this->redirectToRoute('app_compra_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    /**
+     * Método privado para manejar el formulario de compra
+     */
+    private function handleCompraForm(
+        Request $request,
+        Compra $compra,
+        string $action = 'create',
+        ArrayCollection $originalDetalles = null
+    ): Response {
+        $form = $this->createForm(CompraType::class, $compra);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            try {
+                if ($action === 'create') {
+                    $this->operationsService->createCompra($compra);
+                    $this->addFlash('success', 'La compra ha sido registrada exitosamente.');
+                } else {
+                    $this->operationsService->updateCompra($compra, $originalDetalles->toArray());
+                    $this->addFlash('success', 'La compra ha sido actualizada correctamente.');
+                }
+
+                return $this->redirectToRoute('app_compra_show', ['id' => $compra->getId()], Response::HTTP_SEE_OTHER);
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Error al procesar la compra: ' . $e->getMessage());
+            }
+        }
+
+        $detalleCompra = new DetalleCompra();
+        $formDetalle = $this->createForm(DetalleCompraType::class, $detalleCompra);
+
+        // Usar new.html.twig para create y edit.html.twig para edit
+        $template = $action === 'create' ? 'compra/new.html.twig' : 'compra/edit.html.twig';
+
+        return $this->render($template, [
+            'compra' => $compra,
+            'form' => $form,
+            'formDetalle' => $formDetalle,
+            'detalle_compras' => $compra->getDetalleCompras(),
+        ]);
     }
 }
