@@ -142,9 +142,9 @@
                     </h3>
                     <div class="form-section">
                         <div id="detalle-ventas"
-                             data-prototype="{{ form_widget(form.detalle_ventas.vars.prototype)|e('html_attr') }}"
-                             data-index="{{ form.detalle_ventas|length }}">
-                            {% for detalle in form.detalle_ventas %}
+                             data-prototype="{{ form_widget(form.detalleVentas.vars.prototype)|e('html_attr') }}"
+                             data-index="{{ form.detalleVentas|length }}">
+                            {% for detalle in form.detalleVentas %}
                                 <div class="detalle-card" data-index="{{ loop.index0 }}">
                                     <div class="row align-items-center">
                                         <div class="col-md-4 mb-3">

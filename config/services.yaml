@@ -102,3 +102,25 @@ services:
     App\Service\CompraSearchInterface: '@App\Service\CompraSearchService'
     App\Service\CompraStatsInterface: '@App\Service\CompraStatsService'
     App\Service\CompraOperationsInterface: '@App\Service\CompraOperationsService'
+
+
+    # Servicios del módulo Venta
+    App\Service\VentaSearchService:
+        arguments:
+            $repository: '@App\Repository\VentaRepository'
+            $paginator: '@knp_paginator'
+
+    App\Service\VentaStatsService:
+        arguments:
+            $repository: '@App\Repository\VentaRepository'
+
+    App\Service\VentaOperationsService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+            $commonService: '@App\Service\CommonService'
+            $transactionService: '@App\Service\TransactionService'
+
+    # Alias para interfaces del módulo Venta
+    App\Service\VentaSearchInterface: '@App\Service\VentaSearchService'
+    App\Service\VentaStatsInterface: '@App\Service\VentaStatsService'
+    App\Service\VentaOperationsInterface: '@App\Service\VentaOperationsService'
