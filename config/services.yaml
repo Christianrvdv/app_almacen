@@ -181,3 +181,23 @@ services:
     App\Service\HistorialPreciosSearchInterface: '@App\Service\HistorialPreciosSearchService'
     App\Service\HistorialPreciosStatsInterface: '@App\Service\HistorialPreciosStatsService'
     App\Service\HistorialPreciosOperationsInterface: '@App\Service\HistorialPreciosOperationsService'
+
+
+    # Servicios del módulo DetalleVenta
+    App\Service\DetalleVentaSearchService:
+        arguments:
+            $repository: '@App\Repository\DetalleVentaRepository'
+            $paginator: '@knp_paginator'
+
+    App\Service\DetalleVentaStatsService:
+        arguments:
+            $repository: '@App\Repository\DetalleVentaRepository'
+
+    App\Service\DetalleVentaOperationsService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+
+    # Alias para interfaces del módulo DetalleVenta
+    App\Service\DetalleVentaSearchInterface: '@App\Service\DetalleVentaSearchService'
+    App\Service\DetalleVentaStatsInterface: '@App\Service\DetalleVentaStatsService'
+    App\Service\DetalleVentaOperationsInterface: '@App\Service\DetalleVentaOperationsService'

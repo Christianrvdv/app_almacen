@@ -17,17 +17,29 @@ class DetalleVentaType extends AbstractType
         $builder
             ->add('cantidad', NumberType::class, [
                 'label' => 'Cantidad',
-                'attr' => ['class' => 'form-control']
+                'attr' => [
+                    'class' => 'form-control',
+                    'min' => 1,
+                    'step' => 1
+                ],
+                'html5' => true
             ])
             ->add('precio_unitario', NumberType::class, [
                 'label' => 'Precio Unitario',
-                'attr' => ['class' => 'form-control']
+                'attr' => [
+                    'class' => 'form-control',
+                    'min' => 0.01,
+                    'step' => 0.01
+                ],
+                'html5' => true,
+                'scale' => 2
             ])
             ->add('producto', EntityType::class, [
                 'class' => Producto::class,
                 'choice_label' => 'nombre',
                 'placeholder' => 'Seleccione un producto',
-                'attr' => ['class' => 'form-select']
+                'attr' => ['class' => 'form-select'],
+                'required' => true
             ]);
     }
 
