@@ -5,9 +5,8 @@ namespace App\Controller;
 use App\Entity\AjusteInventario;
 use App\Entity\Producto;
 use App\Form\AjusteInventarioType;
-use App\Service\AjusteInventario\AjusteInventarioSearchService;
-use App\Service\AjusteInventario\AjusteInventarioStatsService;
-use App\Service\AjusteInventario\Interface\AjusteInventoryOperationsInterface;
+use App\Service\AjusteInventario\Interface\AjusteInventarioServiceInterface;
+use App\Service\AjusteInventario\Interface\AjusteInventarioQueryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,16 +16,15 @@ use Symfony\Component\Routing\Attribute\Route;
 final class AjusteInventarioController extends AbstractController
 {
     public function __construct(
-        private AjusteInventarioSearchService $searchService,
-        private AjusteInventarioStatsService $statsService,
-        private AjusteInventoryOperationsInterface $operationsService
+        private AjusteInventarioQueryInterface $queryService,
+        private AjusteInventarioServiceInterface $operationsService
     ) {}
 
     #[Route(name: 'app_ajuste_inventario_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $searchResult = $this->searchService->searchAndPaginate($request);
-        $statistics = $this->statsService->getStatistics();
+        $searchResult = $this->queryService->searchAndPaginate($request);
+        $statistics = $this->queryService->getStatistics();
 
         return $this->render('ajuste_inventario/index.html.twig', [
             'ajuste_inventarios' => $searchResult['pagination'],
@@ -42,7 +40,6 @@ final class AjusteInventarioController extends AbstractController
     public function new(Request $request): Response
     {
         $ajusteInventario = new AjusteInventario();
-
         return $this->handleAjusteForm($request, $ajusteInventario, 'create');
     }
 
@@ -51,7 +48,6 @@ final class AjusteInventarioController extends AbstractController
     {
         $ajusteInventario = new AjusteInventario();
         $ajusteInventario->setProducto($producto);
-
         return $this->handleAjusteForm($request, $ajusteInventario, 'create');
     }
 
@@ -69,17 +65,16 @@ final class AjusteInventarioController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 if ($operation === 'create') {
-                    $this->operationsService->createAjuste($ajusteInventario);
+                    $this->operationsService->create($ajusteInventario);
                     $message = 'El ajuste de inventario ha sido creado correctamente.';
                     $redirectRoute = 'app_ajuste_inventario_index';
                 } else {
-                    $this->operationsService->updateAjuste($ajusteInventario);
+                    $this->operationsService->update($ajusteInventario);
                     $message = 'El ajuste de inventario ha sido actualizado correctamente.';
                     $redirectRoute = 'app_ajuste_inventario_show';
                 }
 
                 $this->addFlash('success', $message);
-
                 return $this->redirectToRoute(
                     $redirectRoute,
                     $operation === 'update' ? ['id' => $ajusteInventario->getId()] : [],
@@ -91,7 +86,6 @@ final class AjusteInventarioController extends AbstractController
         }
 
         $template = $operation === 'create' ? 'new.html.twig' : 'edit.html.twig';
-
         return $this->render("ajuste_inventario/{$template}", [
             'ajuste_inventario' => $ajusteInventario,
             'form' => $form,
@@ -103,7 +97,7 @@ final class AjusteInventarioController extends AbstractController
     {
         if ($this->isCsrfTokenValid('delete'.$ajusteInventario->getId(), $request->getPayload()->getString('_token'))) {
             try {
-                $this->operationsService->deleteAjuste($ajusteInventario);
+                $this->operationsService->delete($ajusteInventario);
                 $this->addFlash('success', 'El ajuste de inventario ha sido eliminado correctamente.');
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Error al eliminar el ajuste: ' . $e->getMessage());

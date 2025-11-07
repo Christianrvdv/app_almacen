@@ -3,25 +3,31 @@
 namespace App\Repository;
 
 use App\Entity\AjusteInventario;
-use App\Service\AjusteInventario\Interface\AjusteInventarioRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-class AjusteInventarioRepository extends ServiceEntityRepository implements AjusteInventarioRepositoryInterface
+/**
+ * @extends ServiceEntityRepository<AjusteInventario>
+ */
+class AjusteInventarioRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, AjusteInventario::class);
     }
 
-    public function findBySearchTerm(string $searchTerm): array
+    public function findWithSearchTerm(string $searchTerm = null): array
     {
-        return $this->createQueryBuilder('a')
+        $qb = $this->createQueryBuilder('a')
             ->leftJoin('a.producto', 'p')
-            ->andWhere('a.motivo LIKE :searchTerm OR a.tipo LIKE :searchTerm OR a.usuario LIKE :searchTerm OR p.nombre LIKE :searchTerm')
-            ->setParameter('searchTerm', '%' . $searchTerm . '%')
-            ->orderBy('a.fecha', 'DESC')
-            ->getQuery()
-            ->getResult();
+            ->addSelect('p')
+            ->orderBy('a.fecha', 'DESC');
+
+        if ($searchTerm) {
+            $qb->andWhere('a.motivo LIKE :searchTerm OR a.tipo LIKE :searchTerm OR a.usuario LIKE :searchTerm OR p.nombre LIKE :searchTerm')
+                ->setParameter('searchTerm', '%' . $searchTerm . '%');
+        }
+
+        return $qb->getQuery()->getResult();
     }
 }

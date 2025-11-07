@@ -28,23 +28,18 @@ services:
     # please note that last definitions always *replace* previous ones
 
     # Servicios del módulo AjusteInventario
-    App\Service\AjusteInventario\AjusteInventarioSearchService:
+    App\Service\AjusteInventario\AjusteInventarioService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+
+    App\Service\AjusteInventario\AjusteInventarioQueryService:
         arguments:
             $repository: '@App\Repository\AjusteInventarioRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\AjusteInventario\AjusteInventarioStatsService:
-        arguments:
-            $repository: '@App\Repository\AjusteInventarioRepository'
-
-    App\Service\AjusteInventario\AjusteInventoryOperationsService:
-        arguments:
-            $entityManager: '@doctrine.orm.entity_manager'
-
-    # Alias para interfaces del módulo AjusteInventario
-    App\Service\AjusteInventario\Interface\AjusteInventoryOperationsInterface: '@App\Service\AjusteInventario\AjusteInventoryOperationsService'
-    App\Service\AjusteInventario\Interface\AjusteInventorySearchInterface: '@App\Service\AjusteInventario\AjusteInventarioSearchService'
-    App\Service\AjusteInventario\Interface\AjusteInventarioStatsInterface: '@App\Service\AjusteInventario\AjusteInventarioStatsService'
+    # Alias para interfaces
+    App\Service\AjusteInventario\Interface\AjusteInventarioServiceInterface: '@App\Service\AjusteInventario\AjusteInventarioService'
+    App\Service\AjusteInventario\Interface\AjusteInventarioQueryInterface: '@App\Service\AjusteInventario\AjusteInventarioQueryService'
 
     # Servicios del módulo Categoria
     App\Service\Categoria\CategoriaSearchService:

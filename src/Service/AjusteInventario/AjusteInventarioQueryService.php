@@ -3,10 +3,11 @@
 namespace App\Service\AjusteInventario;
 
 use App\Repository\AjusteInventarioRepository;
+use App\Service\AjusteInventario\Interface\AjusteInventarioQueryInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class AjusteInventarioSearchService
+class AjusteInventarioQueryService implements AjusteInventarioQueryInterface
 {
     public function __construct(
         private AjusteInventarioRepository $repository,
@@ -38,5 +39,23 @@ class AjusteInventarioSearchService
             ),
             'searchTerm' => $searchTerm
         ];
+    }
+
+    public function getStatistics(): array
+    {
+        return [
+            'totalAjustes' => $this->repository->count([]),
+            'totalEntradas' => $this->repository->count(['tipo' => 'entrada']),
+            'totalSalidas' => $this->repository->count(['tipo' => 'salida']),
+            'cantidadUsuariosUnicos' => $this->getUniqueUsersCount()
+        ];
+    }
+
+    private function getUniqueUsersCount(): int
+    {
+        return $this->repository->createQueryBuilder('a')
+            ->select('COUNT(DISTINCT a.usuario)')
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }

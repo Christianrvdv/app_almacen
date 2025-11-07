@@ -3,35 +3,35 @@
 namespace App\Service\AjusteInventario;
 
 use App\Entity\AjusteInventario;
-use App\Service\AjusteInventario\Interface\AjusteInventoryOperationsInterface;
+use App\Service\AjusteInventario\Interface\AjusteInventarioServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-class AjusteInventoryOperationsService implements AjusteInventoryOperationsInterface
+class AjusteInventarioService implements AjusteInventarioServiceInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager
     ) {}
 
-    public function createAjuste(AjusteInventario $ajuste): void
+    public function create(AjusteInventario $ajuste): void
     {
-        $this->validateAjuste($ajuste);
+        $this->validate($ajuste);
         $this->entityManager->persist($ajuste);
         $this->entityManager->flush();
     }
 
-    public function updateAjuste(AjusteInventario $ajuste): void
+    public function update(AjusteInventario $ajuste): void
     {
-        $this->validateAjuste($ajuste);
+        $this->validate($ajuste);
         $this->entityManager->flush();
     }
 
-    public function deleteAjuste(AjusteInventario $ajuste): void
+    public function delete(AjusteInventario $ajuste): void
     {
         $this->entityManager->remove($ajuste);
         $this->entityManager->flush();
     }
 
-    private function validateAjuste(AjusteInventario $ajuste): void
+    public function validate(AjusteInventario $ajuste): void
     {
         if ($ajuste->getCantidad() <= 0) {
             throw new \InvalidArgumentException('La cantidad debe ser mayor a cero');
