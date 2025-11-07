@@ -240,3 +240,19 @@ services:
     # Alias para interfaces
     App\Service\DashboardStatsInterface: '@App\Service\DashboardStatsService'
     App\Service\StockAlertInterface: '@App\Service\StockAlertService'
+
+    # Servicios del módulo Estadisticas
+    App\Service\EstadisticasService:
+        arguments:
+            $statisticsService: '@App\Service\StatisticsService'
+
+    App\Service\DefaultStatisticsProviderService: ~
+
+    App\Service\StatisticsErrorHandlerService:
+        arguments:
+            $logger: '@logger'
+
+    # Alias para interfaces
+    App\Service\EstadisticasProviderInterface: '@App\Service\EstadisticasService'
+    App\Service\DefaultStatisticsProviderInterface: '@App\Service\DefaultStatisticsProviderService'
+    App\Service\StatisticsErrorHandlerInterface: '@App\Service\StatisticsErrorHandlerService'
