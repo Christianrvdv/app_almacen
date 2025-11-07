@@ -4,10 +4,10 @@ namespace App\Controller;
 
 use App\Entity\DetalleCompra;
 use App\Form\DetalleCompraType;
-use App\Service\DetalleCompraOperationsInterface;
-use App\Service\DetalleCompraRepositoryInterface;
-use App\Service\DetalleCompraSearchInterface;
-use App\Service\DetalleCompraStatsInterface;
+use App\Service\DetalleCompra\Interface\DetalleCompraOperationsInterface;
+use App\Service\DetalleCompra\Interface\DetalleCompraRepositoryInterface;
+use App\Service\DetalleCompra\Interface\DetalleCompraSearchInterface;
+use App\Service\DetalleCompra\Interface\DetalleCompraStatsInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

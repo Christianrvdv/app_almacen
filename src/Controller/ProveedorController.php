@@ -4,9 +4,9 @@ namespace App\Controller;
 
 use App\Entity\Proveedor;
 use App\Form\ProveedorType;
-use App\Service\ProveedorOperationsInterface;
-use App\Service\ProveedorSearchInterface;
-use App\Service\ProveedorStatsInterface;
+use App\Service\Proveedor\Interface\ProveedorOperationsInterface;
+use App\Service\Proveedor\Interface\ProveedorSearchInterface;
+use App\Service\Proveedor\Interface\ProveedorStatsInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

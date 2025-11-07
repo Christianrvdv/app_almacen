@@ -3,13 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\Compra;
-use App\Entity\Producto;
 use App\Entity\DetalleCompra;
+use App\Entity\Producto;
 use App\Form\CompraType;
 use App\Form\DetalleCompraType;
-use App\Service\CompraOperationsInterface;
-use App\Service\CompraSearchInterface;
-use App\Service\CompraStatsInterface;
+use App\Service\Compra\Interface\CompraOperationsInterface;
+use App\Service\Compra\Interface\CompraSearchInterface;
+use App\Service\Compra\Interface\CompraStatsInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

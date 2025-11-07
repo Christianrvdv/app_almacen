@@ -4,10 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Cliente;
 use App\Form\ClienteType;
-use App\Service\ClienteOperationsInterface;
-use App\Service\ClienteSearchInterface;
-use App\Service\ClienteStatsInterface;
 use App\Repository\ClienteRepository;
+use App\Service\Cliente\Interface\ClienteOperationsInterface;
+use App\Service\Cliente\Interface\ClienteSearchInterface;
+use App\Service\Cliente\Interface\ClienteStatsInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

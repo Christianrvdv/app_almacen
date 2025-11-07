@@ -3,8 +3,8 @@
 
 namespace App\Controller;
 
-use App\Service\DashboardStatsInterface;
-use App\Service\StockAlertInterface;
+use App\Service\Dashboard\Interface\DashboardStatsInterface;
+use App\Service\Dashboard\Interface\StockAlertInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;

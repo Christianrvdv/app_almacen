@@ -4,10 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Producto;
 use App\Form\ProductoType;
-use App\Service\ProductoOperationsInterface;
-use App\Service\ProductoSearchInterface;
-use App\Service\ProductoStatsInterface;
-use App\Service\InventoryService;
+use App\Service\Core\InventoryService;
+use App\Service\Producto\Interface\ProductoOperationsInterface;
+use App\Service\Producto\Interface\ProductoSearchInterface;
+use App\Service\Producto\Interface\ProductoStatsInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

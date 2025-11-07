@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\AjusteInventario;
-use App\Service\AjusteInventarioRepositoryInterface;
+use App\Service\AjusteInventario\Interface\AjusteInventarioRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

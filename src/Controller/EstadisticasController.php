@@ -2,9 +2,9 @@
 
 namespace App\Controller;
 
-use App\Service\EstadisticasProviderInterface;
-use App\Service\DefaultStatisticsProviderInterface;
-use App\Service\StatisticsErrorHandlerInterface;
+use App\Service\Estadisticas\Interface\DefaultStatisticsProviderInterface;
+use App\Service\Estadisticas\Interface\EstadisticasProviderInterface;
+use App\Service\Estadisticas\Interface\StatisticsErrorHandlerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

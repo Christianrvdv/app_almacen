@@ -4,10 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Categoria;
 use App\Form\CategoriaType;
-use App\Service\CategoriaOperationsInterface;
-use App\Service\CategoriaSearchInterface;
-use App\Service\CategoriaStatsInterface;
 use App\Repository\ProductoRepository;
+use App\Service\Categoria\Interface\CategoriaOperationsInterface;
+use App\Service\Categoria\Interface\CategoriaSearchInterface;
+use App\Service\Categoria\Interface\CategoriaStatsInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

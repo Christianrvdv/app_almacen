@@ -4,9 +4,9 @@ namespace App\Controller;
 
 use App\Entity\DetalleVenta;
 use App\Form\DetalleVentaType;
-use App\Service\DetalleVentaOperationsInterface;
-use App\Service\DetalleVentaSearchInterface;
-use App\Service\DetalleVentaStatsInterface;
+use App\Service\DetalleVenta\Interface\DetalleVentaOperationsInterface;
+use App\Service\DetalleVenta\Interface\DetalleVentaSearchInterface;
+use App\Service\DetalleVenta\Interface\DetalleVentaStatsInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;

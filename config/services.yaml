@@ -40,7 +40,7 @@ services:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
 
-    App\Service\AjusteInventoryOperationsInterface: '@App\Service\AjusteInventoryOperationsService'
+    App\Service\AjusteInventoryOperationsInterface: '@App\Service\AjussteInventario\AjusteInventoryOperationsService'
 
     # Servicios del módulo Categoria
     App\Service\CategoriaSearchService:
@@ -57,9 +57,9 @@ services:
             $entityManager: '@doctrine.orm.entity_manager'
 
     # Alias para interfaces
-    App\Service\CategoriaSearchInterface: '@App\Service\CategoriaSearchService'
-    App\Service\CategoriaStatsInterface: '@App\Service\CategoriaStatsService'
-    App\Service\CategoriaOperationsInterface: '@App\Service\CategoriaOperationsService'
+    App\Service\CategoriaSearchInterface: '@App\Service\Categoria\CategoriaSearchService'
+    App\Service\CategoriaStatsInterface: '@App\Service\Categoria\CategoriaStatsService'
+    App\Service\CategoriaOperationsInterface: '@App\Service\Categoria\CategoriaOperationsService'
 
     # Servicios del módulo Producto
     App\Service\ProductoSearchService:
@@ -77,9 +77,9 @@ services:
             $commonService: '@App\Service\CommonService'
 
     # Alias para interfaces del módulo Producto
-    App\Service\ProductoSearchInterface: '@App\Service\ProductoSearchService'
-    App\Service\ProductoStatsInterface: '@App\Service\ProductoStatsService'
-    App\Service\ProductoOperationsInterface: '@App\Service\ProductoOperationsService'
+    App\Service\ProductoSearchInterface: '@App\Service\Producto\ProductoSearchService'
+    App\Service\ProductoStatsInterface: '@App\Service\Producto\ProductoStatsService'
+    App\Service\ProductoOperationsInterface: '@App\Service\Producto\ProductoOperationsService'
 
     # Servicios del módulo Cliente
     App\Service\ClienteSearchService:
@@ -97,9 +97,9 @@ services:
             $commonService: '@App\Service\CommonService'
 
     # Alias para interfaces del módulo Cliente
-    App\Service\ClienteSearchInterface: '@App\Service\ClienteSearchService'
-    App\Service\ClienteStatsInterface: '@App\Service\ClienteStatsService'
-    App\Service\ClienteOperationsInterface: '@App\Service\ClienteOperationsService'
+    App\Service\ClienteSearchInterface: '@App\Service\Cliente\ClienteSearchService'
+    App\Service\ClienteStatsInterface: '@App\Service\Cliente\ClienteStatsService'
+    App\Service\ClienteOperationsInterface: '@App\Service\Cliente\ClienteOperationsService'
 
     # Servicios del módulo Compra
     App\Service\CompraSearchService:
@@ -115,12 +115,12 @@ services:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
             $commonService: '@App\Service\CommonService'
-            $transactionService: '@App\Service\TransactionService'
+            $transactionService: '@App\Service\Core\TransactionService'
 
     # Alias para interfaces del módulo Compra
-    App\Service\CompraSearchInterface: '@App\Service\CompraSearchService'
-    App\Service\CompraStatsInterface: '@App\Service\CompraStatsService'
-    App\Service\CompraOperationsInterface: '@App\Service\CompraOperationsService'
+    App\Service\CompraSearchInterface: '@App\Service\Compra\CompraSearchService'
+    App\Service\CompraStatsInterface: '@App\Service\Compra\CompraStatsService'
+    App\Service\CompraOperationsInterface: '@App\Service\Compra\CompraOperationsService'
 
     # Servicios del módulo Venta
     App\Service\VentaSearchService:
@@ -136,12 +136,12 @@ services:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
             $commonService: '@App\Service\CommonService'
-            $transactionService: '@App\Service\TransactionService'
+            $transactionService: '@App\Service\Core\TransactionService'
 
     # Alias para interfaces del módulo Venta
-    App\Service\VentaSearchInterface: '@App\Service\VentaSearchService'
-    App\Service\VentaStatsInterface: '@App\Service\VentaStatsService'
-    App\Service\VentaOperationsInterface: '@App\Service\VentaOperationsService'
+    App\Service\VentaSearchInterface: '@App\Service\Venta\VentaSearchService'
+    App\Service\VentaStatsInterface: '@App\Service\Venta\VentaStatsService'
+    App\Service\VentaOperationsInterface: '@App\Service\Venta\VentaOperationsService'
 
     # Servicios del módulo Proveedor
     App\Service\ProveedorSearchService:
@@ -158,9 +158,9 @@ services:
             $entityManager: '@doctrine.orm.entity_manager'
 
     # Alias para interfaces del módulo Proveedor
-    App\Service\ProveedorSearchInterface: '@App\Service\ProveedorSearchService'
-    App\Service\ProveedorStatsInterface: '@App\Service\ProveedorStatsService'
-    App\Service\ProveedorOperationsInterface: '@App\Service\ProveedorOperationsService'
+    App\Service\ProveedorSearchInterface: '@App\Service\Proveedor\ProveedorSearchService'
+    App\Service\ProveedorStatsInterface: '@App\Service\Proveedor\ProveedorStatsService'
+    App\Service\ProveedorOperationsInterface: '@App\Service\Proveedor\ProveedorOperationsService'
 
     # Servicios del módulo HistorialPrecios
     App\Service\HistorialPreciosSearchService:
@@ -178,9 +178,9 @@ services:
             $repository: '@App\Repository\HistorialPreciosRepository'
 
     # Alias para interfaces del módulo HistorialPrecios
-    App\Service\HistorialPreciosSearchInterface: '@App\Service\HistorialPreciosSearchService'
-    App\Service\HistorialPreciosStatsInterface: '@App\Service\HistorialPreciosStatsService'
-    App\Service\HistorialPreciosOperationsInterface: '@App\Service\HistorialPreciosOperationsService'
+    App\Service\HistorialPreciosSearchInterface: '@App\Service\HistorialPrecios\HistorialPreciosSearchService'
+    App\Service\HistorialPreciosStatsInterface: '@App\Service\HistorialPrecios\HistorialPreciosStatsService'
+    App\Service\HistorialPreciosOperationsInterface: '@App\Service\HistorialPrecios\HistorialPreciosOperationsService'
 
 
     # Servicios del módulo DetalleVenta
@@ -198,9 +198,9 @@ services:
             $entityManager: '@doctrine.orm.entity_manager'
 
     # Alias para interfaces del módulo DetalleVenta
-    App\Service\DetalleVentaSearchInterface: '@App\Service\DetalleVentaSearchService'
-    App\Service\DetalleVentaStatsInterface: '@App\Service\DetalleVentaStatsService'
-    App\Service\DetalleVentaOperationsInterface: '@App\Service\DetalleVentaOperationsService'
+    App\Service\DetalleVentaSearchInterface: '@App\Service\DetalleVenta\DetalleVentaSearchService'
+    App\Service\DetalleVentaStatsInterface: '@App\Service\DetalleVenta\DetalleVentaStatsService'
+    App\Service\DetalleVentaOperationsInterface: '@App\Service\DetalleVenta\DetalleVentaOperationsService'
 
 
     # Servicios del módulo DetalleCompra
@@ -218,9 +218,9 @@ services:
             $entityManager: '@doctrine.orm.entity_manager'
 
     # Alias para interfaces del módulo DetalleCompra
-    App\Service\DetalleCompraSearchInterface: '@App\Service\DetalleCompraSearchService'
-    App\Service\DetalleCompraStatsInterface: '@App\Service\DetalleCompraStatsService'
-    App\Service\DetalleCompraOperationsInterface: '@App\Service\DetalleCompraOperationsService'
+    App\Service\DetalleCompraSearchInterface: '@App\Service\DetalleCompra\DetalleCompraSearchService'
+    App\Service\DetalleCompraStatsInterface: '@App\Service\DetalleCompra\DetalleCompraStatsService'
+    App\Service\DetalleCompraOperationsInterface: '@App\Service\DetalleCompra\DetalleCompraOperationsService'
     App\Service\DetalleCompraRepositoryInterface: '@App\Repository\DetalleCompraRepository'
 
 
@@ -234,17 +234,17 @@ services:
 
     App\Service\StockAlertService:
         arguments:
-            $inventoryService: '@App\Service\InventoryService'
+            $inventoryService: '@App\Service\Core\InventoryService'
             $productoRepository: '@App\Repository\ProductoRepository'
 
     # Alias para interfaces
-    App\Service\DashboardStatsInterface: '@App\Service\DashboardStatsService'
-    App\Service\StockAlertInterface: '@App\Service\StockAlertService'
+    App\Service\DashboardStatsInterface: '@App\Service\Dashboard\DashboardStatsService'
+    App\Service\StockAlertInterface: '@App\Service\Dashboard\StockAlertService'
 
     # Servicios del módulo Estadisticas
     App\Service\EstadisticasService:
         arguments:
-            $statisticsService: '@App\Service\StatisticsService'
+            $statisticsService: '@App\Service\Core\StatisticsService'
 
     App\Service\DefaultStatisticsProviderService: ~
 
@@ -253,6 +253,6 @@ services:
             $logger: '@logger'
 
     # Alias para interfaces
-    App\Service\EstadisticasProviderInterface: '@App\Service\EstadisticasService'
-    App\Service\DefaultStatisticsProviderInterface: '@App\Service\DefaultStatisticsProviderService'
-    App\Service\StatisticsErrorHandlerInterface: '@App\Service\StatisticsErrorHandlerService'
+    App\Service\EstadisticasProviderInterface: '@App\Service\Estadisticas\EstadisticasService'
+    App\Service\DefaultStatisticsProviderInterface: '@App\Service\Estadisticas\DefaultStatisticsProviderService'
+    App\Service\StatisticsErrorHandlerInterface: '@App\Service\Estadisticas\StatisticsErrorHandlerService'

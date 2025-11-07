@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Venta;
-use App\Service\VentaRepositoryInterface;
+use App\Service\Venta\Interface\VentaRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

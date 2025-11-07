@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\DetalleCompra;
-use App\Service\DetalleCompraRepositoryInterface;
+use App\Service\DetalleCompra\Interface\DetalleCompraRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

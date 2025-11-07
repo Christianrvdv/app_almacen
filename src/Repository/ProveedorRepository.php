@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Proveedor;
-use App\Service\ProveedorRepositoryInterface;
+use App\Service\Proveedor\Interface\ProveedorRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 

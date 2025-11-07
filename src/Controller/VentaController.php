@@ -2,14 +2,14 @@
 
 namespace App\Controller;
 
-use App\Entity\Venta;
 use App\Entity\DetalleVenta;
-use App\Form\VentaType;
+use App\Entity\Venta;
 use App\Form\DetalleVentaType;
-use App\Service\VentaOperationsInterface;
-use App\Service\VentaSearchInterface;
-use App\Service\VentaStatsInterface;
-use App\Service\PdfGeneratorService;
+use App\Form\VentaType;
+use App\Service\Core\PdfGeneratorService;
+use App\Service\Venta\Interface\VentaOperationsInterface;
+use App\Service\Venta\Interface\VentaSearchInterface;
+use App\Service\Venta\Interface\VentaStatsInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
