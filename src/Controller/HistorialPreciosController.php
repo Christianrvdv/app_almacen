@@ -5,9 +5,10 @@ namespace App\Controller;
 use App\Entity\HistorialPrecios;
 use App\Entity\Producto;
 use App\Form\HistorialPreciosType;
+use App\Service\HistorialPreciosOperationsInterface;
+use App\Service\HistorialPreciosSearchInterface;
+use App\Service\HistorialPreciosStatsInterface;
 use App\Repository\HistorialPreciosRepository;
-use Doctrine\ORM\EntityManagerInterface;
-use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,54 +17,31 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/historial/precios')]
 final class HistorialPreciosController extends AbstractController
 {
+    public function __construct(
+        private HistorialPreciosSearchInterface $searchService,
+        private HistorialPreciosStatsInterface $statsService,
+        private HistorialPreciosOperationsInterface $operationsService,
+        private HistorialPreciosRepository $repository
+    ) {}
+
     #[Route(name: 'app_historial_precios_index', methods: ['GET'])]
-    public function index(Request $request, HistorialPreciosRepository $historialPreciosRepository, PaginatorInterface $paginator): Response
+    public function index(Request $request): Response
     {
-        $searchTerm = $request->query->get('q', '');
-
-        // Construir query con filtro de búsqueda si existe
-        $queryBuilder = $historialPreciosRepository->createQueryBuilder('h')
-            ->leftJoin('h.producto', 'p')
-            ->addSelect('p')
-            ->orderBy('h.fecha_cambio', 'DESC');
-
-        // Aplicar filtro de búsqueda si hay término
-        if (!empty($searchTerm)) {
-            $queryBuilder
-                ->andWhere('h.tipo LIKE :searchTerm OR h.motivo LIKE :searchTerm OR p.nombre LIKE :searchTerm')
-                ->setParameter('searchTerm', '%' . $searchTerm . '%');
-        }
-
-        $query = $queryBuilder->getQuery();
-
-        $historialPrecios = $paginator->paginate(
-            $query,
-            $request->query->getInt('page', 1),
-            10
-        );
-
-        // Obtener estadísticas totales (sin filtro)
-        $totalRegistros = $historialPreciosRepository->count([]);
-        $totalVenta = $historialPreciosRepository->count(['tipo' => 'venta']);
-        $totalCompra = $historialPreciosRepository->count(['tipo' => 'compra']);
-        $totalAjustePromo = $historialPreciosRepository->createQueryBuilder('h')
-            ->select('COUNT(h.id)')
-            ->where("h.tipo IN ('promocion', 'ajuste')")
-            ->getQuery()
-            ->getSingleScalarResult();
+        $searchResult = $this->searchService->searchAndPaginate($request);
+        $statistics = $this->statsService->getStatistics();
 
         return $this->render('historial_precios/index.html.twig', [
-            'historial_precios' => $historialPrecios,
-            'searchTerm' => $searchTerm,
-            'totalRegistros' => $totalRegistros,
-            'totalVenta' => $totalVenta,
-            'totalCompra' => $totalCompra,
-            'totalAjustePromo' => $totalAjustePromo,
+            'historial_precios' => $searchResult['pagination'],
+            'searchTerm' => $searchResult['searchTerm'],
+            'totalRegistros' => $statistics['totalRegistros'],
+            'totalVenta' => $statistics['totalVenta'],
+            'totalCompra' => $statistics['totalCompra'],
+            'totalAjustePromo' => $statistics['totalAjustePromo'],
         ]);
     }
 
     #[Route('/new/{id}', name: 'app_historial_precios_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, Producto $producto): Response
+    public function new(Request $request, Producto $producto): Response
     {
         $historialPrecio = new HistorialPrecios();
         $historialPrecio->setProducto($producto);
@@ -73,15 +51,7 @@ final class HistorialPreciosController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                if ($historialPrecio->getTipo() === "venta") {
-                    $producto->setPrecioVentaActual($historialPrecio->getPrecioNuevo());
-                } else {
-                    $producto->setPrecioCompra($historialPrecio->getPrecioNuevo());
-                }
-
-                $entityManager->persist($historialPrecio);
-                $entityManager->flush();
-
+                $this->operationsService->createHistorialPrecios($historialPrecio, $producto);
                 $this->addFlash('success', 'El historial de precios ha sido creado correctamente y el precio del producto ha sido actualizado.');
 
                 return $this->redirectToRoute('app_producto_show', [
@@ -101,12 +71,12 @@ final class HistorialPreciosController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_historial_precios_show', methods: ['GET'])]
-    public function show(HistorialPrecios $historialPrecio, HistorialPreciosRepository $historialPreciosRepository): Response
+    public function show(HistorialPrecios $historialPrecio): Response
     {
-        $ultimoVenta = $historialPreciosRepository->findLastByProductAndType($historialPrecio->getProducto(), 'venta');
-        $ultimoCompra = $historialPreciosRepository->findLastByProductAndType($historialPrecio->getProducto(), 'compra');
-        $esUltimoVenta = $ultimoVenta && $ultimoVenta->getId()->equals($historialPrecio->getId());
-        $esUltimoCompra = $ultimoCompra && $ultimoCompra->getId()->equals($historialPrecio->getId());
+        $ultimoVenta = $this->repository->findLastByProductAndType($historialPrecio->getProducto(), 'venta');
+        $ultimoCompra = $this->repository->findLastByProductAndType($historialPrecio->getProducto(), 'compra');
+        $esUltimoVenta = $ultimoVenta && $ultimoVenta->getId() === $historialPrecio->getId();
+        $esUltimoCompra = $ultimoCompra && $ultimoCompra->getId() === $historialPrecio->getId();
 
         return $this->render('historial_precios/show.html.twig', [
             'historial_precio' => $historialPrecio,
@@ -116,23 +86,14 @@ final class HistorialPreciosController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_historial_precios_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, HistorialPrecios $historialPrecio, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, HistorialPrecios $historialPrecio): Response
     {
         $form = $this->createForm(HistorialPreciosType::class, $historialPrecio);
         $form->handleRequest($request);
-        $producto = $historialPrecio->getProducto();
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             try {
-                if ($historialPrecio->getTipo() === "venta") {
-                    $producto->setPrecioVentaActual($historialPrecio->getPrecioNuevo());
-                } else {
-                    $producto->setPrecioCompra($historialPrecio->getPrecioNuevo());
-                }
-
-                $entityManager->flush();
-
+                $this->operationsService->updateHistorialPrecios($historialPrecio);
                 $this->addFlash('success', 'El historial de precios ha sido actualizado correctamente y el precio del producto ha sido actualizado.');
 
                 return $this->redirectToRoute('app_historial_precios_show', [
@@ -150,44 +111,11 @@ final class HistorialPreciosController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_historial_precios_delete_new', methods: ['POST'])]
-    public function deleteNew(
-        Request                    $request,
-        HistorialPrecios           $historialPrecio,
-        EntityManagerInterface     $entityManager,
-        HistorialPreciosRepository $historialPreciosRepository
-    ): Response
+    public function deleteNew(Request $request, HistorialPrecios $historialPrecio): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $historialPrecio->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $historialPrecio->getId(), $request->getPayload()->getString('_token'))) {
             try {
-                $producto = $historialPrecio->getProducto();
-                $tipo = $historialPrecio->getTipo();
-
-                $registros = $historialPreciosRepository->createQueryBuilder('h')
-                    ->andWhere('h.producto = :producto')
-                    ->andWhere('h.tipo = :tipo')
-                    ->setParameter('producto', $producto)
-                    ->setParameter('tipo', $tipo)
-                    ->orderBy('h.fecha_cambio', 'DESC')
-                    ->setMaxResults(2)
-                    ->getQuery()
-                    ->getResult();
-
-                if (count($registros) > 1) {
-                    $penultimoRegistro = $registros[1];
-                    $nuevoPrecio = $penultimoRegistro->getPrecioNuevo();
-                } else {
-                    $nuevoPrecio = $historialPrecio->getPrecioAnterior();
-                }
-
-                if ($tipo === 'venta') {
-                    $producto->setPrecioVentaActual($nuevoPrecio);
-                } else {
-                    $producto->setPrecioCompra($nuevoPrecio);
-                }
-
-                $entityManager->remove($historialPrecio);
-                $entityManager->flush();
-
+                $this->operationsService->deleteHistorialPrecios($historialPrecio);
                 $this->addFlash('success', 'El historial de precios ha sido eliminado correctamente y el precio del producto ha sido revertido.');
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Error al eliminar el historial de precios: ' . $e->getMessage());
@@ -197,7 +125,7 @@ final class HistorialPreciosController extends AbstractController
         }
 
         return $this->redirectToRoute('app_producto_show', [
-            'id' => $producto->getId()
+            'id' => $historialPrecio->getProducto()->getId()
         ], Response::HTTP_SEE_OTHER);
     }
 }

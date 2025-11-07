@@ -4,13 +4,11 @@ namespace App\Repository;
 
 use App\Entity\HistorialPrecios;
 use App\Entity\Producto;
+use App\Service\HistorialPreciosRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<HistorialPrecios>
- */
-class HistorialPreciosRepository extends ServiceEntityRepository
+class HistorialPreciosRepository extends ServiceEntityRepository implements HistorialPreciosRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {
