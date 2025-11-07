@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Detalle de Venta #{{ detalle_ventas.id }} - Sistema de Ventas{% endblock %}
+{% block title %}Detalle de Venta #{{ detalle_venta.id }} - Sistema de Ventas{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -14,13 +14,13 @@
             <div class="container">
                 <div class="d-flex align-items-center justify-content-between">
                     <div>
-                        <a href="{{ path('app_venta_show', {'id': detalle_ventas.venta.id}) }}"
+                        <a href="{{ path('app_venta_show', {'id': detalle_venta.venta.id}) }}"
                            class="btn btn-outline-light btn-sm rounded-pill px-3">
                             <i class="fas fa-arrow-left me-2"></i>Ver Venta Principal
                         </a>
                     </div>
                     <div class="text-center text-white">
-                        <h1 class="fw-bold mb-1">💰 Detalle de Venta #{{ detalle_ventas.id }}</h1>
+                        <h1 class="fw-bold mb-1">💰 Detalle de Venta #{{ detalle_venta.id }}</h1>
                         <p class="mb-0 opacity-75">Información completa del detalle de venta</p>
                     </div>
                     <div style="width: 130px;"></div>
@@ -71,22 +71,22 @@
 
                         <div class="detalle-card">
                             <div class="info-label">ID del Detalle</div>
-                            <div class="info-value">#{{ detalle_ventas.id }}</div>
+                            <div class="info-value">#{{ detalle_venta.id }}</div>
                         </div>
 
                         <div class="detalle-card">
                             <div class="info-label">Cantidad Vendida</div>
                             <div class="info-value">
-                                <span class="badge-modern bg-primary fs-6">{{ detalle_ventas.cantidad }} unidades</span>
+                                <span class="badge-modern bg-primary fs-6">{{ detalle_venta.cantidad }} unidades</span>
                             </div>
                         </div>
 
-                        {% if detalle_ventas.producto %}
+                        {% if detalle_venta.producto %}
                             <div class="detalle-card">
                                 <div class="info-label">Producto</div>
                                 <div class="info-value">
                                 <span class="badge-modern bg-info">
-                                    <i class="fas fa-cube me-1"></i>{{ detalle_ventas.producto.nombre }}
+                                    <i class="fas fa-cube me-1"></i>{{ detalle_venta.producto.nombre }}
                                 </span>
                                 </div>
                             </div>
@@ -103,29 +103,29 @@
                         <div class="detalle-card">
                             <div class="info-label">Precio Unitario</div>
                             <div class="info-value price-highlight">
-                                ${{ detalle_ventas.precioUnitario|number_format(2, ',', '.') }}
+                                ${{ detalle_venta.precioUnitario|number_format(2, ',', '.') }}
                             </div>
                         </div>
 
                         <div class="detalle-card">
                             <div class="info-label">Precio de Costo</div>
                             <div class="info-value price-cost">
-                                ${{ detalle_ventas.producto.precioCompra|number_format(2, ',', '.') }}
+                                ${{ detalle_venta.producto.precioCompra|number_format(2, ',', '.') }}
                             </div>
                         </div>
 
                         <div class="detalle-card">
                             <div class="info-label">Subtotal</div>
                             <div class="info-value total-highlight">
-                                ${{ detalle_ventas.subtotal|number_format(2, ',', '.') }}
+                                ${{ detalle_venta.subtotal|number_format(2, ',', '.') }}
                             </div>
                         </div>
 
                         <div class="detalle-card">
                             <div class="info-label">Margen de Ganancia</div>
                             <div class="info-value">
-                                {% set ganancia = detalle_ventas.precioUnitario - detalle_ventas.producto.precioCompra %}
-                                {% set margenPorcentaje = detalle_ventas.producto.precioCompra > 0 ? (ganancia / detalle_ventas.producto.precioCompra * 100) : 0 %}
+                                {% set ganancia = detalle_venta.precioUnitario - detalle_venta.producto.precioCompra %}
+                                {% set margenPorcentaje = detalle_venta.producto.precioCompra > 0 ? (ganancia / detalle_venta.producto.precioCompra * 100) : 0 %}
                                 <span class="{% if margenPorcentaje > 0 %}text-success{% else %}text-danger{% endif %} fw-bold">
                                     {{ margenPorcentaje|number_format(2) }}%
                                 </span>
@@ -149,10 +149,10 @@
                         <div class="detalle-card">
                             <div class="info-label">Venta Principal</div>
                             <div class="info-value">
-                                {% if detalle_ventas.venta %}
+                                {% if detalle_venta.venta %}
                                     <span class="badge-modern bg-warning text-dark">
                                         <i class="fas fa-file-invoice-dollar me-1"></i>
-                                        Venta #{{ detalle_ventas.venta.id }}
+                                        Venta #{{ detalle_venta.venta.id }}
                                     </span>
                                 {% else %}
                                     <span class="text-muted">Sin venta asociada</span>
@@ -163,10 +163,10 @@
                         <div class="detalle-card">
                             <div class="info-label">Producto Relacionado</div>
                             <div class="info-value">
-                                {% if detalle_ventas.producto %}
+                                {% if detalle_venta.producto %}
                                     <span class="badge-modern bg-success">
                                         <i class="fas fa-box me-1"></i>
-                                        {{ detalle_ventas.producto.nombre }}
+                                        {{ detalle_venta.producto.nombre }}
                                     </span>
                                 {% else %}
                                     <span class="text-muted">Sin producto asociado</span>
@@ -195,21 +195,21 @@
                             <div class="metadata-item">
                                 <span class="metadata-label">Total de la Venta</span>
                                 <span class="metadata-value text-success fw-bold">
-                                    ${{ detalle_ventas.subtotal|number_format(2, ',', '.') }}
+                                    ${{ detalle_venta.subtotal|number_format(2, ',', '.') }}
                                 </span>
                             </div>
 
                             <div class="metadata-item">
                                 <span class="metadata-label">Unidades Vendidas</span>
                                 <span class="metadata-value fw-bold">
-                                    {{ detalle_ventas.cantidad }}
+                                    {{ detalle_venta.cantidad }}
                                 </span>
                             </div>
 
                             <div class="metadata-item">
                                 <span class="metadata-label">ID del Detalle</span>
                                 <span class="metadata-value">
-                                    <code>#{{ detalle_ventas.id }}</code>
+                                    <code>#{{ detalle_venta.id }}</code>
                                 </span>
                             </div>
                         </div>
@@ -223,19 +223,19 @@
             </h3>
             <div class="stats-grid">
                 <div class="stat-item">
-                    <div class="stat-number text-primary">{{ detalle_ventas.cantidad }}</div>
+                    <div class="stat-number text-primary">{{ detalle_venta.cantidad }}</div>
                     <div class="stat-label">Unidades Vendidas</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number text-success">${{ detalle_ventas.precioUnitario|number_format(2, ',', '.') }}</div>
+                    <div class="stat-number text-success">${{ detalle_venta.precioUnitario|number_format(2, ',', '.') }}</div>
                     <div class="stat-label">Precio Unitario</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number text-warning">${{ detalle_ventas.producto.precioCompra|number_format(2, ',', '.') }}</div>
+                    <div class="stat-number text-warning">${{ detalle_venta.producto.precioCompra|number_format(2, ',', '.') }}</div>
                     <div class="stat-label">Precio de Costo</div>
                 </div>
                 <div class="stat-item">
-                    {% set gananciaTotal = (detalle_ventas.precioUnitario - detalle_ventas.producto.precioCompra) * detalle_ventas.cantidad %}
+                    {% set gananciaTotal = (detalle_venta.precioUnitario - detalle_venta.producto.precioCompra) * detalle_venta.cantidad %}
                     <div class="stat-number {% if gananciaTotal > 0 %}text-success{% else %}text-danger{% endif %}">
                         ${{ gananciaTotal|number_format(2, ',', '.') }}
                     </div>
@@ -249,12 +249,25 @@
             </h3>
             <div class="form-section">
                 <div class="action-buttons">
-                    {% if detalle_ventas.venta %}
-                        <a href="{{ path('app_venta_show', {'id': detalle_ventas.venta.id}) }}"
+                    {% if detalle_venta.venta %}
+                        <a href="{{ path('app_venta_show', {'id': detalle_venta.venta.id}) }}"
                            class="btn btn-modern btn-outline-modern">
                             <i class="fas fa-external-link-alt me-2"></i>Ver Venta Principal
                         </a>
                     {% endif %}
+
+                    <a href="{{ path('app_detalle_venta_edit', {'id': detalle_venta.id}) }}"
+                       class="btn btn-modern btn-warning-modern">
+                        <i class="fas fa-edit me-2"></i>Editar
+                    </a>
+
+                    <!-- Botón de eliminar con confirmación -->
+                    <button type="button"
+                            class="btn btn-modern btn-danger-modern"
+                            data-bs-toggle="modal"
+                            data-bs-target="#deleteModal">
+                        <i class="fas fa-trash me-2"></i>Eliminar
+                    </button>
                 </div>
             </div>
         </div>
@@ -271,20 +284,23 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>¿Estás seguro de que deseas eliminar el detalle de venta <strong>#{{ detalle_ventas.id }}</strong>?</p>
+                    <p>¿Estás seguro de que deseas eliminar el detalle de venta <strong>#{{ detalle_venta.id }}</strong>?</p>
                     <p class="text-danger small">
                         <i class="fas fa-info-circle me-1"></i>
                         Esta acción no se puede deshacer y se perderán todos los datos asociados a este detalle.
                     </p>
                     <div class="alert alert-warning mt-3">
                         <strong>Información a eliminar:</strong><br>
-                        • {{ detalle_ventas.cantidad }} unidades de {{ detalle_ventas.producto ? detalle_ventas.producto.nombre : 'producto' }}<br>
-                        • Subtotal: ${{ detalle_ventas.subtotal|number_format(2, ',', '.') }}
+                        • {{ detalle_venta.cantidad }} unidades de {{ detalle_venta.producto ? detalle_venta.producto.nombre : 'producto' }}<br>
+                        • Subtotal: ${{ detalle_venta.subtotal|number_format(2, ',', '.') }}
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    {{ include('detalle_venta/_delete_form.html.twig') }}
+                    <form method="post" action="{{ path('app_detalle_venta_delete', {'id': detalle_venta.id}) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ detalle_venta.id) }}">
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -299,12 +315,12 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             // Variables de Twig pasadas al módulo JavaScript
-            const detalleId = {{ detalle_ventas.id }};
-            const productoNombre = '{{ detalle_ventas.producto ? detalle_ventas.producto.nombre|escape('js') : 'Producto Eliminado' }}';
-            const cantidad = {{ detalle_ventas.cantidad }};
-            const precioUnitario = {{ detalle_ventas.precioUnitario }};
+            const detalleId = {{ detalle_venta.id }};
+            const productoNombre = '{{ detalle_venta.producto ? detalle_venta.producto.nombre|escape('js') : 'Producto Eliminado' }}';
+            const cantidad = {{ detalle_venta.cantidad }};
+            const precioUnitario = {{ detalle_venta.precioUnitario }};
             // Asumiendo que el precio de costo está disponible en el producto asociado
-            const precioCosto = {{ detalle_ventas.producto ? detalle_ventas.producto.precioCompra : 0 }};
+            const precioCosto = {{ detalle_venta.producto ? detalle_venta.producto.precioCompra : 0 }};
 
             initShowPage(detalleId, productoNombre, cantidad, precioUnitario, precioCosto);
         });
