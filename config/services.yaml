@@ -11,11 +11,11 @@ services:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
-    App\Service\PdfGeneratorService:
+    App\Service\Core\PdfGeneratorService:
         arguments:
             $params: '@parameter_bag'
 
-    App\Service\TransactionService:
+    App\Service\Core\TransactionService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
 
@@ -27,232 +27,236 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    App\Service\AjusteInventarioSearchService:
+    # Servicios del módulo AjusteInventario
+    App\Service\AjusteInventario\AjusteInventarioSearchService:
         arguments:
             $repository: '@App\Repository\AjusteInventarioRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\AjusteInventarioStatsService:
+    App\Service\AjusteInventario\AjusteInventarioStatsService:
         arguments:
             $repository: '@App\Repository\AjusteInventarioRepository'
 
-    App\Service\AjusteInventoryOperationsService:
+    App\Service\AjusteInventario\AjusteInventoryOperationsService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
 
-    App\Service\AjusteInventoryOperationsInterface: '@App\Service\AjussteInventario\AjusteInventoryOperationsService'
+    # Alias para interfaces del módulo AjusteInventario
+    App\Service\AjusteInventario\Interface\AjusteInventoryOperationsInterface: '@App\Service\AjusteInventario\AjusteInventoryOperationsService'
+    App\Service\AjusteInventario\Interface\AjusteInventorySearchInterface: '@App\Service\AjusteInventario\AjusteInventarioSearchService'
+    App\Service\AjusteInventario\Interface\AjusteInventarioStatsInterface: '@App\Service\AjusteInventario\AjusteInventarioStatsService'
 
     # Servicios del módulo Categoria
-    App\Service\CategoriaSearchService:
+    App\Service\Categoria\CategoriaSearchService:
         arguments:
             $repository: '@App\Repository\CategoriaRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\CategoriaStatsService:
+    App\Service\Categoria\CategoriaStatsService:
         arguments:
             $repository: '@App\Repository\CategoriaRepository'
 
-    App\Service\CategoriaOperationsService:
+    App\Service\Categoria\CategoriaOperationsService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
 
-    # Alias para interfaces
-    App\Service\CategoriaSearchInterface: '@App\Service\Categoria\CategoriaSearchService'
-    App\Service\CategoriaStatsInterface: '@App\Service\Categoria\CategoriaStatsService'
-    App\Service\CategoriaOperationsInterface: '@App\Service\Categoria\CategoriaOperationsService'
+    # Alias para interfaces del módulo Categoria
+    App\Service\Categoria\Interface\CategoriaSearchInterface: '@App\Service\Categoria\CategoriaSearchService'
+    App\Service\Categoria\Interface\CategoriaStatsInterface: '@App\Service\Categoria\CategoriaStatsService'
+    App\Service\Categoria\Interface\CategoriaOperationsInterface: '@App\Service\Categoria\CategoriaOperationsService'
 
     # Servicios del módulo Producto
-    App\Service\ProductoSearchService:
+    App\Service\Producto\ProductoSearchService:
         arguments:
             $repository: '@App\Repository\ProductoRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\ProductoStatsService:
+    App\Service\Producto\ProductoStatsService:
         arguments:
             $repository: '@App\Repository\ProductoRepository'
 
-    App\Service\ProductoOperationsService:
+    App\Service\Producto\ProductoOperationsService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
             $commonService: '@App\Service\CommonService'
 
     # Alias para interfaces del módulo Producto
-    App\Service\ProductoSearchInterface: '@App\Service\Producto\ProductoSearchService'
-    App\Service\ProductoStatsInterface: '@App\Service\Producto\ProductoStatsService'
-    App\Service\ProductoOperationsInterface: '@App\Service\Producto\ProductoOperationsService'
+    App\Service\Producto\Interface\ProductoSearchInterface: '@App\Service\Producto\ProductoSearchService'
+    App\Service\Producto\Interface\ProductoStatsInterface: '@App\Service\Producto\ProductoStatsService'
+    App\Service\Producto\Interface\ProductoOperationsInterface: '@App\Service\Producto\ProductoOperationsService'
 
     # Servicios del módulo Cliente
-    App\Service\ClienteSearchService:
+    App\Service\Cliente\ClienteSearchService:
         arguments:
             $repository: '@App\Repository\ClienteRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\ClienteStatsService:
+    App\Service\Cliente\ClienteStatsService:
         arguments:
             $repository: '@App\Repository\ClienteRepository'
 
-    App\Service\ClienteOperationsService:
+    App\Service\Cliente\ClienteOperationsService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
             $commonService: '@App\Service\CommonService'
 
     # Alias para interfaces del módulo Cliente
-    App\Service\ClienteSearchInterface: '@App\Service\Cliente\ClienteSearchService'
-    App\Service\ClienteStatsInterface: '@App\Service\Cliente\ClienteStatsService'
-    App\Service\ClienteOperationsInterface: '@App\Service\Cliente\ClienteOperationsService'
+    App\Service\Cliente\Interface\ClienteSearchInterface: '@App\Service\Cliente\ClienteSearchService'
+    App\Service\Cliente\Interface\ClienteStatsInterface: '@App\Service\Cliente\ClienteStatsService'
+    App\Service\Cliente\Interface\ClienteOperationsInterface: '@App\Service\Cliente\ClienteOperationsService'
 
     # Servicios del módulo Compra
-    App\Service\CompraSearchService:
+    App\Service\Compra\CompraSearchService:
         arguments:
             $repository: '@App\Repository\CompraRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\CompraStatsService:
+    App\Service\Compra\CompraStatsService:
         arguments:
             $repository: '@App\Repository\CompraRepository'
 
-    App\Service\CompraOperationsService:
+    App\Service\Compra\CompraOperationsService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
             $commonService: '@App\Service\CommonService'
             $transactionService: '@App\Service\Core\TransactionService'
 
     # Alias para interfaces del módulo Compra
-    App\Service\CompraSearchInterface: '@App\Service\Compra\CompraSearchService'
-    App\Service\CompraStatsInterface: '@App\Service\Compra\CompraStatsService'
-    App\Service\CompraOperationsInterface: '@App\Service\Compra\CompraOperationsService'
+    App\Service\Compra\Interface\CompraSearchInterface: '@App\Service\Compra\CompraSearchService'
+    App\Service\Compra\Interface\CompraStatsInterface: '@App\Service\Compra\CompraStatsService'
+    App\Service\Compra\Interface\CompraOperationsInterface: '@App\Service\Compra\CompraOperationsService'
 
     # Servicios del módulo Venta
-    App\Service\VentaSearchService:
+    App\Service\Venta\VentaSearchService:
         arguments:
             $repository: '@App\Repository\VentaRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\VentaStatsService:
+    App\Service\Venta\VentaStatsService:
         arguments:
             $repository: '@App\Repository\VentaRepository'
 
-    App\Service\VentaOperationsService:
+    App\Service\Venta\VentaOperationsService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
             $commonService: '@App\Service\CommonService'
             $transactionService: '@App\Service\Core\TransactionService'
 
     # Alias para interfaces del módulo Venta
-    App\Service\VentaSearchInterface: '@App\Service\Venta\VentaSearchService'
-    App\Service\VentaStatsInterface: '@App\Service\Venta\VentaStatsService'
-    App\Service\VentaOperationsInterface: '@App\Service\Venta\VentaOperationsService'
+    App\Service\Venta\Interface\VentaSearchInterface: '@App\Service\Venta\VentaSearchService'
+    App\Service\Venta\Interface\VentaStatsInterface: '@App\Service\Venta\VentaStatsService'
+    App\Service\Venta\Interface\VentaOperationsInterface: '@App\Service\Venta\VentaOperationsService'
 
     # Servicios del módulo Proveedor
-    App\Service\ProveedorSearchService:
+    App\Service\Proveedor\ProveedorSearchService:
         arguments:
             $repository: '@App\Repository\ProveedorRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\ProveedorStatsService:
+    App\Service\Proveedor\ProveedorStatsService:
         arguments:
             $repository: '@App\Repository\ProveedorRepository'
 
-    App\Service\ProveedorOperationsService:
+    App\Service\Proveedor\ProveedorOperationsService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
 
     # Alias para interfaces del módulo Proveedor
-    App\Service\ProveedorSearchInterface: '@App\Service\Proveedor\ProveedorSearchService'
-    App\Service\ProveedorStatsInterface: '@App\Service\Proveedor\ProveedorStatsService'
-    App\Service\ProveedorOperationsInterface: '@App\Service\Proveedor\ProveedorOperationsService'
+    App\Service\Proveedor\Interface\ProveedorSearchInterface: '@App\Service\Proveedor\ProveedorSearchService'
+    App\Service\Proveedor\Interface\ProveedorStatsInterface: '@App\Service\Proveedor\ProveedorStatsService'
+    App\Service\Proveedor\Interface\ProveedorOperationsInterface: '@App\Service\Proveedor\ProveedorOperationsService'
 
     # Servicios del módulo HistorialPrecios
-    App\Service\HistorialPreciosSearchService:
+    App\Service\HistorialPrecios\HistorialPreciosSearchService:
         arguments:
             $repository: '@App\Repository\HistorialPreciosRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\HistorialPreciosStatsService:
+    App\Service\HistorialPrecios\HistorialPreciosStatsService:
         arguments:
             $repository: '@App\Repository\HistorialPreciosRepository'
 
-    App\Service\HistorialPreciosOperationsService:
+    App\Service\HistorialPrecios\HistorialPreciosOperationsService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
             $repository: '@App\Repository\HistorialPreciosRepository'
 
     # Alias para interfaces del módulo HistorialPrecios
-    App\Service\HistorialPreciosSearchInterface: '@App\Service\HistorialPrecios\HistorialPreciosSearchService'
-    App\Service\HistorialPreciosStatsInterface: '@App\Service\HistorialPrecios\HistorialPreciosStatsService'
-    App\Service\HistorialPreciosOperationsInterface: '@App\Service\HistorialPrecios\HistorialPreciosOperationsService'
-
+    App\Service\HistorialPrecios\Interface\HistorialPreciosSearchInterface: '@App\Service\HistorialPrecios\HistorialPreciosSearchService'
+    App\Service\HistorialPrecios\Interface\HistorialPreciosStatsInterface: '@App\Service\HistorialPrecios\HistorialPreciosStatsService'
+    App\Service\HistorialPrecios\Interface\HistorialPreciosOperationsInterface: '@App\Service\HistorialPrecios\HistorialPreciosOperationsService'
 
     # Servicios del módulo DetalleVenta
-    App\Service\DetalleVentaSearchService:
+    App\Service\DetalleVenta\DetalleVentaSearchService:
         arguments:
             $repository: '@App\Repository\DetalleVentaRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\DetalleVentaStatsService:
+    App\Service\DetalleVenta\DetalleVentaStatsService:
         arguments:
             $repository: '@App\Repository\DetalleVentaRepository'
 
-    App\Service\DetalleVentaOperationsService:
+    App\Service\DetalleVenta\DetalleVentaOperationsService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
 
     # Alias para interfaces del módulo DetalleVenta
-    App\Service\DetalleVentaSearchInterface: '@App\Service\DetalleVenta\DetalleVentaSearchService'
-    App\Service\DetalleVentaStatsInterface: '@App\Service\DetalleVenta\DetalleVentaStatsService'
-    App\Service\DetalleVentaOperationsInterface: '@App\Service\DetalleVenta\DetalleVentaOperationsService'
-
+    App\Service\DetalleVenta\Interface\DetalleVentaSearchInterface: '@App\Service\DetalleVenta\DetalleVentaSearchService'
+    App\Service\DetalleVenta\Interface\DetalleVentaStatsInterface: '@App\Service\DetalleVenta\DetalleVentaStatsService'
+    App\Service\DetalleVenta\Interface\DetalleVentaOperationsInterface: '@App\Service\DetalleVenta\DetalleVentaOperationsService'
 
     # Servicios del módulo DetalleCompra
-    App\Service\DetalleCompraSearchService:
+    App\Service\DetalleCompra\DetalleCompraSearchService:
         arguments:
             $repository: '@App\Repository\DetalleCompraRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\DetalleCompraStatsService:
+    App\Service\DetalleCompra\DetalleCompraStatsService:
         arguments:
             $repository: '@App\Repository\DetalleCompraRepository'
 
-    App\Service\DetalleCompraOperationsService:
+    App\Service\DetalleCompra\DetalleCompraOperationsService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
 
     # Alias para interfaces del módulo DetalleCompra
-    App\Service\DetalleCompraSearchInterface: '@App\Service\DetalleCompra\DetalleCompraSearchService'
-    App\Service\DetalleCompraStatsInterface: '@App\Service\DetalleCompra\DetalleCompraStatsService'
-    App\Service\DetalleCompraOperationsInterface: '@App\Service\DetalleCompra\DetalleCompraOperationsService'
-    App\Service\DetalleCompraRepositoryInterface: '@App\Repository\DetalleCompraRepository'
-
+    App\Service\DetalleCompra\Interface\DetalleCompraSearchInterface: '@App\Service\DetalleCompra\DetalleCompraSearchService'
+    App\Service\DetalleCompra\Interface\DetalleCompraStatsInterface: '@App\Service\DetalleCompra\DetalleCompraStatsService'
+    App\Service\DetalleCompra\Interface\DetalleCompraOperationsInterface: '@App\Service\DetalleCompra\DetalleCompraOperationsService'
+    App\Service\DetalleCompra\Interface\DetalleCompraRepositoryInterface: '@App\Repository\DetalleCompraRepository'
 
     # Servicios del Dashboard
-    App\Service\DashboardStatsService:
+    App\Service\Dashboard\DashboardStatsService:
         arguments:
             $productoRepository: '@App\Repository\ProductoRepository'
             $ventaRepository: '@App\Repository\VentaRepository'
             $compraRepository: '@App\Repository\CompraRepository'
             $clienteRepository: '@App\Repository\ClienteRepository'
 
-    App\Service\StockAlertService:
+    App\Service\Dashboard\StockAlertService:
         arguments:
             $inventoryService: '@App\Service\Core\InventoryService'
             $productoRepository: '@App\Repository\ProductoRepository'
 
-    # Alias para interfaces
-    App\Service\DashboardStatsInterface: '@App\Service\Dashboard\DashboardStatsService'
-    App\Service\StockAlertInterface: '@App\Service\Dashboard\StockAlertService'
+    # Alias para interfaces del Dashboard
+    App\Service\Dashboard\Interface\DashboardStatsInterface: '@App\Service\Dashboard\DashboardStatsService'
+    App\Service\Dashboard\Interface\StockAlertInterface: '@App\Service\Dashboard\StockAlertService'
 
     # Servicios del módulo Estadisticas
-    App\Service\EstadisticasService:
+    App\Service\Estadisticas\EstadisticasService:
         arguments:
             $statisticsService: '@App\Service\Core\StatisticsService'
 
-    App\Service\DefaultStatisticsProviderService: ~
+    App\Service\Estadisticas\DefaultStatisticsProviderService: ~
 
-    App\Service\StatisticsErrorHandlerService:
+    App\Service\Estadisticas\StatisticsErrorHandlerService:
         arguments:
             $logger: '@logger'
 
-    # Alias para interfaces
-    App\Service\EstadisticasProviderInterface: '@App\Service\Estadisticas\EstadisticasService'
-    App\Service\DefaultStatisticsProviderInterface: '@App\Service\Estadisticas\DefaultStatisticsProviderService'
-    App\Service\StatisticsErrorHandlerInterface: '@App\Service\Estadisticas\StatisticsErrorHandlerService'
+    # Alias para interfaces del módulo Estadisticas
+    App\Service\Estadisticas\Interface\EstadisticasProviderInterface: '@App\Service\Estadisticas\EstadisticasService'
+    App\Service\Estadisticas\Interface\DefaultStatisticsProviderInterface: '@App\Service\Estadisticas\DefaultStatisticsProviderService'
+    App\Service\Estadisticas\Interface\StatisticsErrorHandlerInterface: '@App\Service\Estadisticas\StatisticsErrorHandlerService'
+
+    # Servicio CommonService
+    App\Service\CommonService: ~
