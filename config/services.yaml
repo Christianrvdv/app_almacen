@@ -201,3 +201,24 @@ services:
     App\Service\DetalleVentaSearchInterface: '@App\Service\DetalleVentaSearchService'
     App\Service\DetalleVentaStatsInterface: '@App\Service\DetalleVentaStatsService'
     App\Service\DetalleVentaOperationsInterface: '@App\Service\DetalleVentaOperationsService'
+
+
+    # Servicios del módulo DetalleCompra
+    App\Service\DetalleCompraSearchService:
+        arguments:
+            $repository: '@App\Repository\DetalleCompraRepository'
+            $paginator: '@knp_paginator'
+
+    App\Service\DetalleCompraStatsService:
+        arguments:
+            $repository: '@App\Repository\DetalleCompraRepository'
+
+    App\Service\DetalleCompraOperationsService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+
+    # Alias para interfaces del módulo DetalleCompra
+    App\Service\DetalleCompraSearchInterface: '@App\Service\DetalleCompraSearchService'
+    App\Service\DetalleCompraStatsInterface: '@App\Service\DetalleCompraStatsService'
+    App\Service\DetalleCompraOperationsInterface: '@App\Service\DetalleCompraOperationsService'
+    App\Service\DetalleCompraRepositoryInterface: '@App\Repository\DetalleCompraRepository'

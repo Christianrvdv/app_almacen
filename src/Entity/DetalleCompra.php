@@ -48,7 +48,6 @@ class DetalleCompra
     #[ORM\Column(type: 'decimal', precision: 10, scale: 2, nullable: true)]
     private ?float $precio_costo_historico = null;
 
-
     public function getId(): ?int
     {
         return $this->id;
@@ -78,9 +77,9 @@ class DetalleCompra
         return $this;
     }
 
-    public function getSubtotal(): ?float
+    public function getSubtotal(): ?string
     {
-        return (string) ($this->getCantidad() * $this->getPrecioUnitario());
+        return $this->subtotal;
     }
 
     public function setSubtotal(?string $subtotal): void
