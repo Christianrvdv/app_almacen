@@ -222,3 +222,21 @@ services:
     App\Service\DetalleCompraStatsInterface: '@App\Service\DetalleCompraStatsService'
     App\Service\DetalleCompraOperationsInterface: '@App\Service\DetalleCompraOperationsService'
     App\Service\DetalleCompraRepositoryInterface: '@App\Repository\DetalleCompraRepository'
+
+
+    # Servicios del Dashboard
+    App\Service\DashboardStatsService:
+        arguments:
+            $productoRepository: '@App\Repository\ProductoRepository'
+            $ventaRepository: '@App\Repository\VentaRepository'
+            $compraRepository: '@App\Repository\CompraRepository'
+            $clienteRepository: '@App\Repository\ClienteRepository'
+
+    App\Service\StockAlertService:
+        arguments:
+            $inventoryService: '@App\Service\InventoryService'
+            $productoRepository: '@App\Repository\ProductoRepository'
+
+    # Alias para interfaces
+    App\Service\DashboardStatsInterface: '@App\Service\DashboardStatsService'
+    App\Service\StockAlertInterface: '@App\Service\StockAlertService'
