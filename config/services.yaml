@@ -161,3 +161,23 @@ services:
     App\Service\ProveedorSearchInterface: '@App\Service\ProveedorSearchService'
     App\Service\ProveedorStatsInterface: '@App\Service\ProveedorStatsService'
     App\Service\ProveedorOperationsInterface: '@App\Service\ProveedorOperationsService'
+
+    # Servicios del módulo HistorialPrecios
+    App\Service\HistorialPreciosSearchService:
+        arguments:
+            $repository: '@App\Repository\HistorialPreciosRepository'
+            $paginator: '@knp_paginator'
+
+    App\Service\HistorialPreciosStatsService:
+        arguments:
+            $repository: '@App\Repository\HistorialPreciosRepository'
+
+    App\Service\HistorialPreciosOperationsService:
+        arguments:
+            $entityManager: '@doctrine.orm.entity_manager'
+            $repository: '@App\Repository\HistorialPreciosRepository'
+
+    # Alias para interfaces del módulo HistorialPrecios
+    App\Service\HistorialPreciosSearchInterface: '@App\Service\HistorialPreciosSearchService'
+    App\Service\HistorialPreciosStatsInterface: '@App\Service\HistorialPreciosStatsService'
+    App\Service\HistorialPreciosOperationsInterface: '@App\Service\HistorialPreciosOperationsService'

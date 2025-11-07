@@ -299,7 +299,7 @@
         // Pasar datos de PHP a JavaScript
         window.preciosProducto = {
             compra: {{ historial_precio.producto.precio_compra ?? 0 }},
-            venta: {{ historial_precio.producto.precio_venta_actual) ?? 0 }}
+            venta: {{ historial_precio.producto.precio_venta_actual ?? 0 }}
         };
     </script>
     <script type="module" src="{{ asset('js/historial_precios/edit.js') }}"></script>
