@@ -7,9 +7,8 @@ use App\Entity\DetalleCompra;
 use App\Entity\Producto;
 use App\Form\CompraType;
 use App\Form\DetalleCompraType;
-use App\Service\Compra\Interface\CompraOperationsInterface;
-use App\Service\Compra\Interface\CompraSearchInterface;
-use App\Service\Compra\Interface\CompraStatsInterface;
+use App\Service\Compra\Interface\CompraQueryInterface;
+use App\Service\Compra\Interface\CompraServiceInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,16 +19,15 @@ use Symfony\Component\Routing\Attribute\Route;
 final class CompraController extends AbstractController
 {
     public function __construct(
-        private CompraSearchInterface $searchService,
-        private CompraStatsInterface $statsService,
-        private CompraOperationsInterface $operationsService
+        private CompraQueryInterface $queryService,
+        private CompraServiceInterface $compraService
     ) {}
 
     #[Route(name: 'app_compra_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $searchResult = $this->searchService->searchAndPaginate($request);
-        $statistics = $this->statsService->getStatistics();
+        $searchResult = $this->queryService->searchAndPaginate($request);
+        $statistics = $this->queryService->getStatistics();
 
         return $this->render('compra/index.html.twig', [
             'compras' => $searchResult['pagination'],
@@ -44,14 +42,14 @@ final class CompraController extends AbstractController
     #[Route('/new', name: 'app_compra_new', methods: ['GET', 'POST'])]
     public function new(Request $request): Response
     {
-        $compra = $this->operationsService->initializeCompra();
+        $compra = $this->compraService->initialize();
         return $this->handleCompraForm($request, $compra, 'create');
     }
 
     #[Route('/new/{id}', name: 'app_compra_new_by_id', methods: ['GET', 'POST'])]
     public function newById(Request $request, Producto $producto): Response
     {
-        $compra = $this->operationsService->initializeCompra($producto);
+        $compra = $this->compraService->initialize($producto);
         return $this->handleCompraForm($request, $compra, 'create');
     }
 
@@ -81,7 +79,7 @@ final class CompraController extends AbstractController
     {
         if ($this->isCsrfTokenValid('delete' . $compra->getId(), $request->getPayload()->getString('_token'))) {
             try {
-                $this->operationsService->deleteCompra($compra);
+                $this->compraService->delete($compra);
                 $this->addFlash('success', 'La compra ha sido eliminada correctamente.');
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Error al eliminar la compra: ' . $e->getMessage());
@@ -93,9 +91,6 @@ final class CompraController extends AbstractController
         return $this->redirectToRoute('app_compra_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    /**
-     * Método privado para manejar el formulario de compra
-     */
     private function handleCompraForm(
         Request $request,
         Compra $compra,
@@ -108,13 +103,14 @@ final class CompraController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             try {
                 if ($action === 'create') {
-                    $this->operationsService->createCompra($compra);
-                    $this->addFlash('success', 'La compra ha sido registrada exitosamente.');
+                    $this->compraService->create($compra);
+                    $message = 'La compra ha sido registrada exitosamente.';
                 } else {
-                    $this->operationsService->updateCompra($compra, $originalDetalles->toArray());
-                    $this->addFlash('success', 'La compra ha sido actualizada correctamente.');
+                    $this->compraService->update($compra, $originalDetalles->toArray());
+                    $message = 'La compra ha sido actualizada correctamente.';
                 }
 
+                $this->addFlash('success', $message);
                 return $this->redirectToRoute('app_compra_show', ['id' => $compra->getId()], Response::HTTP_SEE_OTHER);
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Error al procesar la compra: ' . $e->getMessage());
@@ -124,10 +120,8 @@ final class CompraController extends AbstractController
         $detalleCompra = new DetalleCompra();
         $formDetalle = $this->createForm(DetalleCompraType::class, $detalleCompra);
 
-        // Usar new.html.twig para create y edit.html.twig para edit
-        $template = $action === 'create' ? 'compra/new.html.twig' : 'compra/edit.html.twig';
-
-        return $this->render($template, [
+        $template = $action === 'create' ? 'new.html.twig' : 'edit.html.twig';
+        return $this->render("compra/{$template}", [
             'compra' => $compra,
             'form' => $form,
             'formDetalle' => $formDetalle,

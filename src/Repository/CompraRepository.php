@@ -3,11 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\Compra;
-use App\Service\Compra\Interface\CompraRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-class CompraRepository extends ServiceEntityRepository implements CompraRepositoryInterface
+class CompraRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

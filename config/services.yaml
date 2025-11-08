@@ -91,25 +91,20 @@ services:
     App\Service\Cliente\Interface\ClienteServiceInterface: '@App\Service\Cliente\ClienteService'
 
     # Servicios del módulo Compra
-    App\Service\Compra\CompraSearchService:
+    App\Service\Compra\CompraQueryService:
         arguments:
             $repository: '@App\Repository\CompraRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\Compra\CompraStatsService:
-        arguments:
-            $repository: '@App\Repository\CompraRepository'
-
-    App\Service\Compra\CompraOperationsService:
+    App\Service\Compra\CompraService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
             $commonService: '@App\Service\CommonService'
             $transactionService: '@App\Service\Core\TransactionService'
 
     # Alias para interfaces del módulo Compra
-    App\Service\Compra\Interface\CompraSearchInterface: '@App\Service\Compra\CompraSearchService'
-    App\Service\Compra\Interface\CompraStatsInterface: '@App\Service\Compra\CompraStatsService'
-    App\Service\Compra\Interface\CompraOperationsInterface: '@App\Service\Compra\CompraOperationsService'
+    App\Service\Compra\Interface\CompraQueryInterface: '@App\Service\Compra\CompraQueryService'
+    App\Service\Compra\Interface\CompraServiceInterface: '@App\Service\Compra\CompraService'
 
     # Servicios del módulo Venta
     App\Service\Venta\VentaSearchService:

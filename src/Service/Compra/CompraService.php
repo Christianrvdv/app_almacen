@@ -6,11 +6,11 @@ use App\Entity\Compra;
 use App\Entity\DetalleCompra;
 use App\Entity\Producto;
 use App\Service\CommonService;
-use App\Service\Compra\Interface\CompraOperationsInterface;
+use App\Service\Compra\Interface\CompraServiceInterface;
 use App\Service\Core\TransactionService;
 use Doctrine\ORM\EntityManagerInterface;
 
-class CompraOperationsService implements CompraOperationsInterface
+class CompraService implements CompraServiceInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
@@ -18,18 +18,18 @@ class CompraOperationsService implements CompraOperationsInterface
         private TransactionService $transactionService
     ) {}
 
-    public function createCompra(Compra $compra): void
+    public function create(Compra $compra): void
     {
-        $this->validateCompra($compra);
+        $this->validate($compra);
         $this->processCompraDetails($compra);
 
         $this->entityManager->persist($compra);
         $this->entityManager->flush();
     }
 
-    public function updateCompra(Compra $compra, array $originalDetalles = []): void
+    public function update(Compra $compra, array $originalDetalles = []): void
     {
-        $this->validateCompra($compra);
+        $this->validate($compra);
 
         if (!empty($originalDetalles)) {
             $this->transactionService->handleDetailChanges(
@@ -44,13 +44,13 @@ class CompraOperationsService implements CompraOperationsInterface
         $this->entityManager->flush();
     }
 
-    public function deleteCompra(Compra $compra): void
+    public function delete(Compra $compra): void
     {
         $this->entityManager->remove($compra);
         $this->entityManager->flush();
     }
 
-    public function initializeCompra(?Producto $producto = null): Compra
+    public function initialize(?Producto $producto = null): Compra
     {
         $compra = new Compra();
         $compra->setFecha($this->commonService->getCurrentDateTime());
@@ -70,7 +70,7 @@ class CompraOperationsService implements CompraOperationsInterface
         return $compra;
     }
 
-    private function validateCompra(Compra $compra): void
+    private function validate(Compra $compra): void
     {
         if (!$compra->getFecha()) {
             throw new \InvalidArgumentException('La fecha de compra es obligatoria');
