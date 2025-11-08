@@ -76,24 +76,19 @@ services:
     App\Service\Producto\Interface\ProductoOperationsInterface: '@App\Service\Producto\ProductoOperationsService'
 
     # Servicios del módulo Cliente
-    App\Service\Cliente\ClienteSearchService:
+    App\Service\Cliente\ClienteQueryService:
         arguments:
             $repository: '@App\Repository\ClienteRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\Cliente\ClienteStatsService:
-        arguments:
-            $repository: '@App\Repository\ClienteRepository'
-
-    App\Service\Cliente\ClienteOperationsService:
+    App\Service\Cliente\ClienteService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
             $commonService: '@App\Service\CommonService'
 
     # Alias para interfaces del módulo Cliente
-    App\Service\Cliente\Interface\ClienteSearchInterface: '@App\Service\Cliente\ClienteSearchService'
-    App\Service\Cliente\Interface\ClienteStatsInterface: '@App\Service\Cliente\ClienteStatsService'
-    App\Service\Cliente\Interface\ClienteOperationsInterface: '@App\Service\Cliente\ClienteOperationsService'
+    App\Service\Cliente\Interface\ClienteQueryInterface: '@App\Service\Cliente\ClienteQueryService'
+    App\Service\Cliente\Interface\ClienteServiceInterface: '@App\Service\Cliente\ClienteService'
 
     # Servicios del módulo Compra
     App\Service\Compra\CompraSearchService:

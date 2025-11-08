@@ -5,9 +5,8 @@ namespace App\Controller;
 use App\Entity\Cliente;
 use App\Form\ClienteType;
 use App\Repository\ClienteRepository;
-use App\Service\Cliente\Interface\ClienteOperationsInterface;
-use App\Service\Cliente\Interface\ClienteSearchInterface;
-use App\Service\Cliente\Interface\ClienteStatsInterface;
+use App\Service\Cliente\Interface\ClienteQueryInterface;
+use App\Service\Cliente\Interface\ClienteServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,16 +16,15 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ClienteController extends AbstractController
 {
     public function __construct(
-        private ClienteSearchInterface $searchService,
-        private ClienteStatsInterface $statsService,
-        private ClienteOperationsInterface $operationsService
+        private ClienteQueryInterface $queryService,
+        private ClienteServiceInterface $clienteService
     ) {}
 
     #[Route(name: 'app_cliente_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $searchResult = $this->searchService->searchAndPaginate($request);
-        $statistics = $this->statsService->getStatistics();
+        $searchResult = $this->queryService->searchAndPaginate($request);
+        $statistics = $this->queryService->getStatistics();
 
         return $this->render('cliente/index.html.twig', [
             'clientes' => $searchResult['pagination'],
@@ -42,20 +40,45 @@ final class ClienteController extends AbstractController
     public function new(Request $request): Response
     {
         $cliente = new Cliente();
+        return $this->handleClienteForm($request, $cliente, 'create');
+    }
+
+    #[Route('/{id}/edit', name: 'app_cliente_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Cliente $cliente): Response
+    {
+        return $this->handleClienteForm($request, $cliente, 'update');
+    }
+
+    private function handleClienteForm(Request $request, Cliente $cliente, string $operation): Response
+    {
         $form = $this->createForm(ClienteType::class, $cliente);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                $this->operationsService->createCliente($cliente);
-                $this->addFlash('success', 'El cliente ha sido creado correctamente.');
-                return $this->redirectToRoute('app_cliente_index', [], Response::HTTP_SEE_OTHER);
+                if ($operation === 'create') {
+                    $this->clienteService->create($cliente);
+                    $message = 'El cliente ha sido creado correctamente.';
+                    $redirectRoute = 'app_cliente_index';
+                } else {
+                    $this->clienteService->update($cliente);
+                    $message = 'El cliente ha sido actualizado correctamente.';
+                    $redirectRoute = 'app_cliente_show';
+                }
+
+                $this->addFlash('success', $message);
+                return $this->redirectToRoute(
+                    $redirectRoute,
+                    $operation === 'update' ? ['id' => $cliente->getId()] : [],
+                    Response::HTTP_SEE_OTHER
+                );
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Error al crear el cliente: ' . $e->getMessage());
+                $this->addFlash('error', 'Error al procesar el cliente: ' . $e->getMessage());
             }
         }
 
-        return $this->render('cliente/new.html.twig', [
+        $template = $operation === 'create' ? 'new.html.twig' : 'edit.html.twig';
+        return $this->render("cliente/{$template}", [
             'cliente' => $cliente,
             'form' => $form,
         ]);
@@ -71,34 +94,12 @@ final class ClienteController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_cliente_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Cliente $cliente): Response
-    {
-        $form = $this->createForm(ClienteType::class, $cliente);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            try {
-                $this->operationsService->updateCliente($cliente);
-                $this->addFlash('success', 'El cliente ha sido actualizado correctamente.');
-                return $this->redirectToRoute('app_cliente_show', ['id' => $cliente->getId()], Response::HTTP_SEE_OTHER);
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'Error al actualizar el cliente: ' . $e->getMessage());
-            }
-        }
-
-        return $this->render('cliente/edit.html.twig', [
-            'cliente' => $cliente,
-            'form' => $form,
-        ]);
-    }
-
     #[Route('/{id}', name: 'app_cliente_delete', methods: ['POST'])]
     public function delete(Request $request, Cliente $cliente): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $cliente->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$cliente->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
             try {
-                $this->operationsService->deleteCliente($cliente);
+                $this->clienteService->delete($cliente);
                 $this->addFlash('success', 'El cliente ha sido eliminado correctamente.');
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Error al eliminar el cliente: ' . $e->getMessage());

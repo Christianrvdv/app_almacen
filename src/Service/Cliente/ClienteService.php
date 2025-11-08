@@ -3,39 +3,39 @@
 namespace App\Service\Cliente;
 
 use App\Entity\Cliente;
-use App\Service\Cliente\Interface\ClienteOperationsInterface;
+use App\Service\Cliente\Interface\ClienteServiceInterface;
 use App\Service\CommonService;
 use Doctrine\ORM\EntityManagerInterface;
 
-class ClienteOperationsService implements ClienteOperationsInterface
+class ClienteService implements ClienteServiceInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
         private CommonService $commonService
     ) {}
 
-    public function createCliente(Cliente $cliente): void
+    public function create(Cliente $cliente): void
     {
-        $this->validateCliente($cliente);
+        $this->validate($cliente);
         $this->setDefaultValues($cliente);
 
         $this->entityManager->persist($cliente);
         $this->entityManager->flush();
     }
 
-    public function updateCliente(Cliente $cliente): void
+    public function update(Cliente $cliente): void
     {
-        $this->validateCliente($cliente);
+        $this->validate($cliente);
         $this->entityManager->flush();
     }
 
-    public function deleteCliente(Cliente $cliente): void
+    public function delete(Cliente $cliente): void
     {
         $this->entityManager->remove($cliente);
         $this->entityManager->flush();
     }
 
-    private function validateCliente(Cliente $cliente): void
+    private function validate(Cliente $cliente): void
     {
         if (empty($cliente->getNombre())) {
             throw new \InvalidArgumentException('El nombre no puede estar vacío');
