@@ -3,11 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\DetalleVenta;
-use App\Service\DetalleVenta\Interface\DetalleVentaRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-class DetalleVentaRepository extends ServiceEntityRepository implements DetalleVentaRepositoryInterface
+class DetalleVentaRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

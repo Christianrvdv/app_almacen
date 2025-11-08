@@ -4,9 +4,8 @@ namespace App\Controller;
 
 use App\Entity\DetalleVenta;
 use App\Form\DetalleVentaType;
-use App\Service\DetalleVenta\Interface\DetalleVentaOperationsInterface;
-use App\Service\DetalleVenta\Interface\DetalleVentaSearchInterface;
-use App\Service\DetalleVenta\Interface\DetalleVentaStatsInterface;
+use App\Service\DetalleVenta\Interface\DetalleVentaQueryInterface;
+use App\Service\DetalleVenta\Interface\DetalleVentaServiceInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,16 +15,15 @@ use Symfony\Component\Routing\Attribute\Route;
 final class DetalleVentaController extends AbstractController
 {
     public function __construct(
-        private DetalleVentaSearchInterface $searchService,
-        private DetalleVentaStatsInterface $statsService,
-        private DetalleVentaOperationsInterface $operationsService
+        private DetalleVentaQueryInterface $queryService,
+        private DetalleVentaServiceInterface $operationsService
     ) {}
 
     #[Route(name: 'app_detalle_venta_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $searchResult = $this->searchService->searchAndPaginate($request);
-        $statistics = $this->statsService->getStatistics();
+        $searchResult = $this->queryService->searchAndPaginate($request);
+        $statistics = $this->queryService->getStatistics();
 
         return $this->render('detalle_venta/index.html.twig', [
             'detalle_ventas' => $searchResult['pagination'],
@@ -40,20 +38,45 @@ final class DetalleVentaController extends AbstractController
     public function new(Request $request): Response
     {
         $detalleVenta = new DetalleVenta();
+        return $this->handleDetalleVentaForm($request, $detalleVenta, 'create');
+    }
+
+    #[Route('/{id}/edit', name: 'app_detalle_venta_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, DetalleVenta $detalleVenta): Response
+    {
+        return $this->handleDetalleVentaForm($request, $detalleVenta, 'update');
+    }
+
+    private function handleDetalleVentaForm(Request $request, DetalleVenta $detalleVenta, string $operation): Response
+    {
         $form = $this->createForm(DetalleVentaType::class, $detalleVenta);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                $this->operationsService->createDetalleVenta($detalleVenta);
-                $this->addFlash('success', 'El detalle de venta ha sido creado correctamente.');
-                return $this->redirectToRoute('app_detalle_venta_index', [], Response::HTTP_SEE_OTHER);
+                if ($operation === 'create') {
+                    $this->operationsService->create($detalleVenta);
+                    $message = 'El detalle de venta ha sido creado correctamente.';
+                    $redirectRoute = 'app_detalle_venta_index';
+                } else {
+                    $this->operationsService->update($detalleVenta);
+                    $message = 'El detalle de venta ha sido actualizado correctamente.';
+                    $redirectRoute = 'app_detalle_venta_show';
+                }
+
+                $this->addFlash('success', $message);
+                return $this->redirectToRoute(
+                    $redirectRoute,
+                    $operation === 'update' ? ['id' => $detalleVenta->getId()] : [],
+                    Response::HTTP_SEE_OTHER
+                );
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Error al crear el detalle de venta: ' . $e->getMessage());
+                $this->addFlash('error', 'Error al procesar el detalle de venta: ' . $e->getMessage());
             }
         }
 
-        return $this->render('detalle_venta/new.html.twig', [
+        $template = $operation === 'create' ? 'new.html.twig' : 'edit.html.twig';
+        return $this->render("detalle_venta/{$template}", [
             'detalle_venta' => $detalleVenta,
             'form' => $form,
         ]);
@@ -67,34 +90,12 @@ final class DetalleVentaController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_detalle_venta_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, DetalleVenta $detalleVenta): Response
-    {
-        $form = $this->createForm(DetalleVentaType::class, $detalleVenta);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            try {
-                $this->operationsService->updateDetalleVenta($detalleVenta);
-                $this->addFlash('success', 'El detalle de venta ha sido actualizado correctamente.');
-                return $this->redirectToRoute('app_detalle_venta_index', [], Response::HTTP_SEE_OTHER);
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'Error al actualizar el detalle de venta: ' . $e->getMessage());
-            }
-        }
-
-        return $this->render('detalle_venta/edit.html.twig', [
-            'detalle_venta' => $detalleVenta,
-            'form' => $form,
-        ]);
-    }
-
     #[Route('/{id}', name: 'app_detalle_venta_delete', methods: ['POST'])]
     public function delete(Request $request, DetalleVenta $detalleVenta): Response
     {
         if ($this->isCsrfTokenValid('delete'.$detalleVenta->getId(), $request->getPayload()->getString('_token'))) {
             try {
-                $this->operationsService->deleteDetalleVenta($detalleVenta);
+                $this->operationsService->delete($detalleVenta);
                 $this->addFlash('success', 'El detalle de venta ha sido eliminado correctamente.');
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Error al eliminar el detalle de venta: ' . $e->getMessage());

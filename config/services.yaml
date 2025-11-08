@@ -166,24 +166,19 @@ services:
     App\Service\HistorialPrecios\Interface\HistorialPreciosStatsInterface: '@App\Service\HistorialPrecios\HistorialPreciosStatsService'
     App\Service\HistorialPrecios\Interface\HistorialPreciosOperationsInterface: '@App\Service\HistorialPrecios\HistorialPreciosOperationsService'
 
-    # Servicios del módulo DetalleVenta
-    App\Service\DetalleVenta\DetalleVentaSearchService:
+    # Servicios del módulo DetalleVenta (refactorizados)
+    App\Service\DetalleVenta\DetalleVentaQueryService:
         arguments:
             $repository: '@App\Repository\DetalleVentaRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\DetalleVenta\DetalleVentaStatsService:
-        arguments:
-            $repository: '@App\Repository\DetalleVentaRepository'
-
-    App\Service\DetalleVenta\DetalleVentaOperationsService:
+    App\Service\DetalleVenta\DetalleVentaService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
 
     # Alias para interfaces del módulo DetalleVenta
-    App\Service\DetalleVenta\Interface\DetalleVentaSearchInterface: '@App\Service\DetalleVenta\DetalleVentaSearchService'
-    App\Service\DetalleVenta\Interface\DetalleVentaStatsInterface: '@App\Service\DetalleVenta\DetalleVentaStatsService'
-    App\Service\DetalleVenta\Interface\DetalleVentaOperationsInterface: '@App\Service\DetalleVenta\DetalleVentaOperationsService'
+    App\Service\DetalleVenta\Interface\DetalleVentaQueryInterface: '@App\Service\DetalleVenta\DetalleVentaQueryService'
+    App\Service\DetalleVenta\Interface\DetalleVentaServiceInterface: '@App\Service\DetalleVenta\DetalleVentaService'
 
     # Servicios del módulo DetalleCompra (refactorizados)
     App\Service\DetalleCompra\DetalleCompraQueryService:
