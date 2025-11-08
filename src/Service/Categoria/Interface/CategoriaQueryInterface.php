@@ -4,7 +4,8 @@ namespace App\Service\Categoria\Interface;
 
 use Symfony\Component\HttpFoundation\Request;
 
-interface CategoriaSearchInterface
+interface CategoriaQueryInterface
 {
     public function searchAndPaginate(Request $request): array;
+    public function getStatistics(): array;
 }

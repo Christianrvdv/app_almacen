@@ -3,35 +3,35 @@
 namespace App\Service\Categoria;
 
 use App\Entity\Categoria;
-use App\Service\Categoria\Interface\CategoriaOperationsInterface;
+use App\Service\Categoria\Interface\CategoriaServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-class CategoriaOperationsService implements CategoriaOperationsInterface
+class CategoriaService implements CategoriaServiceInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager
     ) {}
 
-    public function createCategoria(Categoria $categoria): void
+    public function create(Categoria $categoria): void
     {
-        $this->validateCategoria($categoria);
+        $this->validate($categoria);
         $this->entityManager->persist($categoria);
         $this->entityManager->flush();
     }
 
-    public function updateCategoria(Categoria $categoria): void
+    public function update(Categoria $categoria): void
     {
-        $this->validateCategoria($categoria);
+        $this->validate($categoria);
         $this->entityManager->flush();
     }
 
-    public function deleteCategoria(Categoria $categoria): void
+    public function delete(Categoria $categoria): void
     {
         $this->entityManager->remove($categoria);
         $this->entityManager->flush();
     }
 
-    private function validateCategoria(Categoria $categoria): void
+    private function validate(Categoria $categoria): void
     {
         if (empty($categoria->getNombre())) {
             throw new \InvalidArgumentException('El nombre no puede estar vacío');

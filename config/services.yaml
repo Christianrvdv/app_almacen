@@ -42,23 +42,18 @@ services:
     App\Service\AjusteInventario\Interface\AjusteInventarioQueryInterface: '@App\Service\AjusteInventario\AjusteInventarioQueryService'
 
     # Servicios del módulo Categoria
-    App\Service\Categoria\CategoriaSearchService:
+    App\Service\Categoria\CategoriaQueryService:
         arguments:
             $repository: '@App\Repository\CategoriaRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\Categoria\CategoriaStatsService:
-        arguments:
-            $repository: '@App\Repository\CategoriaRepository'
-
-    App\Service\Categoria\CategoriaOperationsService:
+    App\Service\Categoria\CategoriaService: # Cambiado el nombre
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
 
     # Alias para interfaces del módulo Categoria
-    App\Service\Categoria\Interface\CategoriaSearchInterface: '@App\Service\Categoria\CategoriaSearchService'
-    App\Service\Categoria\Interface\CategoriaStatsInterface: '@App\Service\Categoria\CategoriaStatsService'
-    App\Service\Categoria\Interface\CategoriaOperationsInterface: '@App\Service\Categoria\CategoriaOperationsService'
+    App\Service\Categoria\Interface\CategoriaQueryInterface: '@App\Service\Categoria\CategoriaQueryService'
+    App\Service\Categoria\Interface\CategoriaServiceInterface: '@App\Service\Categoria\CategoriaService'
 
     # Servicios del módulo Producto
     App\Service\Producto\ProductoSearchService:
