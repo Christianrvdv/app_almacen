@@ -185,25 +185,19 @@ services:
     App\Service\DetalleVenta\Interface\DetalleVentaStatsInterface: '@App\Service\DetalleVenta\DetalleVentaStatsService'
     App\Service\DetalleVenta\Interface\DetalleVentaOperationsInterface: '@App\Service\DetalleVenta\DetalleVentaOperationsService'
 
-    # Servicios del módulo DetalleCompra
-    App\Service\DetalleCompra\DetalleCompraSearchService:
+    # Servicios del módulo DetalleCompra (refactorizados)
+    App\Service\DetalleCompra\DetalleCompraQueryService:
         arguments:
             $repository: '@App\Repository\DetalleCompraRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\DetalleCompra\DetalleCompraStatsService:
-        arguments:
-            $repository: '@App\Repository\DetalleCompraRepository'
-
-    App\Service\DetalleCompra\DetalleCompraOperationsService:
+    App\Service\DetalleCompra\DetalleCompraService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
 
     # Alias para interfaces del módulo DetalleCompra
-    App\Service\DetalleCompra\Interface\DetalleCompraSearchInterface: '@App\Service\DetalleCompra\DetalleCompraSearchService'
-    App\Service\DetalleCompra\Interface\DetalleCompraStatsInterface: '@App\Service\DetalleCompra\DetalleCompraStatsService'
-    App\Service\DetalleCompra\Interface\DetalleCompraOperationsInterface: '@App\Service\DetalleCompra\DetalleCompraOperationsService'
-    App\Service\DetalleCompra\Interface\DetalleCompraRepositoryInterface: '@App\Repository\DetalleCompraRepository'
+    App\Service\DetalleCompra\Interface\DetalleCompraQueryInterface: '@App\Service\DetalleCompra\DetalleCompraQueryService'
+    App\Service\DetalleCompra\Interface\DetalleCompraServiceInterface: '@App\Service\DetalleCompra\DetalleCompraService'
 
     # Servicios del Dashboard
     App\Service\Dashboard\DashboardStatsService:

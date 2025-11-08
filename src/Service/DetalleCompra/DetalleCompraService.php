@@ -3,37 +3,37 @@
 namespace App\Service\DetalleCompra;
 
 use App\Entity\DetalleCompra;
-use App\Service\DetalleCompra\Interface\DetalleCompraOperationsInterface;
+use App\Service\DetalleCompra\Interface\DetalleCompraServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-class DetalleCompraOperationsService implements DetalleCompraOperationsInterface
+class DetalleCompraService implements DetalleCompraServiceInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager
     ) {}
 
-    public function createDetalleCompra(DetalleCompra $detalleCompra): void
+    public function create(DetalleCompra $detalleCompra): void
     {
-        $this->validateDetalleCompra($detalleCompra);
+        $this->validate($detalleCompra);
         $this->calculateAndSetSubtotal($detalleCompra);
         $this->entityManager->persist($detalleCompra);
         $this->entityManager->flush();
     }
 
-    public function updateDetalleCompra(DetalleCompra $detalleCompra): void
+    public function update(DetalleCompra $detalleCompra): void
     {
-        $this->validateDetalleCompra($detalleCompra);
+        $this->validate($detalleCompra);
         $this->calculateAndSetSubtotal($detalleCompra);
         $this->entityManager->flush();
     }
 
-    public function deleteDetalleCompra(DetalleCompra $detalleCompra): void
+    public function delete(DetalleCompra $detalleCompra): void
     {
         $this->entityManager->remove($detalleCompra);
         $this->entityManager->flush();
     }
 
-    private function validateDetalleCompra(DetalleCompra $detalleCompra): void
+    public function validate(DetalleCompra $detalleCompra): void
     {
         if ($detalleCompra->getCantidad() <= 0) {
             throw new \InvalidArgumentException('La cantidad debe ser mayor a cero');

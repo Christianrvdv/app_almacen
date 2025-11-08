@@ -2,15 +2,15 @@
 
 namespace App\Service\DetalleCompra;
 
-use App\Service\DetalleCompra\Interface\DetalleCompraRepositoryInterface;
-use App\Service\DetalleCompra\Interface\DetalleCompraSearchInterface;
+use App\Repository\DetalleCompraRepository;
+use App\Service\DetalleCompra\Interface\DetalleCompraQueryInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class DetalleCompraSearchService implements DetalleCompraSearchInterface
+class DetalleCompraQueryService implements DetalleCompraQueryInterface
 {
     public function __construct(
-        private DetalleCompraRepositoryInterface $repository,
+        private DetalleCompraRepository $repository,
         private PaginatorInterface $paginator
     ) {}
 
@@ -38,6 +38,28 @@ class DetalleCompraSearchService implements DetalleCompraSearchInterface
                 10
             ),
             'searchTerm' => $searchTerm
+        ];
+    }
+
+    public function getStatistics(): array
+    {
+        $totalDetalles = $this->repository->count([]);
+
+        $totalConProducto = $this->repository->createQueryBuilder('d')
+            ->select('COUNT(d.id)')
+            ->where('d.producto IS NOT NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $sumaSubtotal = $this->repository->createQueryBuilder('d')
+            ->select('SUM(d.subtotal)')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return [
+            'totalDetalles' => $totalDetalles,
+            'totalConProducto' => $totalConProducto,
+            'sumaSubtotal' => $sumaSubtotal ?? 0,
         ];
     }
 }

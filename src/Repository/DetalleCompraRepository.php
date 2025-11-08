@@ -3,14 +3,13 @@
 namespace App\Repository;
 
 use App\Entity\DetalleCompra;
-use App\Service\DetalleCompra\Interface\DetalleCompraRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<DetalleCompra>
  */
-class DetalleCompraRepository extends ServiceEntityRepository implements DetalleCompraRepositoryInterface
+class DetalleCompraRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
