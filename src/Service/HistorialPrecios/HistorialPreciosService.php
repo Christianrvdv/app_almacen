@@ -5,47 +5,69 @@ namespace App\Service\HistorialPrecios;
 use App\Entity\HistorialPrecios;
 use App\Entity\Producto;
 use App\Repository\HistorialPreciosRepository;
-use App\Service\HistorialPrecios\Interface\HistorialPreciosOperationsInterface;
+use App\Service\HistorialPrecios\Interface\HistorialPreciosServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-class HistorialPreciosOperationsService implements HistorialPreciosOperationsInterface
+class HistorialPreciosService implements HistorialPreciosServiceInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
         private HistorialPreciosRepository $repository
     ) {}
 
-    public function createHistorialPrecios(HistorialPrecios $historialPrecios, Producto $producto): void
+    public function create(HistorialPrecios $historialPrecios): void
     {
-        $this->validateHistorialPrecios($historialPrecios);
-
-        // Actualizar precio del producto según el tipo
-        if ($historialPrecios->getTipo() === "venta") {
-            $producto->setPrecioVentaActual($historialPrecios->getPrecioNuevo());
-        } else {
-            $producto->setPrecioCompra($historialPrecios->getPrecioNuevo());
-        }
-
+        $this->validate($historialPrecios);
+        $this->updateProductPrice($historialPrecios);
         $this->entityManager->persist($historialPrecios);
         $this->entityManager->flush();
     }
 
-    public function updateHistorialPrecios(HistorialPrecios $historialPrecios): void
+    public function update(HistorialPrecios $historialPrecios): void
     {
-        $this->validateHistorialPrecios($historialPrecios);
+        $this->validate($historialPrecios);
+        $this->updateProductPrice($historialPrecios);
+        $this->entityManager->flush();
+    }
+
+    public function delete(HistorialPrecios $historialPrecios): void
+    {
+        $this->revertProductPrice($historialPrecios);
+        $this->entityManager->remove($historialPrecios);
+        $this->entityManager->flush();
+    }
+
+    public function validate(HistorialPrecios $historialPrecios): void
+    {
+        if (empty($historialPrecios->getTipo())) {
+            throw new \InvalidArgumentException('El tipo no puede estar vacío');
+        }
+
+        if ($historialPrecios->getPrecioNuevo() === null) {
+            throw new \InvalidArgumentException('El precio nuevo no puede estar vacío');
+        }
+
+        if (!in_array($historialPrecios->getTipo(), ['compra', 'venta'])) {
+            throw new \InvalidArgumentException('El tipo debe ser "compra" o "venta"');
+        }
+
+        if (!$historialPrecios->getProducto()) {
+            throw new \InvalidArgumentException('El producto es requerido');
+        }
+    }
+
+    private function updateProductPrice(HistorialPrecios $historialPrecios): void
+    {
         $producto = $historialPrecios->getProducto();
 
-        // Actualizar precio del producto según el tipo
         if ($historialPrecios->getTipo() === "venta") {
             $producto->setPrecioVentaActual($historialPrecios->getPrecioNuevo());
         } else {
             $producto->setPrecioCompra($historialPrecios->getPrecioNuevo());
         }
-
-        $this->entityManager->flush();
     }
 
-    public function deleteHistorialPrecios(HistorialPrecios $historialPrecios): void
+    private function revertProductPrice(HistorialPrecios $historialPrecios): void
     {
         $producto = $historialPrecios->getProducto();
         $tipo = $historialPrecios->getTipo();
@@ -73,24 +95,6 @@ class HistorialPreciosOperationsService implements HistorialPreciosOperationsInt
             $producto->setPrecioVentaActual($nuevoPrecio);
         } else {
             $producto->setPrecioCompra($nuevoPrecio);
-        }
-
-        $this->entityManager->remove($historialPrecios);
-        $this->entityManager->flush();
-    }
-
-    private function validateHistorialPrecios(HistorialPrecios $historialPrecios): void
-    {
-        if (empty($historialPrecios->getTipo())) {
-            throw new \InvalidArgumentException('El tipo no puede estar vacío');
-        }
-
-        if ($historialPrecios->getPrecioNuevo() === null) {
-            throw new \InvalidArgumentException('El precio nuevo no puede estar vacío');
-        }
-
-        if (!in_array($historialPrecios->getTipo(), ['compra', 'venta'])) {
-            throw new \InvalidArgumentException('El tipo debe ser "compra" o "venta"');
         }
     }
 }

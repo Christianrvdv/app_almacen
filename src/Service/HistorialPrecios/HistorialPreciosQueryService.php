@@ -3,11 +3,11 @@
 namespace App\Service\HistorialPrecios;
 
 use App\Repository\HistorialPreciosRepository;
-use App\Service\HistorialPrecios\Interface\HistorialPreciosSearchInterface;
+use App\Service\HistorialPrecios\Interface\HistorialPreciosQueryInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class HistorialPreciosSearchService implements HistorialPreciosSearchInterface
+class HistorialPreciosQueryService implements HistorialPreciosQueryInterface
 {
     public function __construct(
         private HistorialPreciosRepository $repository,
@@ -39,5 +39,29 @@ class HistorialPreciosSearchService implements HistorialPreciosSearchInterface
             ),
             'searchTerm' => $searchTerm
         ];
+    }
+
+    public function getStatistics(): array
+    {
+        $totalRegistros = $this->repository->count([]);
+        $totalVenta = $this->repository->count(['tipo' => 'venta']);
+        $totalCompra = $this->repository->count(['tipo' => 'compra']);
+        $totalAjustePromo = $this->repository->createQueryBuilder('h')
+            ->select('COUNT(h.id)')
+            ->where("h.tipo IN ('promocion', 'ajuste')")
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return [
+            'totalRegistros' => $totalRegistros,
+            'totalVenta' => $totalVenta,
+            'totalCompra' => $totalCompra,
+            'totalAjustePromo' => $totalAjustePromo,
+        ];
+    }
+
+    public function findLastByProductAndType($producto, string $type): ?object
+    {
+        return $this->repository->findLastByProductAndType($producto, $type);
     }
 }

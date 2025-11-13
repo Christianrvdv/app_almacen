@@ -146,25 +146,20 @@ services:
     App\Service\Proveedor\Interface\ProveedorStatsInterface: '@App\Service\Proveedor\ProveedorStatsService'
     App\Service\Proveedor\Interface\ProveedorOperationsInterface: '@App\Service\Proveedor\ProveedorOperationsService'
 
-    # Servicios del módulo HistorialPrecios
-    App\Service\HistorialPrecios\HistorialPreciosSearchService:
+    # Servicios del módulo HistorialPrecios (refactorizados)
+    App\Service\HistorialPrecios\HistorialPreciosQueryService:
         arguments:
             $repository: '@App\Repository\HistorialPreciosRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\HistorialPrecios\HistorialPreciosStatsService:
-        arguments:
-            $repository: '@App\Repository\HistorialPreciosRepository'
-
-    App\Service\HistorialPrecios\HistorialPreciosOperationsService:
+    App\Service\HistorialPrecios\HistorialPreciosService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
             $repository: '@App\Repository\HistorialPreciosRepository'
 
     # Alias para interfaces del módulo HistorialPrecios
-    App\Service\HistorialPrecios\Interface\HistorialPreciosSearchInterface: '@App\Service\HistorialPrecios\HistorialPreciosSearchService'
-    App\Service\HistorialPrecios\Interface\HistorialPreciosStatsInterface: '@App\Service\HistorialPrecios\HistorialPreciosStatsService'
-    App\Service\HistorialPrecios\Interface\HistorialPreciosOperationsInterface: '@App\Service\HistorialPrecios\HistorialPreciosOperationsService'
+    App\Service\HistorialPrecios\Interface\HistorialPreciosQueryInterface: '@App\Service\HistorialPrecios\HistorialPreciosQueryService'
+    App\Service\HistorialPrecios\Interface\HistorialPreciosServiceInterface: '@App\Service\HistorialPrecios\HistorialPreciosService'
 
     # Servicios del módulo DetalleVenta (refactorizados)
     App\Service\DetalleVenta\DetalleVentaQueryService:
