@@ -5,11 +5,11 @@ namespace App\Service\Venta;
 use App\Entity\Venta;
 use App\Service\CommonService;
 use App\Service\Core\TransactionService;
-use App\Service\Venta\Interface\VentaOperationsInterface;
+use App\Service\Venta\Interface\VentaServiceInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 
-class VentaOperationsService implements VentaOperationsInterface
+class VentaService implements VentaServiceInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
@@ -17,18 +17,18 @@ class VentaOperationsService implements VentaOperationsInterface
         private TransactionService $transactionService
     ) {}
 
-    public function createVenta(Venta $venta): void
+    public function create(Venta $venta): void
     {
-        $this->validateVenta($venta);
+        $this->validate($venta);
         $this->processVentaDetails($venta);
 
         $this->entityManager->persist($venta);
         $this->entityManager->flush();
     }
 
-    public function updateVenta(Venta $venta, ArrayCollection $originalDetalles): void
+    public function update(Venta $venta, ArrayCollection $originalDetalles): void
     {
-        $this->validateVenta($venta);
+        $this->validate($venta);
 
         if (!$originalDetalles->isEmpty()) {
             $this->transactionService->handleDetailChanges(
@@ -43,20 +43,13 @@ class VentaOperationsService implements VentaOperationsInterface
         $this->entityManager->flush();
     }
 
-    public function deleteVenta(Venta $venta): void
+    public function delete(Venta $venta): void
     {
         $this->entityManager->remove($venta);
         $this->entityManager->flush();
     }
 
-    public function initializeVenta(): Venta
-    {
-        $venta = new Venta();
-        $venta->setFecha($this->commonService->getCurrentDateTime());
-        return $venta;
-    }
-
-    private function validateVenta(Venta $venta): void
+    public function validate(Venta $venta): void
     {
         if (!$venta->getFecha()) {
             throw new \InvalidArgumentException('La fecha de venta es obligatoria');
@@ -65,6 +58,13 @@ class VentaOperationsService implements VentaOperationsInterface
         if ($venta->getDetalleVentas()->isEmpty()) {
             throw new \InvalidArgumentException('La venta debe tener al menos un detalle');
         }
+    }
+
+    public function initializeVenta(): Venta
+    {
+        $venta = new Venta();
+        $venta->setFecha($this->commonService->getCurrentDateTime());
+        return $venta;
     }
 
     private function processVentaDetails(Venta $venta): void

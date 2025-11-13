@@ -3,11 +3,11 @@
 namespace App\Service\Venta;
 
 use App\Repository\VentaRepository;
-use App\Service\Venta\Interface\VentaSearchInterface;
+use App\Service\Venta\Interface\VentaQueryInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class VentaSearchService implements VentaSearchInterface
+class VentaQueryService implements VentaQueryInterface
 {
     public function __construct(
         private VentaRepository $repository,
@@ -45,6 +45,27 @@ class VentaSearchService implements VentaSearchInterface
                 10
             ),
             'searchTerm' => $searchTerm
+        ];
+    }
+
+    public function getStatistics(): array
+    {
+        $totalVentas = $this->repository->count([]);
+        $totalCompletadas = $this->repository->count(['estado' => 'completada']);
+        $totalPendientes = $this->repository->count(['estado' => 'pendiente']);
+
+        $totalIngresos = $this->repository->createQueryBuilder('v')
+            ->select('SUM(v.total)')
+            ->where('v.estado = :estado')
+            ->setParameter('estado', 'completada')
+            ->getQuery()
+            ->getSingleScalarResult() ?? 0;
+
+        return [
+            'totalVentas' => $totalVentas,
+            'totalCompletadas' => $totalCompletadas,
+            'totalPendientes' => $totalPendientes,
+            'totalIngresos' => $totalIngresos,
         ];
     }
 }

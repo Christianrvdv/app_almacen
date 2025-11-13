@@ -101,26 +101,21 @@ services:
     App\Service\Compra\Interface\CompraQueryInterface: '@App\Service\Compra\CompraQueryService'
     App\Service\Compra\Interface\CompraServiceInterface: '@App\Service\Compra\CompraService'
 
-    # Servicios del módulo Venta
-    App\Service\Venta\VentaSearchService:
+    # Servicios del módulo Venta (refactorizados)
+    App\Service\Venta\VentaQueryService:
         arguments:
             $repository: '@App\Repository\VentaRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\Venta\VentaStatsService:
-        arguments:
-            $repository: '@App\Repository\VentaRepository'
-
-    App\Service\Venta\VentaOperationsService:
+    App\Service\Venta\VentaService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
             $commonService: '@App\Service\CommonService'
             $transactionService: '@App\Service\Core\TransactionService'
 
     # Alias para interfaces del módulo Venta
-    App\Service\Venta\Interface\VentaSearchInterface: '@App\Service\Venta\VentaSearchService'
-    App\Service\Venta\Interface\VentaStatsInterface: '@App\Service\Venta\VentaStatsService'
-    App\Service\Venta\Interface\VentaOperationsInterface: '@App\Service\Venta\VentaOperationsService'
+    App\Service\Venta\Interface\VentaQueryInterface: '@App\Service\Venta\VentaQueryService'
+    App\Service\Venta\Interface\VentaServiceInterface: '@App\Service\Venta\VentaService'
 
     # Servicios del módulo Proveedor (refactorizados)
     App\Service\Proveedor\ProveedorQueryService:
