@@ -4,10 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Producto;
 use App\Form\ProductoType;
-use App\Service\Core\InventoryService;
-use App\Service\Producto\Interface\ProductoOperationsInterface;
-use App\Service\Producto\Interface\ProductoSearchInterface;
-use App\Service\Producto\Interface\ProductoStatsInterface;
+use App\Service\Producto\Interface\ProductoServiceInterface;
+use App\Service\Producto\Interface\ProductoQueryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,17 +15,15 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ProductoController extends AbstractController
 {
     public function __construct(
-        private ProductoSearchInterface $searchService,
-        private ProductoStatsInterface $statsService,
-        private ProductoOperationsInterface $operationsService,
-        private InventoryService $inventoryService
+        private ProductoQueryInterface $queryService,
+        private ProductoServiceInterface $operationsService
     ) {}
 
-    #[Route('', name: 'app_producto_index', methods: ['GET'])]
+    #[Route(name: 'app_producto_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $searchResult = $this->searchService->searchAndPaginate($request);
-        $statistics = $this->statsService->getStatistics();
+        $searchResult = $this->queryService->searchAndPaginate($request);
+        $statistics = $this->queryService->getStatistics();
 
         return $this->render('producto/index.html.twig', [
             'productos' => $searchResult['pagination'],
@@ -43,57 +39,45 @@ final class ProductoController extends AbstractController
     public function new(Request $request): Response
     {
         $producto = new Producto();
-        $form = $this->createForm(ProductoType::class, $producto);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            try {
-                $this->operationsService->createProducto($producto);
-                $this->addFlash('success', 'El producto ha sido creado correctamente.');
-                return $this->redirectToRoute('app_producto_index', [], Response::HTTP_SEE_OTHER);
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'Error al crear el producto: ' . $e->getMessage());
-            }
-        }
-
-        return $this->render('producto/new.html.twig', [
-            'producto' => $producto,
-            'form' => $form,
-        ]);
-    }
-
-    #[Route('/{id}', name: 'app_producto_show', methods: ['GET'])]
-    public function show(Producto $producto): Response
-    {
-        $stats = $this->inventoryService->calculateProductStats($producto);
-
-        return $this->render('producto/show.html.twig', [
-            'producto' => $producto,
-            'stok' => $stats['stock'],
-            'ingresos' => $stats['ingresos'],
-            'ventas' => $stats['ventas'],
-            'margen' => $stats['margen'],
-            'modificaciones' => $stats['modificaciones'],
-        ]);
+        return $this->handleProductoForm($request, $producto, 'create');
     }
 
     #[Route('/{id}/edit', name: 'app_producto_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Producto $producto): Response
     {
+        return $this->handleProductoForm($request, $producto, 'update');
+    }
+
+    private function handleProductoForm(Request $request, Producto $producto, string $operation): Response
+    {
         $form = $this->createForm(ProductoType::class, $producto);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                $this->operationsService->updateProducto($producto);
-                $this->addFlash('success', 'El producto ha sido actualizado correctamente.');
-                return $this->redirectToRoute('app_producto_index', [], Response::HTTP_SEE_OTHER);
+                if ($operation === 'create') {
+                    $this->operationsService->create($producto);
+                    $message = 'El producto ha sido creado correctamente.';
+                    $redirectRoute = 'app_producto_index';
+                } else {
+                    $this->operationsService->update($producto);
+                    $message = 'El producto ha sido actualizado correctamente.';
+                    $redirectRoute = 'app_producto_show';
+                }
+
+                $this->addFlash('success', $message);
+                return $this->redirectToRoute(
+                    $redirectRoute,
+                    $operation === 'update' ? ['id' => $producto->getId()] : [],
+                    Response::HTTP_SEE_OTHER
+                );
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Error al actualizar el producto: ' . $e->getMessage());
+                $this->addFlash('error', 'Error al procesar el producto: ' . $e->getMessage());
             }
         }
 
-        return $this->render('producto/edit.html.twig', [
+        $template = $operation === 'create' ? 'new.html.twig' : 'edit.html.twig';
+        return $this->render("producto/{$template}", [
             'producto' => $producto,
             'form' => $form,
         ]);
@@ -104,7 +88,7 @@ final class ProductoController extends AbstractController
     {
         if ($this->isCsrfTokenValid('delete'.$producto->getId(), $request->getPayload()->getString('_token'))) {
             try {
-                $this->operationsService->deleteProducto($producto);
+                $this->operationsService->delete($producto);
                 $this->addFlash('success', 'El producto ha sido eliminado correctamente.');
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Error al eliminar el producto: ' . $e->getMessage());
@@ -116,16 +100,11 @@ final class ProductoController extends AbstractController
         return $this->redirectToRoute('app_producto_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    #[Route('/{id}/stats', name: 'app_producto_stats', methods: ['GET'])]
-    public function getStats(Producto $producto): Response
+    #[Route('/{id}', name: 'app_producto_show', methods: ['GET'])]
+    public function show(Producto $producto): Response
     {
-        $stats = $this->inventoryService->calculateProductStats($producto);
-
-        return $this->json([
-            'ventas_totales' => $stats['ventas'],
-            'stock_actual' => $stats['stock'],
-            'ingresos_generados' => $stats['ingresos'],
-            'veces_modificado' => $stats['modificaciones'],
+        return $this->render('producto/show.html.twig', [
+            'producto' => $producto,
         ]);
     }
 }

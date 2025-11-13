@@ -55,25 +55,20 @@ services:
     App\Service\Categoria\Interface\CategoriaQueryInterface: '@App\Service\Categoria\CategoriaQueryService'
     App\Service\Categoria\Interface\CategoriaServiceInterface: '@App\Service\Categoria\CategoriaService'
 
-    # Servicios del módulo Producto
-    App\Service\Producto\ProductoSearchService:
+    # Servicios del módulo Producto (refactorizados)
+    App\Service\Producto\ProductoQueryService:
         arguments:
             $repository: '@App\Repository\ProductoRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\Producto\ProductoStatsService:
-        arguments:
-            $repository: '@App\Repository\ProductoRepository'
-
-    App\Service\Producto\ProductoOperationsService:
+    App\Service\Producto\ProductoService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
             $commonService: '@App\Service\CommonService'
 
     # Alias para interfaces del módulo Producto
-    App\Service\Producto\Interface\ProductoSearchInterface: '@App\Service\Producto\ProductoSearchService'
-    App\Service\Producto\Interface\ProductoStatsInterface: '@App\Service\Producto\ProductoStatsService'
-    App\Service\Producto\Interface\ProductoOperationsInterface: '@App\Service\Producto\ProductoOperationsService'
+    App\Service\Producto\Interface\ProductoQueryInterface: '@App\Service\Producto\ProductoQueryService'
+    App\Service\Producto\Interface\ProductoServiceInterface: '@App\Service\Producto\ProductoService'
 
     # Servicios del módulo Cliente
     App\Service\Cliente\ClienteQueryService:

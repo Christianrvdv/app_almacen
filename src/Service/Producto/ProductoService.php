@@ -4,19 +4,19 @@ namespace App\Service\Producto;
 
 use App\Entity\Producto;
 use App\Service\CommonService;
-use App\Service\Producto\Interface\ProductoOperationsInterface;
+use App\Service\Producto\Interface\ProductoServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-class ProductoOperationsService implements ProductoOperationsInterface
+class ProductoService implements ProductoServiceInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
         private CommonService $commonService
     ) {}
 
-    public function createProducto(Producto $producto): void
+    public function create(Producto $producto): void
     {
-        $this->validateProducto($producto);
+        $this->validate($producto);
         $currentDateTime = $this->commonService->getCurrentDateTime();
         $producto->setFechaCreaccion($currentDateTime);
         $producto->setFechaActualizacion($currentDateTime);
@@ -25,15 +25,15 @@ class ProductoOperationsService implements ProductoOperationsInterface
         $this->entityManager->flush();
     }
 
-    public function updateProducto(Producto $producto): void
+    public function update(Producto $producto): void
     {
-        $this->validateProducto($producto);
+        $this->validate($producto);
         $producto->setFechaActualizacion($this->commonService->getCurrentDateTime());
 
         $this->entityManager->flush();
     }
 
-    public function deleteProducto(Producto $producto): void
+    public function delete(Producto $producto): void
     {
         // Eliminar registros relacionados
         foreach ($producto->getHistorialPrecios() as $historial) {
@@ -56,7 +56,7 @@ class ProductoOperationsService implements ProductoOperationsInterface
         $this->entityManager->flush();
     }
 
-    private function validateProducto(Producto $producto): void
+    public function validate(Producto $producto): void
     {
         if (empty($producto->getNombre())) {
             throw new \InvalidArgumentException('El nombre no puede estar vacío');

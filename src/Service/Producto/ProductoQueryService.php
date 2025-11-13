@@ -3,11 +3,11 @@
 namespace App\Service\Producto;
 
 use App\Repository\ProductoRepository;
-use App\Service\Producto\Interface\ProductoSearchInterface;
+use App\Service\Producto\Interface\ProductoQueryInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class ProductoSearchService implements ProductoSearchInterface
+class ProductoQueryService implements ProductoQueryInterface
 {
     public function __construct(
         private ProductoRepository $repository,
@@ -40,6 +40,25 @@ class ProductoSearchService implements ProductoSearchInterface
                 10
             ),
             'searchTerm' => $searchTerm
+        ];
+    }
+
+    public function getStatistics(): array
+    {
+        $totalProductos = $this->repository->count([]);
+        $totalActivos = $this->repository->count(['activo' => true]);
+        $totalInactivos = $this->repository->count(['activo' => false]);
+        $totalConCategoria = $this->repository->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->where('p.categoria IS NOT NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return [
+            'totalProductos' => $totalProductos,
+            'totalActivos' => $totalActivos,
+            'totalInactivos' => $totalInactivos,
+            'totalConCategoria' => $totalConCategoria,
         ];
     }
 }
