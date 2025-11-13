@@ -3,11 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\Proveedor;
-use App\Service\Proveedor\Interface\ProveedorRepositoryInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-class ProveedorRepository extends ServiceEntityRepository implements ProveedorRepositoryInterface
+class ProveedorRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

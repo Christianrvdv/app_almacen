@@ -4,9 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Proveedor;
 use App\Form\ProveedorType;
-use App\Service\Proveedor\Interface\ProveedorOperationsInterface;
-use App\Service\Proveedor\Interface\ProveedorSearchInterface;
-use App\Service\Proveedor\Interface\ProveedorStatsInterface;
+use App\Service\Proveedor\Interface\ProveedorServiceInterface;
+use App\Service\Proveedor\Interface\ProveedorQueryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,16 +15,15 @@ use Symfony\Component\Routing\Attribute\Route;
 final class ProveedorController extends AbstractController
 {
     public function __construct(
-        private ProveedorSearchInterface $searchService,
-        private ProveedorStatsInterface $statsService,
-        private ProveedorOperationsInterface $operationsService
+        private ProveedorQueryInterface $queryService,
+        private ProveedorServiceInterface $operationsService
     ) {}
 
     #[Route(name: 'app_proveedor_index', methods: ['GET'])]
     public function index(Request $request): Response
     {
-        $searchResult = $this->searchService->searchAndPaginate($request);
-        $statistics = $this->statsService->getStatistics();
+        $searchResult = $this->queryService->searchAndPaginate($request);
+        $statistics = $this->queryService->getStatistics();
 
         return $this->render('proveedor/index.html.twig', [
             'proveedors' => $searchResult['pagination'],
@@ -41,50 +39,45 @@ final class ProveedorController extends AbstractController
     public function new(Request $request): Response
     {
         $proveedor = new Proveedor();
-        $form = $this->createForm(ProveedorType::class, $proveedor);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            try {
-                $this->operationsService->createProveedor($proveedor);
-                $this->addFlash('success', 'El proveedor ha sido creado correctamente.');
-                return $this->redirectToRoute('app_proveedor_index', [], Response::HTTP_SEE_OTHER);
-            } catch (\Exception $e) {
-                $this->addFlash('error', 'Error al crear el proveedor: ' . $e->getMessage());
-            }
-        }
-
-        return $this->render('proveedor/new.html.twig', [
-            'proveedor' => $proveedor,
-            'form' => $form,
-        ]);
-    }
-
-    #[Route('/{id}', name: 'app_proveedor_show', methods: ['GET'])]
-    public function show(Proveedor $proveedor): Response
-    {
-        return $this->render('proveedor/show.html.twig', [
-            'proveedor' => $proveedor,
-        ]);
+        return $this->handleProveedorForm($request, $proveedor, 'create');
     }
 
     #[Route('/{id}/edit', name: 'app_proveedor_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Proveedor $proveedor): Response
     {
+        return $this->handleProveedorForm($request, $proveedor, 'update');
+    }
+
+    private function handleProveedorForm(Request $request, Proveedor $proveedor, string $operation): Response
+    {
         $form = $this->createForm(ProveedorType::class, $proveedor);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                $this->operationsService->updateProveedor($proveedor);
-                $this->addFlash('success', 'El proveedor ha sido actualizado correctamente.');
-                return $this->redirectToRoute('app_proveedor_index', [], Response::HTTP_SEE_OTHER);
+                if ($operation === 'create') {
+                    $this->operationsService->create($proveedor);
+                    $message = 'El proveedor ha sido creado correctamente.';
+                    $redirectRoute = 'app_proveedor_index';
+                } else {
+                    $this->operationsService->update($proveedor);
+                    $message = 'El proveedor ha sido actualizado correctamente.';
+                    $redirectRoute = 'app_proveedor_show';
+                }
+
+                $this->addFlash('success', $message);
+                return $this->redirectToRoute(
+                    $redirectRoute,
+                    $operation === 'update' ? ['id' => $proveedor->getId()] : [],
+                    Response::HTTP_SEE_OTHER
+                );
             } catch (\Exception $e) {
-                $this->addFlash('error', 'Error al actualizar el proveedor: ' . $e->getMessage());
+                $this->addFlash('error', 'Error al procesar el proveedor: ' . $e->getMessage());
             }
         }
 
-        return $this->render('proveedor/edit.html.twig', [
+        $template = $operation === 'create' ? 'new.html.twig' : 'edit.html.twig';
+        return $this->render("proveedor/{$template}", [
             'proveedor' => $proveedor,
             'form' => $form,
         ]);
@@ -93,9 +86,9 @@ final class ProveedorController extends AbstractController
     #[Route('/{id}', name: 'app_proveedor_delete', methods: ['POST'])]
     public function delete(Request $request, Proveedor $proveedor): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $proveedor->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$proveedor->getId(), $request->getPayload()->getString('_token'))) {
             try {
-                $this->operationsService->deleteProveedor($proveedor);
+                $this->operationsService->delete($proveedor);
                 $this->addFlash('success', 'El proveedor ha sido eliminado correctamente.');
             } catch (\Exception $e) {
                 $this->addFlash('error', 'Error al eliminar el proveedor: ' . $e->getMessage());
@@ -105,5 +98,13 @@ final class ProveedorController extends AbstractController
         }
 
         return $this->redirectToRoute('app_proveedor_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}', name: 'app_proveedor_show', methods: ['GET'])]
+    public function show(Proveedor $proveedor): Response
+    {
+        return $this->render('proveedor/show.html.twig', [
+            'proveedor' => $proveedor,
+        ]);
     }
 }

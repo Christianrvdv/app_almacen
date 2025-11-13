@@ -122,24 +122,19 @@ services:
     App\Service\Venta\Interface\VentaStatsInterface: '@App\Service\Venta\VentaStatsService'
     App\Service\Venta\Interface\VentaOperationsInterface: '@App\Service\Venta\VentaOperationsService'
 
-    # Servicios del módulo Proveedor
-    App\Service\Proveedor\ProveedorSearchService:
+    # Servicios del módulo Proveedor (refactorizados)
+    App\Service\Proveedor\ProveedorQueryService:
         arguments:
             $repository: '@App\Repository\ProveedorRepository'
             $paginator: '@knp_paginator'
 
-    App\Service\Proveedor\ProveedorStatsService:
-        arguments:
-            $repository: '@App\Repository\ProveedorRepository'
-
-    App\Service\Proveedor\ProveedorOperationsService:
+    App\Service\Proveedor\ProveedorService:
         arguments:
             $entityManager: '@doctrine.orm.entity_manager'
 
     # Alias para interfaces del módulo Proveedor
-    App\Service\Proveedor\Interface\ProveedorSearchInterface: '@App\Service\Proveedor\ProveedorSearchService'
-    App\Service\Proveedor\Interface\ProveedorStatsInterface: '@App\Service\Proveedor\ProveedorStatsService'
-    App\Service\Proveedor\Interface\ProveedorOperationsInterface: '@App\Service\Proveedor\ProveedorOperationsService'
+    App\Service\Proveedor\Interface\ProveedorQueryInterface: '@App\Service\Proveedor\ProveedorQueryService'
+    App\Service\Proveedor\Interface\ProveedorServiceInterface: '@App\Service\Proveedor\ProveedorService'
 
     # Servicios del módulo HistorialPrecios (refactorizados)
     App\Service\HistorialPrecios\HistorialPreciosQueryService:

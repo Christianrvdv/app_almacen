@@ -4,7 +4,8 @@ namespace App\Service\Proveedor\Interface;
 
 use Symfony\Component\HttpFoundation\Request;
 
-interface ProveedorSearchInterface
+interface ProveedorQueryInterface
 {
     public function searchAndPaginate(Request $request): array;
+    public function getStatistics(): array;
 }

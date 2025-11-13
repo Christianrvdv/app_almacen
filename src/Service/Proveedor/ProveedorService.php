@@ -3,35 +3,35 @@
 namespace App\Service\Proveedor;
 
 use App\Entity\Proveedor;
-use App\Service\Proveedor\Interface\ProveedorOperationsInterface;
+use App\Service\Proveedor\Interface\ProveedorServiceInterface;
 use Doctrine\ORM\EntityManagerInterface;
 
-class ProveedorOperationsService implements ProveedorOperationsInterface
+class ProveedorService implements ProveedorServiceInterface
 {
     public function __construct(
         private EntityManagerInterface $entityManager
     ) {}
 
-    public function createProveedor(Proveedor $proveedor): void
+    public function create(Proveedor $proveedor): void
     {
-        $this->validateProveedor($proveedor);
+        $this->validate($proveedor);
         $this->entityManager->persist($proveedor);
         $this->entityManager->flush();
     }
 
-    public function updateProveedor(Proveedor $proveedor): void
+    public function update(Proveedor $proveedor): void
     {
-        $this->validateProveedor($proveedor);
+        $this->validate($proveedor);
         $this->entityManager->flush();
     }
 
-    public function deleteProveedor(Proveedor $proveedor): void
+    public function delete(Proveedor $proveedor): void
     {
         $this->entityManager->remove($proveedor);
         $this->entityManager->flush();
     }
 
-    private function validateProveedor(Proveedor $proveedor): void
+    public function validate(Proveedor $proveedor): void
     {
         if (empty($proveedor->getNombre())) {
             throw new \InvalidArgumentException('El nombre no puede estar vacío');
