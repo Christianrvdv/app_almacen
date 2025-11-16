@@ -36,7 +36,3 @@ export function initIndexPage() {
     console.log('Listado de Clientes inicializado.');
 }
 
-// Función para limpiar búsqueda (definida en ámbito global)
-window.clearSearch = function() {
-    window.location.href = "{{ path('app_cliente_index') }}";
-}
