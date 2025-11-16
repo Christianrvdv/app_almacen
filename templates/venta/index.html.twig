@@ -126,9 +126,9 @@
                                        value="{{ searchTerm|default('') }}"
                                        id="search-input">
                                 {% if searchTerm %}
-                                    <button type="button" class="btn btn-outline-secondary" onclick="clearSearch()" title="Limpiar búsqueda">
+                                    <a href="{{ path('app_venta_index') }}" class="btn btn-outline-secondary" title="Limpiar búsqueda">
                                         <i class="fas fa-times"></i>
-                                    </button>
+                                    </a>
                                 {% endif %}
                                 <button type="submit" class="btn btn-primary">Buscar</button>
                             </div>
@@ -326,12 +326,6 @@
 
 {% block javascripts %}
     {{ parent() }}
-
-    <script>
-        function clearSearch() {
-            window.location.href = "{{ path('app_venta_index') }}";
-        }
-    </script>
 
     <script type="module">
         import { initIndexPage } from "{{ asset('js/venta/index.js') }}";

@@ -32,8 +32,3 @@ export function initIndexPage() {
 
     console.log('Listado de Ventas inicializado.');
 }
-
-// Función para limpiar búsqueda (definida en ámbito global)
-window.clearSearch = function() {
-    window.location.href = "{{ path('app_venta_index') }}";
-}
