@@ -97,7 +97,7 @@ final class ClienteController extends AbstractController
     #[Route('/{id}', name: 'app_cliente_delete', methods: ['POST'])]
     public function delete(Request $request, Cliente $cliente): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$cliente->getId()->toRfc4122(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete'.$cliente->getId(), $request->getPayload()->getString('_token'))) {
             try {
                 $this->clienteService->delete($cliente);
                 $this->addFlash('success', 'El cliente ha sido eliminado correctamente.');
