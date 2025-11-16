@@ -40,4 +40,17 @@ class ClienteRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findComprasTotalesCompletadasByCliente(Cliente $cliente): float
+    {
+        return $this->createQueryBuilder('c')
+            ->select('COALESCE(SUM(v.total), 0)')
+            ->join('c.ventas', 'v')
+            ->where('c.id = :clienteId')
+            ->andWhere('v.estado != :estadoPendiente')
+            ->setParameter('clienteId', $cliente->getId())
+            ->setParameter('estadoPendiente', 'pendiente')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

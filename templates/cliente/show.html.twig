@@ -115,7 +115,8 @@
                         <div class="detalle-card">
                             <div class="info-label">Compras Totales</div>
                             <div class="info-value price-highlight">
-                                ${{ cliente.compraTotales|number_format(2, ',', '.') }}</div>
+                                ${{ compras_totales_completadas|number_format(2, ',', '.') }}
+                            </div>
                         </div>
                         {% if deuda != 0 %}
                             <div class="detalle-card">
@@ -230,13 +231,14 @@
                     <div class="stat-label">Ventas Realizadas</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number text-success">${{ cliente.compraTotales|number_format(2, ',', '.') }}</div>
+                    <div class="stat-number text-success">${{ compras_totales_completadas|number_format(2, ',', '.') }}</div>
                     <div class="stat-label">Total en Compras</div>
                 </div>
+
                 <div class="stat-item">
                     <div class="stat-number text-warning">
                         {% if cliente.ventas|length > 0 %}
-                            ${{ (cliente.compraTotales / cliente.ventas|length)|number_format(2, ',', '.') }}
+                            ${{ (compras_totales_completadas / cliente.ventas|length)|number_format(2, ',', '.') }}
                         {% else %}
                             $0.00
                         {% endif %}

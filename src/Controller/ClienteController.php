@@ -88,9 +88,12 @@ final class ClienteController extends AbstractController
     public function show(ClienteRepository $clienteRepository, Cliente $cliente): Response
     {
         $deuda = $clienteRepository->findDeudaTotalByCliente($cliente);
+        $comprasTotalesCompletadas = $clienteRepository->findComprasTotalesCompletadasByCliente($cliente);
+
         return $this->render('cliente/show.html.twig', [
             'cliente' => $cliente,
             'deuda' => $deuda,
+            'compras_totales_completadas' => $comprasTotalesCompletadas,
         ]);
     }
 
