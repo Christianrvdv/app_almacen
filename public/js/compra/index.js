@@ -35,8 +35,3 @@ export function initIndexPage() {
 
     console.log('Listado de Compras inicializado.');
 }
-
-// Función para limpiar búsqueda (definida en ámbito global)
-window.clearSearch = function() {
-    window.location.href = "{{ path('app_compra_index') }}";
-}
