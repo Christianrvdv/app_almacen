@@ -8,6 +8,7 @@ use App\Entity\Producto;
 use App\Service\CommonService;
 use App\Service\Compra\Interface\CompraServiceInterface;
 use App\Service\Core\TransactionService;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CompraService implements CompraServiceInterface
@@ -27,11 +28,11 @@ class CompraService implements CompraServiceInterface
         $this->entityManager->flush();
     }
 
-    public function update(Compra $compra, array $originalDetalles = []): void
+    public function update(Compra $compra, ArrayCollection $originalDetalles = null): void
     {
         $this->validate($compra);
 
-        if (!empty($originalDetalles)) {
+        if ($originalDetalles !== null && !$originalDetalles->isEmpty()) {
             $this->transactionService->handleDetailChanges(
                 $originalDetalles,
                 $compra->getDetalleCompras(),

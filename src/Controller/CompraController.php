@@ -106,7 +106,7 @@ final class CompraController extends AbstractController
                     $this->compraService->create($compra);
                     $message = 'La compra ha sido registrada exitosamente.';
                 } else {
-                    $this->compraService->update($compra, $originalDetalles->toArray());
+                    $this->compraService->update($compra, $originalDetalles);
                     $message = 'La compra ha sido actualizada correctamente.';
                 }
 
