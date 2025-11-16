@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Producto;
 use App\Form\ProductoType;
+use App\Service\Core\InventoryService;
 use App\Service\Producto\Interface\ProductoServiceInterface;
 use App\Service\Producto\Interface\ProductoQueryInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,7 +17,8 @@ final class ProductoController extends AbstractController
 {
     public function __construct(
         private ProductoQueryInterface $queryService,
-        private ProductoServiceInterface $operationsService
+        private ProductoServiceInterface $operationsService,
+        private InventoryService $inventoryService
     ) {}
 
     #[Route(name: 'app_producto_index', methods: ['GET'])]
@@ -103,8 +105,15 @@ final class ProductoController extends AbstractController
     #[Route('/{id}', name: 'app_producto_show', methods: ['GET'])]
     public function show(Producto $producto): Response
     {
+        $stats = $this->inventoryService->calculateProductStats($producto);
+
         return $this->render('producto/show.html.twig', [
             'producto' => $producto,
+            'stok' => $stats['stock'],
+            'ingresos' => $stats['ingresos'],
+            'ventas' => $stats['ventas'],
+            'margen' => $stats['margen'],
+            'modificaciones' => $stats['modificaciones'],
         ]);
     }
 }
